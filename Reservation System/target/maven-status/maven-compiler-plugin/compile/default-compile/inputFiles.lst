@@ -6,8 +6,9 @@ D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\domain\model\PhoneNumber.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\domain\model\ProfilePicture.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\domain\model\User.java
+D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\exception\EmptyMediaException.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\exception\handler\GlobalHandler.java
-D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\exception\NotSupportedMediaException.java
+D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\exception\MediaNotSupportedException.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\infrastructure\inbound\RegistrationController.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\infrastructure\inbound\UserRequest.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\main\java\com\sz\reservation\registration\infrastructure\outbound\UserRegistrationMySqlDb.java

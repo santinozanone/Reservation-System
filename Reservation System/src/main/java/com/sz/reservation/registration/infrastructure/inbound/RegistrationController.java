@@ -1,20 +1,14 @@
 package com.sz.reservation.registration.infrastructure.inbound;
 
-import com.sz.reservation.util.FileValidator;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import com.sz.reservation.registration.domain.model.User;
 import com.sz.reservation.registration.application.useCase.RegistrationUseCase;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Controller
 @RequestMapping("/api/v1")

@@ -1,1 +1,2 @@
 com\sz\reservation\util\TikaFileValidatorTest.class
+com\sz\reservation\registration\application\useCase\RegistrationUseCaseTest.class

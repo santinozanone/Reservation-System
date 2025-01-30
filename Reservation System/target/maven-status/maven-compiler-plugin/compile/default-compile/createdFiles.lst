@@ -1,4 +1,3 @@
-com\sz\reservation\registration\exception\NotSupportedMediaException.class
 com\sz\reservation\util\FileValidator.class
 com\sz\reservation\registration\domain\model\ProfilePicture.class
 com\sz\reservation\util\TikaFileValidator.class
@@ -12,4 +11,6 @@ com\sz\reservation\configuration\DispatcherServlet.class
 com\sz\reservation\registration\application\port\outbound\UserRegistrationDb.class
 com\sz\reservation\registration\infrastructure\inbound\RegistrationController.class
 com\sz\reservation\registration\infrastructure\outbound\UserRegistrationMySqlDb.class
+com\sz\reservation\registration\exception\EmptyMediaException.class
 com\sz\reservation\registration\domain\model\User.class
+com\sz\reservation\registration\exception\MediaNotSupportedException.class

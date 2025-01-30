@@ -2,7 +2,7 @@ package com.sz.reservation.configuration;
 
 import com.sz.reservation.registration.application.port.outbound.UserRegistrationDb;
 import com.sz.reservation.registration.application.useCase.RegistrationUseCase;
-import com.sz.reservation.util.FileValidator;
+import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,12 +21,12 @@ public class RootConfig {
     }
 
     @Bean
-    public FileValidator tikaFileValidator(){
+    public FileTypeValidator tikaFileValidator(){
         return new TikaFileValidator();
     }
 
     @Bean
-    public RegistrationUseCase registrationUseCase(UserRegistrationDb userRegistrationDb, FileValidator fileValidator){
+    public RegistrationUseCase registrationUseCase(UserRegistrationDb userRegistrationDb, FileTypeValidator fileValidator){
         return new RegistrationUseCase(userRegistrationDb,fileValidator);
     }
 }
