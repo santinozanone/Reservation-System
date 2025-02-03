@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest" time="0.003" tests="4" errors="0" skipped="4" failures="0">
+  <properties/>
+  <testcase name="Should_ReturnFalse_When_InvalidNumber" classname="com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest" time="0.0">
+    <skipped message="class com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest is @Disabled"/>
+  </testcase>
+  <testcase name="Should_ReturnTrue_When_ValidPhoneNumberProvided" classname="com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest" time="0.0">
+    <skipped message="class com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest is @Disabled"/>
+  </testcase>
+  <testcase name="Should_ReturnFalse_When_NumberWithMoreCharactersThanValid" classname="com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest" time="0.0">
+    <skipped message="class com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest is @Disabled"/>
+  </testcase>
+  <testcase name="Should_ReturnFalse_When_NumberWithLessCharactersThanValid" classname="com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest" time="0.0">
+    <skipped message="class com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest is @Disabled"/>
+  </testcase>
+</testsuite>

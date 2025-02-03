@@ -1,2 +1,4 @@
-com\sz\reservation\util\TikaFileValidatorTest.class
 com\sz\reservation\registration\application\useCase\RegistrationUseCaseTest.class
+com\sz\reservation\registration\infrastructure\service\LocalSystemProfilePictureStorageTest.class
+com\sz\reservation\util\TikaFileValidatorTest.class
+com\sz\reservation\registration\infrastructure\service\libPhoneNumberValidatorTest.class

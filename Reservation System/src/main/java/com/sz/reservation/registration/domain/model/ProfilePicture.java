@@ -12,22 +12,24 @@ public class ProfilePicture {
 
     private String fileName;
 
-    private MultipartFile file;
+    private Image profileImage;
 
     private Dimension photoDimensions;
 
-    public ProfilePicture(String fileName, MultipartFile file, Dimension photoDimensions) {
+    public ProfilePicture(String fileName, Image profileImage, Dimension photoDimensions) {
         this.fileName = fileName;
-        this.file = file;
-        this.photoDimensions = photoDimensions;
+        this.profileImage = profileImage;
+        this.photoDimensions = photoDimensions; 
     }
+
+
 
     public String getFileName() {
         return fileName;
     }
 
-    public MultipartFile getFile() {
-        return file;
+    public Image getProfileImage() {
+        return profileImage;
     }
 
     public Dimension getPhotoDimensions() {

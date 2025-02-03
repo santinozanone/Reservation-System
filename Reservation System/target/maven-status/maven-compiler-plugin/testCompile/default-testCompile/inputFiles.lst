@@ -1,2 +1,4 @@
 D:\ReservationSystem\Reservation-System\Reservation System\src\test\java\com\sz\reservation\registration\application\useCase\RegistrationUseCaseTest.java
+D:\ReservationSystem\Reservation-System\Reservation System\src\test\java\com\sz\reservation\registration\infrastructure\service\libPhoneNumberValidatorTest.java
+D:\ReservationSystem\Reservation-System\Reservation System\src\test\java\com\sz\reservation\registration\infrastructure\service\LocalSystemProfilePictureStorageTest.java
 D:\ReservationSystem\Reservation-System\Reservation System\src\test\java\com\sz\reservation\util\TikaFileValidatorTest.java

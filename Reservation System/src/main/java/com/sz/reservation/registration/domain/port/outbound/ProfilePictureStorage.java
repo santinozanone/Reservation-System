@@ -1,0 +1,10 @@
+package com.sz.reservation.registration.domain.port.outbound;
+
+import com.sz.reservation.registration.domain.model.ProfilePicture;
+
+import java.awt.*;
+import java.io.IOException;
+
+public interface ProfilePictureStorage {
+    void store(ProfilePicture profilePicture) throws IOException;
+}

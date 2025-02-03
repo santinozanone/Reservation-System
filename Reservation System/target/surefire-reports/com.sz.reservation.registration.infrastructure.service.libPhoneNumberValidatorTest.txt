@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 4, Time elapsed: 0.003 s -- in com.sz.reservation.registration.infrastructure.service.libPhoneNumberValidatorTest
