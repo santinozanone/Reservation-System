@@ -6,5 +6,5 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public interface FileTypeValidator {
-    MediaType getRealFileType(InputStream fileInputStream) throws IOException;
+    MediaType getRealFileType(InputStream fileInputStream);
 }

@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 @DisplayName("Tika Validator Tests")
-@Disabled
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class TikaFileValidatorTest {
     private File outputFile;

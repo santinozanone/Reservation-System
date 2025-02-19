@@ -6,5 +6,6 @@ import java.awt.*;
 import java.io.IOException;
 
 public interface ProfilePictureStorage {
-    void store(ProfilePicture profilePicture) throws IOException;
+    String getStoringDirectory();
+    void store(Image profilePicture, String profilePicturePath) ;
 }

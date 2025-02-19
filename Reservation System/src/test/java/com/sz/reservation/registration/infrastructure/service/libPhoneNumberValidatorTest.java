@@ -1,16 +1,21 @@
 package com.sz.reservation.registration.infrastructure.service;
 
-import com.sz.reservation.registration.application.useCase.PhoneNumberValidator;
+import com.sz.reservation.registration.domain.service.PhoneNumberValidator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-@Disabled
+
 
 class libPhoneNumberValidatorTest {
-    private PhoneNumberValidator phoneNumberValidator = new libPhoneNumberValidator();
+    private PhoneNumberValidator phoneNumberValidator = new LibPhoneNumberValidator();
+
+    private Logger logger = LogManager.getLogger(libPhoneNumberValidatorTest.class);
+
 
     @Test
-    public void Should_ReturnTrue_When_ValidPhoneNumberProvided(){
+    public void Should_ReturnTrue_When_ValidPhoneNumberProvided() {
+        logger.info("testing valid phone  number ");
         //Arrange
         String countryCode = "+54";
         String phoneNumber = "1111448899";
