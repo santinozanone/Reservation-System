@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
-@DisplayName("Account db testing")
+@DisplayName("Testing Account db ")
 @Disabled
 class UserRegistrationMySqlDbTest {
     private static HikariDataSource dataSource;

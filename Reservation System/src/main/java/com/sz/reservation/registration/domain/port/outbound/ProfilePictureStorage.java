@@ -8,4 +8,6 @@ import java.io.IOException;
 public interface ProfilePictureStorage {
     String getStoringDirectory();
     void store(Image profilePicture, String profilePicturePath) ;
+
+    void delete(String profilePicturePath);
 }

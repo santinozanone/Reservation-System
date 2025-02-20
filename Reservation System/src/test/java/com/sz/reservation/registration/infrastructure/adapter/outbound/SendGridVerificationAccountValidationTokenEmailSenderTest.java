@@ -24,7 +24,7 @@ class SendGridVerificationAccountValidationTokenEmailSenderTest {
     @Test
     public void Should_SendEmailCorrectlyNotThrowError_When_Used() {
         //Arrange
-        String email = "zanone.santinoet36@gmail.com";
+        String email = "fakeemail@gmail.com";
         String username = "tomas";
         String token = "12345";
 

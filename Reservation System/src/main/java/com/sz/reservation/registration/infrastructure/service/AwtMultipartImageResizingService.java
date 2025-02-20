@@ -17,16 +17,21 @@ import java.io.InputStream;
 @Component
 public class AwtMultipartImageResizingService implements MultipartImageResizingService {
     private Logger logger = LogManager.getLogger(AwtMultipartImageResizingService.class);
-    @Value("${pfp.width}")
+
     private int WIDTH;
 
-    @Value("${pfp.height}")
+
     private int HEIGHT;
 
+    public AwtMultipartImageResizingService(@Value("${pfp.width}") int WIDTH,  @Value("${pfp.height}") int HEIGHT) {
+        this.WIDTH = WIDTH;
+        this.HEIGHT = HEIGHT;
+    }
 
     @Override
     public Image resizeImage(MultipartFile imageToResize) {
         String originalImageName = imageToResize.getOriginalFilename();
+        if (imageToResize == null) throw new RuntimeException("IOException, failed to read profile picture input stream " + originalImageName);
         logger.info("resizing image {} , to {} X {}",originalImageName,WIDTH,HEIGHT);
         BufferedImage bufferedProfilePicture = null;
         try (InputStream stream = imageToResize.getInputStream()){
@@ -34,6 +39,10 @@ public class AwtMultipartImageResizingService implements MultipartImageResizingS
         } catch (IOException e) {
             logger.error("failed to read profile picture input stream {}",originalImageName);
             throw new FileReadingException("IOException, failed to read profile picture input stream " + originalImageName, e);
+        }
+        if (bufferedProfilePicture == null){
+            logger.error("Failed to read profile picture with name: {} , No ImageReaders found for type: {} ",imageToResize.getOriginalFilename(),imageToResize.getContentType());
+            throw new FileReadingException("Failed to read profile picture, " + imageToResize.getOriginalFilename() +" No ImageReaders found for type "+imageToResize.getContentType());
         }
         logger.info("successful resizing for image {}",originalImageName);
         return bufferedProfilePicture.getScaledInstance(WIDTH, HEIGHT, Image.SCALE_DEFAULT);

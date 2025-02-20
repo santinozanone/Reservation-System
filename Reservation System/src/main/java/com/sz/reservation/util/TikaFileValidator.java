@@ -13,7 +13,7 @@ public class TikaFileValidator implements FileTypeValidator {
     private Logger logger = LogManager.getLogger(TikaFileValidator.class);
     @Override
     public MediaType getRealFileType(InputStream fileInputStream) {
-        logger.debug("validating file input stream");
+        logger.debug("validating file input stream content");
         try (fileInputStream){
             Tika tika = new Tika();
             MediaType mediaType = MediaType.parseMediaType(tika.detect(fileInputStream));

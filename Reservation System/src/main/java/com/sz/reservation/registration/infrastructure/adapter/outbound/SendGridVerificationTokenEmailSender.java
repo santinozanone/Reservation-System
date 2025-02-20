@@ -22,14 +22,19 @@ import java.io.IOException;
 @Component
 public class SendGridVerificationTokenEmailSender implements VerificationTokenEmailSender {
     private Logger logger = LogManager.getLogger(SendGridVerificationTokenEmailSender.class);
-    @Value("${SENDGRID.APIKEY}")
+
     private String API_KEY;
+
+    public SendGridVerificationTokenEmailSender(@Value("${SENDGRID.APIKEY}") String API_KEY) {
+        this.API_KEY = API_KEY;
+    }
 
     private final int ACCEPTED_202 = 202;
 
     @Override
     public void sendEmailTo(String email,String username ,String token)  {
         logger.debug("starting sending email to: {} , with username:{} , and token: {} ",email,username,token);
+
         Email from = new Email("reservation.notificationsender@gmail.com");
         Email to = new Email(email);
 
@@ -62,7 +67,6 @@ public class SendGridVerificationTokenEmailSender implements VerificationTokenEm
             logger.error("error while parsing json for sending email to:{} , with username:{} , and token: {} ",email,username,token);
             throw new JsonMarshalError(e);
         }
-
         try {
             Response response = sg.api(request);
             if (response.getStatusCode() != ACCEPTED_202){
@@ -73,7 +77,5 @@ public class SendGridVerificationTokenEmailSender implements VerificationTokenEm
             logger.error("Network error when sending email to:{} ",email);
             throw new NetworkErrorException("There was a network error while sending email",e);
         }
-
-
     }
 }

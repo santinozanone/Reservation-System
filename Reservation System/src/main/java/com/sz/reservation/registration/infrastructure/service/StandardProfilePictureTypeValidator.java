@@ -25,6 +25,7 @@ public class StandardProfilePictureTypeValidator implements ProfilePictureTypeVa
     }
 
     public boolean isValid(MultipartFile profilePicture) {
+        if (profilePicture == null) throw new IllegalArgumentException("profile picture cannot be null");
         MediaType mediaType = null;
         String profilePictureOriginalName = profilePicture.getOriginalFilename();
         String fileExtension = getExtension(profilePictureOriginalName);
@@ -39,6 +40,7 @@ public class StandardProfilePictureTypeValidator implements ProfilePictureTypeVa
         }
         try {
             mediaType = fileTypeValidator.getRealFileType(profilePicture.getInputStream());
+            logger.debug("mediatype:{} ", mediaType);
         } catch (IOException e) {
             logger.error("IOException when trying to get input stream from profile picture: {}",profilePictureOriginalName);
             throw new FileReadingException("IOException, failed to obtain input stream from profile picture file: "+profilePictureOriginalName,e);

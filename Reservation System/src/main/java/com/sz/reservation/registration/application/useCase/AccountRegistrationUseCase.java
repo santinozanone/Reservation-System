@@ -1,6 +1,8 @@
 package com.sz.reservation.registration.application.useCase;
 
+import com.sz.reservation.registration.domain.exception.EmailAlreadyRegisteredException;
 import com.sz.reservation.registration.domain.exception.MediaNotSupportedException;
+import com.sz.reservation.registration.domain.exception.UsernameAlreadyRegisteredException;
 import com.sz.reservation.registration.domain.model.ProfilePicture;
 import com.sz.reservation.registration.domain.port.outbound.ProfilePictureStorage;
 import com.sz.reservation.registration.domain.port.outbound.UserRegistrationDb;
@@ -11,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -42,10 +45,10 @@ public class AccountRegistrationUseCase {
 
     public void registerNotEnabledUser(AccountCreationRequest accountCreationRequest) {
         //Profile picture validation
-        logger.info("starting registration for email: {}",accountCreationRequest.getEmail());
+        logger.info("starting registration for email: {}", accountCreationRequest.getEmail());
         MultipartFile profileImageMultipart = accountCreationRequest.getProfilePicture();
         if (!profilePictureTypeValidator.isValid(accountCreationRequest.getProfilePicture())) {
-            logger.info("FAILED profile picture validation for email {}, profile picture extension/content is not valid",accountCreationRequest.getEmail());
+            logger.info("FAILED profile picture validation for email {}, profile picture extension/content is not valid", accountCreationRequest.getEmail());
             throw new MediaNotSupportedException();
         }
         String profilePictureStoringPath = generateProfilePicturePathName(profileImageMultipart.getOriginalFilename());
@@ -54,33 +57,42 @@ public class AccountRegistrationUseCase {
         ProfilePicture profilePicture = new ProfilePicture(profilePictureStoringPath);
 
 
-
         //Account creation data
         AccountCreationData accountCreationData = accountCreation.accountCreationData(accountCreationRequest, profilePicture);
 
         //Outbound adapters
-        logger.info("storing profile picture at: {}",profilePictureStoringPath);
-        profilePictureStorage.store(resizedImage,profilePictureStoringPath); // first store image on disk
+        logger.info("storing profile picture at: {}", profilePictureStoringPath);
+        profilePictureStorage.store(resizedImage, profilePictureStoringPath); // first store image on disk
 
-        logger.info("registering user in database for email: {}",accountCreationData.getEmail());
-        registerNotEnabledUserInDb(accountCreationData); // once image is saved correctly, store in db
-
-        logger.info("sending verification email to: {}",accountCreationData.getEmail());
-        emailSender.sendEmailTo(accountCreationData.getEmail(), accountCreationData.getUsername(),accountCreationData.getVerificationToken().getToken() ); // then send email
+        logger.info("registering user in database for email: {}", accountCreationData.getEmail());
+        try {
+            registerNotEnabledUserInDb(accountCreationData); // once image is saved correctly, store in db
+        } catch (EmailAlreadyRegisteredException | UsernameAlreadyRegisteredException ex) {
+            profilePictureStorage.delete(profilePictureStoringPath);
+            logger.info("email or username already in use, deleting profile picture:{}",profilePictureStoringPath);
+            throw ex;
+        }
+        catch (Exception ex) {
+            profilePictureStorage.delete(profilePictureStoringPath);
+            logger.error("Failed to register user. Deleting profile picture: {}", profilePictureStoringPath);
+            throw ex; // Re-throw the exception to propagate it
+        }
+        logger.info("sending verification email to: {}", accountCreationData.getEmail());
+        emailSender.sendEmailTo(accountCreationData.getEmail(), accountCreationData.getUsername(), accountCreationData.getVerificationToken().getToken()); // then send email
 
         //TODO: Protect the file upload from CSRF attacks
 
     }
 
     @Transactional
-    private void registerNotEnabledUserInDb(AccountCreationData accountCreationData){
-        userRegistrationDb.registerNotEnabledUser(accountCreationData);;
+    private void registerNotEnabledUserInDb(AccountCreationData accountCreationData) {
+        userRegistrationDb.registerNotEnabledUser(accountCreationData);
     }
 
-    private String generateProfilePicturePathName(String originalFileName){
+    private String generateProfilePicturePathName(String originalFileName) {
         //get file extension
         int index = originalFileName.lastIndexOf(".");
-        String fileExtension = originalFileName.substring(index+1);
+        String fileExtension = originalFileName.substring(index + 1);
 
         //Generate and format timestamp
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -93,8 +105,6 @@ public class AccountRegistrationUseCase {
         String filename = storingDirectory.concat("pfp_").concat(timestamp).concat("-").concat(randomUUID).concat(".").concat(fileExtension);
         return filename;
     }
-
-
 
 
 }

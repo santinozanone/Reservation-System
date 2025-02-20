@@ -3,6 +3,7 @@ package com.sz.reservation.registration.infrastructure.adapter.outbound;
 import com.sz.reservation.registration.domain.model.ProfilePicture;
 import com.sz.reservation.registration.domain.port.outbound.ProfilePictureStorage;
 import com.sz.reservation.registration.infrastructure.exception.DirectoryCreationException;
+import com.sz.reservation.registration.infrastructure.exception.FileDeletionException;
 import com.sz.reservation.registration.infrastructure.exception.FileWritingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,16 +26,23 @@ import java.time.LocalDateTime;
 public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
 
     private Logger logger = LogManager.getLogger(LocalSystemProfilePictureStorage.class);
-    @Value("${localpfpstorage.location}")
+
     private String profilePictureDirectory;
 
-    @Value(("${tempStorage.location}"))
     private String tempDirectory;
-    @Value("${pfp.width}")
     private int WIDTH;
 
-    @Value("${pfp.height}")
     private int HEIGHT;
+
+    public LocalSystemProfilePictureStorage(@Value("${localpfpstorage.location}") String profilePictureDirectory,
+                                            @Value(("${tempStorage.location}"))String tempDirectory,
+                                            @Value("${pfp.width}") int WIDTH,
+                                            @Value("${pfp.height}")int HEIGHT) {
+        this.profilePictureDirectory = profilePictureDirectory;
+        this.tempDirectory = tempDirectory;
+        this.WIDTH = WIDTH;
+        this.HEIGHT = HEIGHT;
+    }
 
     @Override
     public String getStoringDirectory() {
@@ -47,13 +55,27 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
     //    init();
         if (profilePicture == null || profilePicturePath.isEmpty()){
             logger.debug("profile picture or path is null");
-            throw new RuntimeException("profile picture or path cannot be null");
+            throw new IllegalArgumentException("profile picture or path cannot be null");
         }
-
-        BufferedImage bufferedImage = drawImage(profilePicture,WIDTH, HEIGHT);
         createDirectoryIfNotExists(profilePictureDirectory);
+        BufferedImage bufferedImage = drawImage(profilePicture,WIDTH, HEIGHT);
         writeFile(profilePicturePath, bufferedImage);
+    }
 
+    @Override
+    public void delete(String profilePicturePath) {
+        logger.debug("deleting profile picture with path: {}",profilePicturePath);
+        if (profilePicturePath == null || profilePicturePath.isEmpty()){
+            logger.debug("profile picture path is null");
+            throw new IllegalArgumentException("profile picture path cannot be null");
+        }
+        try {
+            Files.deleteIfExists(Path.of(profilePicturePath));
+        } catch (IOException e) {
+            logger.error("IOException when trying to delete profile picture: {}",profilePicturePath);
+            throw new FileDeletionException("Failed to delete profile picture with path: "+ profilePicturePath,e);
+        }
+        logger.info("profile picture deleted correctly");
     }
 
     private void init(){
@@ -70,10 +92,8 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
         File outputImage = new File(fullPath);
         int index = fullPath.lastIndexOf("."); // get index of file extension
         String fileExtension = fullPath.substring(index + 1); // get file extension
-        boolean b = false;
         try {
-            ImageOutputStream outputStream = ImageIO.createImageOutputStream(profilePicturePath);
-            b = ImageIO.write(bufferedImage, fileExtension, outputImage);
+            ImageIO.write(bufferedImage, fileExtension, outputImage);
         } catch (IOException e) {
             logger.error("failed to write file to:{}",fullPath);
             throw new FileWritingException("Failed to write file " + fullPath, e);

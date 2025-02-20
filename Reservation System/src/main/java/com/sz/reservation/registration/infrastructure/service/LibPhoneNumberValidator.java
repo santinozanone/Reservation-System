@@ -15,6 +15,8 @@ public class LibPhoneNumberValidator implements PhoneNumberValidator {
     //E.164 Standard phone number validator
     @Override
     public boolean isValid(String countryCode,String phoneNumber) {
+        if (countryCode == null || phoneNumber == null) throw new IllegalArgumentException("country code or phone number cannot be null");
+        if (countryCode.isEmpty() || phoneNumber.isEmpty()) throw new IllegalArgumentException("country code or phone number cannot be empty");
         logger.debug("starting phone number validator with countryCode:{} , and phoneNumber:{} ",countryCode,phoneNumber);
         PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
         try {
