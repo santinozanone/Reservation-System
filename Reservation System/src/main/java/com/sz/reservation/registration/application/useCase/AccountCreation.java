@@ -25,17 +25,17 @@ public class AccountCreation {
     }
 
     public AccountCreationData accountCreationData(AccountCreationRequest accountCreationRequest, ProfilePicture profilePicture){
+        if (accountCreationRequest == null || profilePicture == null)throw new IllegalArgumentException("Account creation request or profile picture cannot be null");
         String registrationEmail = accountCreationRequest.getEmail();
         logger.info("creating account creation data for user with email: {}",registrationEmail);
         //Phone number validation
         if (!phoneNumberValidator.isValid(accountCreationRequest.getCountryCode(), accountCreationRequest.getPhoneNumber())) {
-            logger.info("Invalid phone number for user with email: {} , countryCode:{} , and phoneNumber:{}",registrationEmail,accountCreationRequest.getCountryCode(), accountCreationRequest.getPhoneNumber());
-            throw new InvalidPhoneNumberException("Invalid phone number with countryCode "+accountCreationRequest.getCountryCode() + " and PhoneNumber "+accountCreationRequest.getPhoneNumber());
+            throw new InvalidPhoneNumberException(accountCreationRequest.getCountryCode(),accountCreationRequest.getPhoneNumber());
         }
 
         //Hashing password
         String hashedPassword = hashingService.hash(accountCreationRequest.getPassword());
-
+        logger.debug("password hashed: {}",hashedPassword);
         //UUID creation
         logger.debug("creating uuid for user with email: {}",registrationEmail);
         String userId = UuidCreator.getTimeOrderedEpoch().toString();

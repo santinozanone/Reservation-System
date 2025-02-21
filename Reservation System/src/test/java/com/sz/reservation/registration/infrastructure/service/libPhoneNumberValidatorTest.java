@@ -1,6 +1,8 @@
 package com.sz.reservation.registration.infrastructure.service;
 
+import com.google.i18n.phonenumbers.NumberParseException;
 import com.sz.reservation.registration.domain.service.PhoneNumberValidator;
+import com.sz.reservation.registration.infrastructure.exception.LibPhoneParserException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
@@ -79,12 +81,33 @@ class libPhoneNumberValidatorTest {
 
     @Test
     public void Should_ThrowIllegalArgumentException_When_NullPhoneProvided() {
-        logger.info("testing valid phone  number ");
         //Arrange
         String countryCode = "+54";
         //Act and assert
         Assertions.assertThrows(IllegalArgumentException.class,() ->{
             phoneNumberValidator.isValid(countryCode,null);
+        });
+    }
+
+
+    @Test
+    public void Should_ThrowLibPhoneParserException_When_NotNumericCountryCode() {
+        //Arrange
+        String countryCode = "+miau";
+        //Act and assert
+        Assertions.assertThrows(LibPhoneParserException.class,() ->{
+            phoneNumberValidator.isValid(countryCode,"1111448899");
+        });
+    }
+
+    @Test
+    public void Should_ThrowLibPhoneParserException_When_NotNumericPhoneNumber() {
+        //Arrange
+        String countryCode = "+54";
+        String phoneNumber = "miau";
+        //Act and assert
+        Assertions.assertThrows(LibPhoneParserException.class,() ->{
+            phoneNumberValidator.isValid(countryCode,phoneNumber);
         });
     }
 }

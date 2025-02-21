@@ -1,5 +1,5 @@
 /.metadata/
-"Reservation System"/target/
-"Reservation System"/logs/
-"Reservation System"/build/
+target/
+logs/
+/build/
 *.properties

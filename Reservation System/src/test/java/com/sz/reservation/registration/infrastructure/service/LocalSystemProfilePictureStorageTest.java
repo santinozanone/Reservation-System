@@ -30,13 +30,12 @@ class LocalSystemProfilePictureStorageTest {
     private static LocalSystemProfilePictureStorage profilePictureStorage;
 
     private static String localPfpDirectory = "D:\\Reservation-System\\Profile-Picture\\";
-    private static String tempStorage = "temp";
     private static int WIDTH = 50;
     private static int HEIGHT = 50;
 
     @BeforeAll
     private static void instantiatingStorage(){
-        profilePictureStorage = new LocalSystemProfilePictureStorage(localPfpDirectory,tempStorage,WIDTH,HEIGHT);
+        profilePictureStorage = new LocalSystemProfilePictureStorage(localPfpDirectory,WIDTH,HEIGHT);
     }
 
     @BeforeEach

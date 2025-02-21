@@ -29,17 +29,14 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
 
     private String profilePictureDirectory;
 
-    private String tempDirectory;
     private int WIDTH;
 
     private int HEIGHT;
 
     public LocalSystemProfilePictureStorage(@Value("${localpfpstorage.location}") String profilePictureDirectory,
-                                            @Value(("${tempStorage.location}"))String tempDirectory,
                                             @Value("${pfp.width}") int WIDTH,
                                             @Value("${pfp.height}")int HEIGHT) {
         this.profilePictureDirectory = profilePictureDirectory;
-        this.tempDirectory = tempDirectory;
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
     }
@@ -52,12 +49,10 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
     @Override
     public void store(Image profilePicture,String profilePicturePath)  {
         logger.debug("starting image storage to path: {}",profilePicturePath);
-    //    init();
         if (profilePicture == null || profilePicturePath.isEmpty()){
             logger.debug("profile picture or path is null");
             throw new IllegalArgumentException("profile picture or path cannot be null");
         }
-        createDirectoryIfNotExists(profilePictureDirectory);
         BufferedImage bufferedImage = drawImage(profilePicture,WIDTH, HEIGHT);
         writeFile(profilePicturePath, bufferedImage);
     }
@@ -72,20 +67,12 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
         try {
             Files.deleteIfExists(Path.of(profilePicturePath));
         } catch (IOException e) {
-            logger.error("IOException when trying to delete profile picture: {}",profilePicturePath);
             throw new FileDeletionException("Failed to delete profile picture with path: "+ profilePicturePath,e);
         }
         logger.info("profile picture deleted correctly");
     }
 
-    private void init(){
-        try {
-            Files.createDirectories(Path.of(tempDirectory));
-        }
-        catch (IOException e) {
-            throw new DirectoryCreationException("failed to create temp directory " +tempDirectory, e);
-        }
-    }
+
     private void writeFile(String profilePicturePath,BufferedImage bufferedImage) {
         logger.debug("starting write file to: {}",profilePicturePath);
         String fullPath = profilePicturePath;
@@ -95,7 +82,6 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
         try {
             ImageIO.write(bufferedImage, fileExtension, outputImage);
         } catch (IOException e) {
-            logger.error("failed to write file to:{}",fullPath);
             throw new FileWritingException("Failed to write file " + fullPath, e);
         }
         logger.info("profile picture stored successfully at : {}",fullPath);
@@ -108,20 +94,6 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
         g2.dispose();
         logger.debug("successfully drew image with WIDTH:{}, HEIGHT:{}",WIDTH,HEIGHT);
         return bufferedImage;
-    }
-
-    private void createDirectoryIfNotExists(String profilePictureDirectory)  {
-        logger.debug("starting creation of directory with name: {} , if not exists ",profilePictureDirectory);
-        Path directoryPath = Path.of(profilePictureDirectory);
-        if (!Files.exists(directoryPath)){
-            try {
-                Files.createDirectories(directoryPath);
-                logger.debug("directory:{} , created successfully",directoryPath);
-            } catch (IOException e) {
-                logger.error("failed to create directory: {}",directoryPath);
-                throw new DirectoryCreationException("failed to create directory " + directoryPath,e);
-            }
-        }
     }
 
 }

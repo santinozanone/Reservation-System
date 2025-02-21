@@ -1,7 +1,13 @@
 package com.sz.reservation.registration.domain.exception;
 
 public class UsernameAlreadyRegisteredException extends RuntimeException{
-    public UsernameAlreadyRegisteredException(Throwable cause) {
-        super(cause);
+    private String username;
+    public UsernameAlreadyRegisteredException(String username,Throwable cause) {
+        super(username,cause);
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

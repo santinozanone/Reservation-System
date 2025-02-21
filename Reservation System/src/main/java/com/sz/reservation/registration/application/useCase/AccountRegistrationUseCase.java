@@ -48,8 +48,7 @@ public class AccountRegistrationUseCase {
         logger.info("starting registration for email: {}", accountCreationRequest.getEmail());
         MultipartFile profileImageMultipart = accountCreationRequest.getProfilePicture();
         if (!profilePictureTypeValidator.isValid(accountCreationRequest.getProfilePicture())) {
-            logger.info("FAILED profile picture validation for email {}, profile picture extension/content is not valid", accountCreationRequest.getEmail());
-            throw new MediaNotSupportedException();
+            throw new MediaNotSupportedException("FAILED profile picture validation for email "+accountCreationRequest.getEmail() +" , profile picture extension/content is not valid");
         }
         String profilePictureStoringPath = generateProfilePicturePathName(profileImageMultipart.getOriginalFilename());
 
@@ -68,20 +67,20 @@ public class AccountRegistrationUseCase {
         try {
             registerNotEnabledUserInDb(accountCreationData); // once image is saved correctly, store in db
         } catch (EmailAlreadyRegisteredException | UsernameAlreadyRegisteredException ex) {
-            profilePictureStorage.delete(profilePictureStoringPath);
             logger.info("email or username already in use, deleting profile picture:{}",profilePictureStoringPath);
+            profilePictureStorage.delete(profilePictureStoringPath);
             throw ex;
         }
         catch (Exception ex) {
-            profilePictureStorage.delete(profilePictureStoringPath);
             logger.error("Failed to register user. Deleting profile picture: {}", profilePictureStoringPath);
+            profilePictureStorage.delete(profilePictureStoringPath);
             throw ex; // Re-throw the exception to propagate it
         }
         logger.info("sending verification email to: {}", accountCreationData.getEmail());
         emailSender.sendEmailTo(accountCreationData.getEmail(), accountCreationData.getUsername(), accountCreationData.getVerificationToken().getToken()); // then send email
 
         //TODO: Protect the file upload from CSRF attacks
-
+        //TODO: MAKE EMAIL VALIDATION BETTER, SENDGRID DETECS INVALID EMAILS
     }
 
     @Transactional

@@ -32,32 +32,32 @@ public class Account {
     }
 
     public void changeUsername(String uniqueUsername){
-        if (!enabled) throw new AccountNotEnabledException();
+        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.uniqueUsername = validateUsername(uniqueUsername);
     }
 
     public void changeName(String name){
-        if (!enabled) throw new AccountNotEnabledException();
+        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.name = validateName(name);
     }
 
     public void changeSurname(String surname){
-        if (!enabled) throw new AccountNotEnabledException();
+        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.surname = validateSurname(surname);
     }
 
     public void changePhoneNumber(PhoneNumber phoneNumber){
-        if (!enabled) throw new AccountNotEnabledException();
+        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.phoneNumber = validatePhoneNumber(phoneNumber);
     }
 
     public void changeProfilePicture(ProfilePicture profilePicture){
-        if (!enabled) throw new AccountNotEnabledException();
+        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.profilePicture = validateProfilePicture(profilePicture);
     }
 
     public void changePassword(String hashedPassword){
-        if (!enabled) throw new AccountNotEnabledException();
+        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.password = validatePassword(hashedPassword);
     }
 

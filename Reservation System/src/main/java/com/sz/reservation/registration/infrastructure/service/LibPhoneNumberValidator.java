@@ -24,7 +24,6 @@ public class LibPhoneNumberValidator implements PhoneNumberValidator {
             Phonenumber.PhoneNumber parsedPhone = phoneNumberUtil.parse(phoneNumberWithCountryCode, null);
             return phoneNumberUtil.isValidNumber(parsedPhone);
         } catch (NumberParseException e) {
-            logger.error("NumberParseException when parsing phone number with countryCode:{} , and phoneNumber:{} ",countryCode,phoneNumber);
             throw new LibPhoneParserException("Exception while parsing phone number with countryCode: "+ countryCode + " and phoneNumber: "+phoneNumber,e); // throw specialized exception instead of runtime
         }
     }

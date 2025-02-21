@@ -67,7 +67,7 @@ public class UserRegistrationMySqlDb implements UserRegistrationDb {
         }catch (DuplicateKeyException exception){
             logger.info("error trying to insert user with uuid:{}, username:{}, email:{}, duplicate key exception",
                     accountCreationData.getId(), accountCreationData.getUsername(),accountCreationData.getEmail());
-            handleSqlIntegrityException(exception);
+            handleSqlIntegrityException(accountCreationData.getEmail(),accountCreationData.getUsername(),exception);
         }
         logger.debug(INSERT_MARKER,"executing verification token insert: {}",verificationTokenSql);
         String expires_at = dateFormatter.format(accountCreationData.getVerificationToken().getExpirationDate());
@@ -75,15 +75,13 @@ public class UserRegistrationMySqlDb implements UserRegistrationDb {
         logger.info("Successfully inserted user with uuid:{}, username:{}, email:{}",accountCreationData.getId(), accountCreationData.getUsername(),accountCreationData.getEmail());
 
     }
-    public void handleSqlIntegrityException(DuplicateKeyException exception) {
+    public void handleSqlIntegrityException(String email ,String username ,DuplicateKeyException exception) {
         String errorMessage = exception.getRootCause().getMessage();
         if (errorMessage.endsWith(EMAIL_FIELD_SQL_ERROR_MESSAGE)){
-            logger.info("error trying to insert user, email already in use");
-            throw new EmailAlreadyRegisteredException(exception);
+            throw new EmailAlreadyRegisteredException(email,exception);
         }
         if (errorMessage.endsWith(USERNAME_FIELD_SQL_ERROR_MESSAGE)){
-            logger.info("error trying to insert user, username already in use");
-            throw new UsernameAlreadyRegisteredException(exception);
+            throw new UsernameAlreadyRegisteredException(username,exception);
         }
     }
 

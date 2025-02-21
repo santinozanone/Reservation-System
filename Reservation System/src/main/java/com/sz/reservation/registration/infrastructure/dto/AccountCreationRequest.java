@@ -1,18 +1,18 @@
 package com.sz.reservation.registration.infrastructure.dto;
 
-import com.sz.reservation.registration.infrastructure.annotation.NonWhitespaceAnnotation;
+import com.sz.reservation.registration.infrastructure.annotation.NotNullNotWhitespace;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class AccountCreationRequest {
-    @NotBlank(message = "username cannot be blank")
+
+
     @Size(min = 5, message = "username must be minimum 5 character long ")
     @Size(max = 55, message = "Username must be maximum 55 characters long")
-    @NonWhitespaceAnnotation(message = "username cannot contain whitespaces")
+    @NotNullNotWhitespace(message = "username cannot contain whitespaces or be null")
     private String username;
 
     @NotBlank(message = "name cannot be blank")
@@ -25,13 +25,14 @@ public class AccountCreationRequest {
     @Size(min = 1,message = "surname must be minimum 1 character long ")
     private String surname;
 
+    @NotNull
     @Pattern(regexp = "^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@"
             + "[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$",message = "invalid email")
     private String email;
 
     @NotBlank(message = "countryCode cannot be blank")
     @Size(max = 3,message = "country code must be maximum 3 characters")
-    private String countryCode;
+    private String countryCode;// An example would be: "+54"
 
 
     @NotBlank(message = "phoneNumber cannot be blank")
@@ -45,6 +46,7 @@ public class AccountCreationRequest {
     private LocalDate birthDate;
 
     @NotBlank(message = "nationality cannot be blank")
+    @Size(min = 4,message = "nationality must be minimum 4 characters")
     @Size(max = 55,message = "nationality must be maximum 55 characters long")
     private String nationality; // should be enum
 

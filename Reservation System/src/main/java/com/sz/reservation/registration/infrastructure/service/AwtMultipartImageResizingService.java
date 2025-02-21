@@ -41,8 +41,7 @@ public class AwtMultipartImageResizingService implements MultipartImageResizingS
             throw new FileReadingException("IOException, failed to read profile picture input stream " + originalImageName, e);
         }
         if (bufferedProfilePicture == null){
-            logger.error("Failed to read profile picture with name: {} , No ImageReaders found for type: {} ",imageToResize.getOriginalFilename(),imageToResize.getContentType());
-            throw new FileReadingException("Failed to read profile picture, " + imageToResize.getOriginalFilename() +" No ImageReaders found for type "+imageToResize.getContentType());
+            throw new FileReadingException("Failed to read profile picture with name, " + imageToResize.getOriginalFilename() +" No ImageReaders found for type "+imageToResize.getContentType());
         }
         logger.info("successful resizing for image {}",originalImageName);
         return bufferedProfilePicture.getScaledInstance(WIDTH, HEIGHT, Image.SCALE_DEFAULT);

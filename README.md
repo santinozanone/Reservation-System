@@ -410,6 +410,7 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * Added regex validation for email in the account class and request class from the http controller.
 * Added a test class for the creation of an account.
 
+---
 ### 14/02/2025
 #### **What was done today:** 
 * Fixed a bug in the accountcreationrequest validation
@@ -423,3 +424,35 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * Created exceptions for, network error, directory creation, SendGrid Email api errors, file reading and file writing errors.
 * Changed checked exceptions to unchecked ones, and added handler in the globalExceptionHandler
 * Implemented registration Use case test.
+
+
+---
+### 19/02/2025
+#### **What was done today:** 
+ * Finished unit testing in all the services and adapters
+ * Fixed bugs in the application
+ * Added logging in all app, using different levels
+ * Implemented Log4j2 and rollingFile appender
+ * Created new exceptions
+ * Added parameter validation in different objects
+ * Added a resource package in the test package
+ * Added images to the resource package that are used in the unit tests
+ * Implemented profile picture file deletion in case of a DB fails.
+ 
+ ---
+### 19/02/2025
+#### **What was done today:** 
+ * Added integration testing
+ * Added more unit testing
+ * Added an application context refreshed event listener, so profile pictures directories can be created on startup.
+ * Added test for account creation
+ * Added test for context refreshed event listener
+ * Modified the global exception handler
+ * Unit tested the account creation request
+ * Unit tested the account creation data
+ * Added more test to the phone validator
+ * Learnt about integration testing and how to do it with spring, using mockmvc with webtestclient.
+ * Modified the log4j2 config because it was wrong.
+ * Deleted unnecesary logs.
+ * Modified nonWhitespace Annotation because of a bug.
+ 

@@ -10,6 +10,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
@@ -29,6 +30,7 @@ class RegistrationUseCaseTest {
     @Autowired
     AccountRegistrationUseCase useCase;
     @Test
+    @Transactional
     public void tryingtoRegisterUser() throws IOException {
         String imagePath = "C:\\Users\\losmelli\\Pictures\\messi2.jpg";
 
