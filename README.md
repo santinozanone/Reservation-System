@@ -456,3 +456,23 @@ After i created the api key and authenticate my gmail mail direction then i coul
  * Deleted unnecesary logs.
  * Modified nonWhitespace Annotation because of a bug.
  
+ ### 23/02/2025
+#### **What was done today:** 
+* Finished integration testing
+* Added in total 2 integration tests, one that starts in the http controller and checks that user is registered, and pfp is stored, and other for the repository
+* Modified repository so now is called AccountRepository
+* Added 2 new methods to AccountRepository, find by username and find by email
+* Added validation for those methods.
+* Fixed an exception thrown by ImageIO when a directory wasnt found.
+* Fixed a bug in the application context listener, that wasnt creating the directories correctly.
+* Learnt more about how maven works.
+* Implemented maven failsafe
+* Added tree reporter to maven failsafe and surefire
+* In order to validation annotations like @NotNull to work when making tests, is needed to add the glassfish expressly dependency to the pom,
+   this is because Hibernate Validator requires an implementation of Jakarta Expression Language for evaluating dynamic expressions in constraint violation messages (see Section 4.1, “Default message interpolation”),
+   When running with tomcat the implementation is provided by it, however when running the tests standalone, glassfish is needed.
+* For the integration test in the controller i use WebTestClient with Mockmvc as the server like the spring docs says, in order for it to work is necessary to add the spring web flux dependency.
+* Improved performance of the app by checking if the username or email already exists before saving the pfp.
+* Modified the db schema, so now the account tables has a new field, "verified" , before i had "enabled" but i wanted to be able to differentiate between an enabled account and a verified account, so i can disable an account when needed.
+* Modified the repository and account classes to fit the new field.
+* Added a method in the localpfpstorage test for creating the directory for storing the pictures and deleting it afterward.
