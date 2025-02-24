@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
+
 @ExtendWith(SpringExtension.class)
 @ContextHierarchy({
         @ContextConfiguration(classes = RootConfig.class),

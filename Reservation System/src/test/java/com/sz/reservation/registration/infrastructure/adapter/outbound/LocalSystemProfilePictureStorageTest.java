@@ -36,8 +36,18 @@ class LocalSystemProfilePictureStorageTest {
     @BeforeAll
     private static void instantiatingStorage() throws IOException {
         profilePictureStorage = new LocalSystemProfilePictureStorage(localPfpDirectory,WIDTH,HEIGHT);
+        Path storage = Path.of("D:\\Reservation-System\\Profile-Picture\\");
+        if ( !Files.exists(storage)) {
+            Files.createDirectories(storage);
+        }
+    }
 
-        Files.createDirectories(Path.of("D:\\Reservation-System\\Profile-Picture\\"));
+    @AfterAll
+    private static void deleteStorage() throws IOException {
+        Path storage = Path.of("D:\\Reservation-System\\Profile-Picture\\");
+        if (Files.exists(storage)) {
+            Files.delete(storage);
+        }
     }
 
 
