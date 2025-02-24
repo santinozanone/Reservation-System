@@ -20,7 +20,7 @@ public class StartupApplicationListener  implements
     private String tempDirectory;
 
     private Logger logger = LogManager.getLogger(StartupApplicationListener.class);
-    public StartupApplicationListener(@Value("${profile.picture.directory}")String profilePictureDirectory, @Value(("${tempStorage.location}")) String tempDirectory) {
+    public StartupApplicationListener(@Value("${localpfpstorage.location}")String profilePictureDirectory, @Value(("${tempStorage.location}")) String tempDirectory) {
         this.profilePictureDirectory = profilePictureDirectory;
         this.tempDirectory = tempDirectory;
     }

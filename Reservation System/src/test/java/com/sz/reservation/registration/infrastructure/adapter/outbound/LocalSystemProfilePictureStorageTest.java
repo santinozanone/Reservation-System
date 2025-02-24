@@ -1,4 +1,4 @@
-package com.sz.reservation.registration.infrastructure.service;
+package com.sz.reservation.registration.infrastructure.adapter.outbound;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.sz.reservation.configuration.RootConfig;
@@ -34,9 +34,13 @@ class LocalSystemProfilePictureStorageTest {
     private static int HEIGHT = 50;
 
     @BeforeAll
-    private static void instantiatingStorage(){
+    private static void instantiatingStorage() throws IOException {
         profilePictureStorage = new LocalSystemProfilePictureStorage(localPfpDirectory,WIDTH,HEIGHT);
+
+        Files.createDirectories(Path.of("D:\\Reservation-System\\Profile-Picture\\"));
     }
+
+
 
     @BeforeEach
     private void instantiatingFilename(){
@@ -73,7 +77,6 @@ class LocalSystemProfilePictureStorageTest {
 
     @Test
     public void Should_ThrowFileWritingException_When_FileWriteFails() {
-        // Simulating invalid path (e.g., no write permissions)
         String invalidPath = "D:\\NotExistent\\pfp_test.jpg";
         BufferedImage image = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
         image.setRGB(0, 0, 0);

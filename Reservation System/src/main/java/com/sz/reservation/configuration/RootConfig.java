@@ -2,7 +2,7 @@ package com.sz.reservation.configuration;
 
 import com.sz.reservation.registration.application.useCase.*;
 import com.sz.reservation.registration.domain.port.outbound.ProfilePictureStorage;
-import com.sz.reservation.registration.domain.port.outbound.UserRegistrationDb;
+import com.sz.reservation.registration.domain.port.outbound.AccountRepository;
 import com.sz.reservation.registration.domain.port.outbound.VerificationTokenEmailSender;
 import com.sz.reservation.registration.domain.service.*;
 import com.sz.reservation.util.FileTypeValidator;
@@ -16,6 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -27,6 +28,11 @@ import javax.sql.DataSource;
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement
 public class RootConfig {
+
+    @Bean
+    public LocalValidatorFactoryBean validator() {
+        return new LocalValidatorFactoryBean();
+    }
 
     @Bean
     public StandardServletMultipartResolver multipartResolver(){
@@ -65,9 +71,9 @@ public class RootConfig {
     }
 
     @Bean
-    public AccountRegistrationUseCase registrationUseCase(UserRegistrationDb userRegistrationDb, ProfilePictureStorage profilePictureStorage,
+    public AccountRegistrationUseCase registrationUseCase(AccountRepository accountRepository, ProfilePictureStorage profilePictureStorage,
                                                           MultipartImageResizingService multipartImageResizingService, ProfilePictureTypeValidator profilePictureTypeValidator,
                                                           VerificationTokenEmailSender verificationTokenEmailSender, AccountCreation accountCreation){
-        return new AccountRegistrationUseCase(userRegistrationDb, profilePictureStorage , multipartImageResizingService, profilePictureTypeValidator,verificationTokenEmailSender,accountCreation);
+        return new AccountRegistrationUseCase(accountRepository, profilePictureStorage , multipartImageResizingService, profilePictureTypeValidator,verificationTokenEmailSender,accountCreation);
     }
 }

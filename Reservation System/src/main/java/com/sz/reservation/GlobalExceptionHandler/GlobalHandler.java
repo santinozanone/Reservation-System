@@ -54,7 +54,7 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Username already registered exception");
         problemDetail.setDetail("The username is already use");
-        logger.info("error trying to insert user, username: {} already in use",exception.getUsername(),exception);
+        logger.info("error trying to insert user, username: {} already in use",exception.getUsername());
         return problemDetail;
     }
 
@@ -63,7 +63,7 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("email already registered exception");
         problemDetail.setDetail("The email is already use");
-        logger.info("error trying to insert user, email: {} already in use",exception.getEmail(),exception);
+        logger.info("error trying to insert user, email: {} already in use",exception.getEmail());
         return problemDetail;
     }
 

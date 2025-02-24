@@ -25,9 +25,8 @@ public class AccountCreationRequest {
     @Size(min = 1,message = "surname must be minimum 1 character long ")
     private String surname;
 
-    @NotNull
-    @Pattern(regexp = "^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@"
-            + "[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$",message = "invalid email")
+    @NotBlank(message = "email cannot be blank")
+    @Pattern(regexp = "^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$",message = "invalid email")
     private String email;
 
     @NotBlank(message = "countryCode cannot be blank")
@@ -53,7 +52,7 @@ public class AccountCreationRequest {
     @NotNull(message = "profile picture cannot be null")
     private MultipartFile profilePicture;
 
-    @NotBlank
+    @NotBlank(message = "password must not be blank")
     @Size(min = 8,message = "password must be minimum 8 characters long")
     @Size(max = 255,message = "password must be maximum 255 characters long")
     private String password;
@@ -84,7 +83,7 @@ public class AccountCreationRequest {
     }
 
     public String getEmail() {
-        return email;
+        return email.toLowerCase();
     }
 
     public String getCountryCode() {

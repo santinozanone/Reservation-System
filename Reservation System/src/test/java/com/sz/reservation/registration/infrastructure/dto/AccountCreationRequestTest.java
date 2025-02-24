@@ -272,7 +272,7 @@ class AccountCreationRequestTest {
                 "mike18181",
                 "sasa",
                 "kawasaki",
-                "notRealEmail.com",
+                "invalid.gmail",
                 "+54",
                 "1111111111",
                 LocalDate.of(2014,4,15),
@@ -301,6 +301,7 @@ class AccountCreationRequestTest {
                 "eightcharacterlong");
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
+        System.out.println("violation - " + violations.iterator().next().getMessage());
         assertEquals(1,violations.size());
     }
 

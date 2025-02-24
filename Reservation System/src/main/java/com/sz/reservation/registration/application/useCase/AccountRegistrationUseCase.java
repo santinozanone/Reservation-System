@@ -5,7 +5,7 @@ import com.sz.reservation.registration.domain.exception.MediaNotSupportedExcepti
 import com.sz.reservation.registration.domain.exception.UsernameAlreadyRegisteredException;
 import com.sz.reservation.registration.domain.model.ProfilePicture;
 import com.sz.reservation.registration.domain.port.outbound.ProfilePictureStorage;
-import com.sz.reservation.registration.domain.port.outbound.UserRegistrationDb;
+import com.sz.reservation.registration.domain.port.outbound.AccountRepository;
 import com.sz.reservation.registration.domain.port.outbound.VerificationTokenEmailSender;
 import com.sz.reservation.registration.domain.service.*;
 import com.sz.reservation.registration.infrastructure.dto.AccountCreationRequest;
@@ -22,7 +22,7 @@ import java.util.UUID;
 
 public class AccountRegistrationUseCase {
     private Logger logger = LogManager.getLogger(AccountRegistrationUseCase.class);
-    private UserRegistrationDb userRegistrationDb;
+    private AccountRepository accountRepository;
     private ProfilePictureStorage profilePictureStorage;
     private MultipartImageResizingService multipartImageResizingService;
     private ProfilePictureTypeValidator profilePictureTypeValidator;
@@ -30,11 +30,11 @@ public class AccountRegistrationUseCase {
     private AccountCreation accountCreation;
 
 
-    public AccountRegistrationUseCase(UserRegistrationDb userRegistrationDb, ProfilePictureStorage profilePictureStorage,
+    public AccountRegistrationUseCase(AccountRepository accountRepository, ProfilePictureStorage profilePictureStorage,
                                       MultipartImageResizingService multipartImageResizingService,
                                       ProfilePictureTypeValidator profilePictureTypeValidator, VerificationTokenEmailSender emailSender,
                                       AccountCreation accountCreation) {
-        this.userRegistrationDb = userRegistrationDb;
+        this.accountRepository = accountRepository;
         this.profilePictureStorage = profilePictureStorage;
         this.multipartImageResizingService = multipartImageResizingService;
         this.profilePictureTypeValidator = profilePictureTypeValidator;
@@ -46,12 +46,18 @@ public class AccountRegistrationUseCase {
     public void registerNotEnabledUser(AccountCreationRequest accountCreationRequest) {
         //Profile picture validation
         logger.info("starting registration for email: {}", accountCreationRequest.getEmail());
+        if (accountRepository.findAccountByEmail(accountCreationRequest.getEmail()).isPresent()){
+            throw new EmailAlreadyRegisteredException(accountCreationRequest.getEmail());
+        }
+        if (accountRepository.findAccountByUsername(accountCreationRequest.getUsername()).isPresent()){
+            throw new UsernameAlreadyRegisteredException(accountCreationRequest.getUsername());
+        }
+
         MultipartFile profileImageMultipart = accountCreationRequest.getProfilePicture();
         if (!profilePictureTypeValidator.isValid(accountCreationRequest.getProfilePicture())) {
             throw new MediaNotSupportedException("FAILED profile picture validation for email "+accountCreationRequest.getEmail() +" , profile picture extension/content is not valid");
         }
         String profilePictureStoringPath = generateProfilePicturePathName(profileImageMultipart.getOriginalFilename());
-
         Image resizedImage = multipartImageResizingService.resizeImage(accountCreationRequest.getProfilePicture());
         ProfilePicture profilePicture = new ProfilePicture(profilePictureStoringPath);
 
@@ -85,7 +91,7 @@ public class AccountRegistrationUseCase {
 
     @Transactional
     private void registerNotEnabledUserInDb(AccountCreationData accountCreationData) {
-        userRegistrationDb.registerNotEnabledUser(accountCreationData);
+        accountRepository.registerNotEnabledNotVerifiedUser(accountCreationData);
     }
 
     private String generateProfilePicturePathName(String originalFileName) {

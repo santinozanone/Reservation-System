@@ -16,6 +16,7 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,6 +77,8 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
     private void writeFile(String profilePicturePath,BufferedImage bufferedImage) {
         logger.debug("starting write file to: {}",profilePicturePath);
         String fullPath = profilePicturePath;
+        Path directory = Path.of(fullPath).getParent();
+        if (! Files.exists(directory )) throw new FileWritingException("failed to write file, directory "+directory + " not found");
         File outputImage = new File(fullPath);
         int index = fullPath.lastIndexOf("."); // get index of file extension
         String fileExtension = fullPath.substring(index + 1); // get file extension

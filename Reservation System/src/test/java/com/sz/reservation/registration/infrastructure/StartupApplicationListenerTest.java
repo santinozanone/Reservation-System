@@ -2,6 +2,7 @@ package com.sz.reservation.registration.infrastructure;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ class StartupApplicationListenerTest {
     @Test
     public void Should_CreateDirectories_When_Startup() throws IOException {
         //act
-        startupApplicationListener.onApplicationEvent(null);
+        startupApplicationListener.onApplicationEvent(null); //should create directories
 
         //assert
         boolean existsMainDirectory = Files.isDirectory(Path.of(pfpDirectory));

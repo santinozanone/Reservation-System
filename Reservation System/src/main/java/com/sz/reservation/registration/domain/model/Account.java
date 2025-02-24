@@ -17,9 +17,13 @@ public class Account {
 
     private ProfilePicture profilePicture;
     private String password;
+
+    private boolean verified;
     private boolean enabled;
 
-    public Account(String id,String uniqueUsername, String name, String surname, String uniqueEmail, PhoneNumber phoneNumber,  ProfilePicture profilePicture, String password,boolean enabled) {
+
+
+    public Account(String id,String uniqueUsername, String name, String surname, String uniqueEmail, PhoneNumber phoneNumber,  ProfilePicture profilePicture, String password,boolean verified,boolean enabled) {
         this.id = validateId(id);
         this.uniqueUsername = validateUsername(uniqueUsername);
         this.name = validateName(name);
@@ -28,6 +32,7 @@ public class Account {
         this.phoneNumber = validatePhoneNumber(phoneNumber);
         this.profilePicture = validateProfilePicture(profilePicture);
         this.password = validatePassword(password);
+        this.verified = verified;
         this.enabled = enabled;
     }
 
@@ -59,6 +64,10 @@ public class Account {
     public void changePassword(String hashedPassword){
         if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
         this.password = validatePassword(hashedPassword);
+    }
+
+    public void setAccountVerified(){
+        verified = true;
     }
 
     public void enableAccount(){
