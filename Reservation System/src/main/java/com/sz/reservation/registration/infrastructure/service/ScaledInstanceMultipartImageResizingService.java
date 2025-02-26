@@ -15,15 +15,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Component
-public class AwtMultipartImageResizingService implements MultipartImageResizingService {
-    private Logger logger = LogManager.getLogger(AwtMultipartImageResizingService.class);
+public class ScaledInstanceMultipartImageResizingService implements MultipartImageResizingService {
+    private Logger logger = LogManager.getLogger(ScaledInstanceMultipartImageResizingService.class);
 
     private int WIDTH;
 
 
     private int HEIGHT;
 
-    public AwtMultipartImageResizingService(@Value("${pfp.width}") int WIDTH,  @Value("${pfp.height}") int HEIGHT) {
+    public ScaledInstanceMultipartImageResizingService(@Value("${pfp.width}") int WIDTH, @Value("${pfp.height}") int HEIGHT) {
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
     }
@@ -46,7 +46,6 @@ public class AwtMultipartImageResizingService implements MultipartImageResizingS
         logger.info("successful resizing for image {}",originalImageName);
         Image resized = bufferedProfilePicture.getScaledInstance(WIDTH, HEIGHT, Image.SCALE_DEFAULT);
         bufferedProfilePicture.flush();
-        bufferedProfilePicture = null;
         return resized;
     }
 }

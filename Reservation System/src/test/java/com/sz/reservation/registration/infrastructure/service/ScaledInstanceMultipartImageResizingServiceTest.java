@@ -1,23 +1,15 @@
 package com.sz.reservation.registration.infrastructure.service;
 
-import com.sz.reservation.configuration.RootConfig;
 import com.sz.reservation.registration.infrastructure.exception.FileReadingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,14 +18,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @DisplayName("Testing AwtMultipartImageResizingService")
-class AwtMultipartImageResizingServiceTest {
-    private static AwtMultipartImageResizingService resizingService;
-    private static final int WIDTH = 50;
-    private static final int HEIGHT = 50;
+class ScaledInstanceMultipartImageResizingServiceTest {
+    private static ScaledInstanceMultipartImageResizingService resizingService;
+    private static final int WIDTH = 192;
+    private static final int HEIGHT = 192;
 
     @BeforeAll
     private static void instantiatingService(){
-        resizingService = new AwtMultipartImageResizingService(WIDTH,HEIGHT);
+        resizingService = new ScaledInstanceMultipartImageResizingService(WIDTH,HEIGHT);
     }
 
 
@@ -80,7 +72,7 @@ class AwtMultipartImageResizingServiceTest {
     }
 
     @Test
-    public void Should_ThrowRuntimeException_When_NullMultipartFile() throws IOException {
+    public void Should_ThrowRuntimeException_When_NullMultipartFile() {
         assertThrows(RuntimeException.class,() -> {
             resizingService.resizeImage(null);
         });
@@ -97,6 +89,8 @@ class AwtMultipartImageResizingServiceTest {
             resizingService.resizeImage(emptyFile);
         });
     }
+
+
 
 
 }

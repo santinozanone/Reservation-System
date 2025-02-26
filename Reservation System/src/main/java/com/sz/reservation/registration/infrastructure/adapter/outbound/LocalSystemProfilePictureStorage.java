@@ -85,8 +85,6 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
         try {
             ImageIO.write(bufferedImage, fileExtension, outputImage);
             bufferedImage.flush();
-            bufferedImage = null;
-
         } catch (IOException e) {
             throw new FileWritingException("Failed to write file " + fullPath, e);
         }

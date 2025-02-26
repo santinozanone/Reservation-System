@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Profile("test")
-public class MockTokenVerificationSender implements VerificationTokenEmailSender {
+public class MockEmailTokenVerificationSender implements VerificationTokenEmailSender {
     @Override
     public void sendEmailTo(String email, String username, String token) {
         try {
