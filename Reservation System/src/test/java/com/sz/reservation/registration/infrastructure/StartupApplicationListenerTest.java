@@ -15,17 +15,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class StartupApplicationListenerTest {
 
     private final static String pfpDirectory = "C:\\Users\\losmelli\\Music\\directory";
-    private final static String tempPfpDirectory = "C:\\Users\\losmelli\\Music\\tempDirectory";
     private static StartupApplicationListener startupApplicationListener;
 
     @BeforeAll
     private static void instantiatingListener(){
-        startupApplicationListener = new StartupApplicationListener(pfpDirectory, tempPfpDirectory);
+        startupApplicationListener = new StartupApplicationListener(pfpDirectory);
     }
 
     private void deleteDirectories() throws IOException {
         Files.deleteIfExists(Path.of(pfpDirectory));
-        Files.deleteIfExists(Path.of(tempPfpDirectory));
     }
 
     @Test
@@ -35,10 +33,7 @@ class StartupApplicationListenerTest {
 
         //assert
         boolean existsMainDirectory = Files.isDirectory(Path.of(pfpDirectory));
-        boolean existsTempDirectory = Files.isDirectory(Path.of(tempPfpDirectory));
-
         assertTrue(existsMainDirectory);
-        assertTrue(existsTempDirectory);
 
         deleteDirectories();
     }

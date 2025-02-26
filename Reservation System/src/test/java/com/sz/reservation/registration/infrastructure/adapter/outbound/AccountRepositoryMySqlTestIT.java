@@ -16,6 +16,7 @@ import com.sz.reservation.registration.infrastructure.service.BCryptPasswordHash
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -32,6 +33,8 @@ import java.util.Optional;
         @ContextConfiguration(classes = ServletConfig.class)
 })
 @WebAppConfiguration
+@ActiveProfiles(value = {"test","default"})
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AccountRepositoryMySqlTestIT {
 
     @Autowired

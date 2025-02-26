@@ -83,7 +83,8 @@ public class AccountRegistrationUseCase {
             throw ex; // Re-throw the exception to propagate it
         }
         logger.info("sending verification email to: {}", accountCreationData.getEmail());
-        emailSender.sendEmailTo(accountCreationData.getEmail(), accountCreationData.getUsername(), accountCreationData.getVerificationToken().getToken()); // then send email
+
+       // emailSender.sendEmailTo(accountCreationData.getEmail(), accountCreationData.getUsername(), accountCreationData.getVerificationToken().getToken()); // then send email
 
         //TODO: Protect the file upload from CSRF attacks
         //TODO: MAKE EMAIL VALIDATION BETTER, SENDGRID DETECS INVALID EMAILS

@@ -29,14 +29,14 @@ class LocalSystemProfilePictureStorageTest {
     private static String filename ;
     private static LocalSystemProfilePictureStorage profilePictureStorage;
 
-    private static String localPfpDirectory = "D:\\Reservation-System\\Profile-Picture\\";
+    private static String localPfpDirectory = "D:\\Reservation-System\\Test-Profile-Picture\\";
     private static int WIDTH = 50;
     private static int HEIGHT = 50;
 
     @BeforeAll
     private static void instantiatingStorage() throws IOException {
         profilePictureStorage = new LocalSystemProfilePictureStorage(localPfpDirectory,WIDTH,HEIGHT);
-        Path storage = Path.of("D:\\Reservation-System\\Profile-Picture\\");
+        Path storage = Path.of(localPfpDirectory);
         if ( !Files.exists(storage)) {
             Files.createDirectories(storage);
         }
@@ -44,7 +44,7 @@ class LocalSystemProfilePictureStorageTest {
 
     @AfterAll
     private static void deleteStorage() throws IOException {
-        Path storage = Path.of("D:\\Reservation-System\\Profile-Picture\\");
+        Path storage = Path.of(localPfpDirectory);
         if (Files.exists(storage)) {
             Files.delete(storage);
         }

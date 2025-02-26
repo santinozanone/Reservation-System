@@ -15,19 +15,19 @@ import com.sz.reservation.registration.infrastructure.exception.SendGridApiExcep
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 @Component
+@Profile("prod")
 public class SendGridVerificationTokenEmailSender implements VerificationTokenEmailSender {
     private Logger logger = LogManager.getLogger(SendGridVerificationTokenEmailSender.class);
 
+    @Value("${SENDGRID.APIKEY}")
     private String API_KEY;
 
-    public SendGridVerificationTokenEmailSender(@Value("${SENDGRID.APIKEY}") String API_KEY) {
-        this.API_KEY = API_KEY;
-    }
 
     private final int ACCEPTED_202 = 202;
 

@@ -3,10 +3,10 @@ package com.sz.reservation.configuration;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.annotation.MultipartConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class DispatcherServlet extends AbstractAnnotationConfigDispatcherServletInitializer {
-
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 		// TODO Auto-generated method stub
@@ -27,6 +27,6 @@ public class DispatcherServlet extends AbstractAnnotationConfigDispatcherServlet
 
 	@Override
 	protected void customizeRegistration(ServletRegistration.Dynamic registration) {
-		registration.setMultipartConfig(new MultipartConfigElement("/temp",1048576,2097152 ,0));
+		registration.setMultipartConfig(new MultipartConfigElement("",1048576,2097152 ,0));
 	}
 }

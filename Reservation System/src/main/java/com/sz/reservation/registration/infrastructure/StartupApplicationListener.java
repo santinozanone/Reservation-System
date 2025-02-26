@@ -17,17 +17,14 @@ public class StartupApplicationListener  implements
         ApplicationListener<ContextRefreshedEvent> {
 
     private String profilePictureDirectory;
-    private String tempDirectory;
 
     private Logger logger = LogManager.getLogger(StartupApplicationListener.class);
-    public StartupApplicationListener(@Value("${localpfpstorage.location}")String profilePictureDirectory, @Value(("${tempStorage.location}")) String tempDirectory) {
+    public StartupApplicationListener(@Value("${localpfpstorage.location}")String profilePictureDirectory) {
         this.profilePictureDirectory = profilePictureDirectory;
-        this.tempDirectory = tempDirectory;
     }
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        createProfilePicTempDirectoryIfNotExists();
         createProfilePictureDirectoryIfNotExists();
     }
 
@@ -43,14 +40,6 @@ public class StartupApplicationListener  implements
         }
     }
 
-    private void createProfilePicTempDirectoryIfNotExists(){
-        try {
-            Files.createDirectories(Path.of(tempDirectory));
-        }
-        catch (IOException e) {
-            logger.error("failed to create TEMP profile picture directory: {}",tempDirectory,e);
-            throw new DirectoryCreationException("failed to create temp directory " +tempDirectory, e);
-        }
-    }
+
 
 }

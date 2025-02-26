@@ -8,6 +8,7 @@ import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 

@@ -4,14 +4,16 @@ import com.sz.reservation.configuration.RootConfig;
 import com.sz.reservation.configuration.ServletConfig;
 import com.sz.reservation.registration.domain.model.Account;
 import com.sz.reservation.registration.domain.port.outbound.AccountRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -24,6 +26,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,22 +39,26 @@ import static org.junit.jupiter.api.Assertions.*;
         @ContextConfiguration(classes = ServletConfig.class)
 })
 @WebAppConfiguration
+@ActiveProfiles(value = {"test","default"})
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HttpRegistrationControllerTestIT {
 
     @Autowired
-    HttpRegistrationController controller;
+    Environment environment;
 
     @Autowired
     AccountRepository repository;
     @Autowired
     WebApplicationContext wac;
 
-    WebTestClient client;
+    WebTestClient client ;
 
-    @BeforeEach
-    void setUp() {
-        client = MockMvcWebTestClient.bindToApplicationContext(this.wac).build();
+
+    @BeforeAll
+    public void instantiateClient(){
+        client  = MockMvcWebTestClient.bindToApplicationContext(wac).build();;
     }
+
 
 
 
