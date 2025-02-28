@@ -1,16 +1,19 @@
 package com.sz.reservation.configuration;
 
-import com.sz.reservation.registration.application.useCase.*;
-import com.sz.reservation.registration.domain.port.outbound.ProfilePictureStorage;
-import com.sz.reservation.registration.domain.port.outbound.AccountRepository;
-import com.sz.reservation.registration.domain.port.outbound.VerificationTokenEmailSender;
-import com.sz.reservation.registration.domain.service.*;
-import com.sz.reservation.registration.infrastructure.adapter.outbound.SendGridVerificationTokenEmailSender;
+import com.sz.reservation.accountManagement.application.service.AccountCreation;
+import com.sz.reservation.accountManagement.application.service.ProfilePictureService;
+import com.sz.reservation.accountManagement.application.useCase.*;
+import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
+import com.sz.reservation.accountManagement.domain.port.outbound.ProfilePictureStorage;
+import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
+import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTokenEmailSender;
+import com.sz.reservation.accountManagement.domain.service.*;
 import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -75,6 +78,17 @@ public class RootConfig {
     }
 
     @Bean
+    public ProfilePictureService profilePictureService(ProfilePictureStorage profilePictureStorage,ProfilePictureTypeValidator profilePictureTypeValidator,
+                                                       MultipartImageResizingService multipartImageResizingService){
+        return new ProfilePictureService(profilePictureStorage,profilePictureTypeValidator,multipartImageResizingService);
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+        return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
     public PlatformTransactionManager transactionManager(DataSource dataSource){
         return new DataSourceTransactionManager(dataSource);
     }
@@ -85,10 +99,10 @@ public class RootConfig {
     }
 
     @Bean
-    public AccountRegistrationUseCase registrationUseCase(AccountRepository accountRepository, ProfilePictureStorage profilePictureStorage,
-                                                          MultipartImageResizingService multipartImageResizingService, ProfilePictureTypeValidator profilePictureTypeValidator,
-                                                          VerificationTokenEmailSender verificationTokenEmailSender, AccountCreation accountCreation){
-        return new AccountRegistrationUseCase(accountRepository, profilePictureStorage , multipartImageResizingService, profilePictureTypeValidator,verificationTokenEmailSender,accountCreation);
+    public AccountRegistrationUseCase registrationUseCase(AccountRepository accountRepository, AccountVerificationTokenRepository verificationTokenRepository,
+                                                          ProfilePictureService profilePictureService,VerificationTokenEmailSender verificationTokenEmailSender,
+                                                          AccountCreation accountCreation){
+        return new AccountRegistrationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender,profilePictureService,accountCreation);
     }
 
 }

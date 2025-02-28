@@ -1,6 +1,6 @@
 package com.sz.reservation.util;
 
-import com.sz.reservation.registration.infrastructure.exception.FileReadingException;
+import com.sz.reservation.accountManagement.infrastructure.exception.FileReadingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;

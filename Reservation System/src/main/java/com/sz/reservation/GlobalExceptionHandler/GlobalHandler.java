@@ -1,7 +1,7 @@
 package com.sz.reservation.GlobalExceptionHandler;
 
-import com.sz.reservation.registration.domain.exception.*;
-import com.sz.reservation.registration.infrastructure.exception.*;
+import com.sz.reservation.accountManagement.domain.exception.*;
+import com.sz.reservation.accountManagement.infrastructure.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.*;
@@ -14,7 +14,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
