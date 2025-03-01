@@ -170,4 +170,8 @@ public class Account {
     public boolean isEnabled() {
         return enabled;
     }
+
+    public boolean isVerified() {
+        return verified;
+    }
 }

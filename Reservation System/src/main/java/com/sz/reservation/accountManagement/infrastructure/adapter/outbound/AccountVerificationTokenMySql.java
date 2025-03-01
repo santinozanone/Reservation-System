@@ -4,6 +4,8 @@ import com.sz.reservation.accountManagement.domain.model.AccountVerificationToke
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,11 +15,18 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Repository
 public class AccountVerificationTokenMySql implements AccountVerificationTokenRepository {
     private JdbcTemplate jdbcTemplate;
+
+    private static final Marker SQL_MARKER = MarkerManager.getMarker("SQL");
+    private static final Marker INSERT_MARKER = MarkerManager.getMarker("SQL_INSERT").setParents(SQL_MARKER);
+    private static final Marker QUERY_MARKER = MarkerManager.getMarker("SQL_QUERY").setParents(SQL_MARKER);
+
     private Logger logger = LogManager.getLogger(AccountVerificationTokenMySql.class);
 
     @Autowired
@@ -28,6 +37,7 @@ public class AccountVerificationTokenMySql implements AccountVerificationTokenRe
 
     @Override
     public Optional<AccountVerificationToken> findByToken(String token) {
+        logger.debug(QUERY_MARKER, "executing select for token : {}", token);
         AccountVerificationToken accountVerificationToken;
         String sql = "Select BIN_TO_UUID(account_id),BIN_TO_UUID(token),expires_at from verification_token where token = UUID_TO_BIN(?)";
         accountVerificationToken = jdbcTemplate.query(sql,new ResultSetExtractor<AccountVerificationToken>(){
@@ -46,6 +56,12 @@ public class AccountVerificationTokenMySql implements AccountVerificationTokenRe
 
     @Override
     public void save(AccountVerificationToken accountVerificationToken) {
-
+        logger.debug(INSERT_MARKER, "executing verification token insert: {}", accountVerificationToken.getToken());
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String createdAt = dateFormatter.format(LocalDate.now());
+        String expirationDate = dateFormatter.format(accountVerificationToken.getExpirationDate());
+        String sql = "insert into verification_token (token,created_at,expires_at,account_id) VALUES" +
+                "(UUID_TO_BIN(?),?,?,UUID_TO_BIN(?))";
+        jdbcTemplate.update(sql,accountVerificationToken.getToken(),createdAt,expirationDate,accountVerificationToken.getUserId());
     }
 }

@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringJUnitWebConfig(classes = {RootConfig.class, ServletConfig.class})
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
-class VgiterificationAccountValidationTokenEmailSenderTest {
+class VerificationAccountValidationTokenEmailSenderTest {
 
     @Autowired
     private VerificationTokenEmailSender emailSender;

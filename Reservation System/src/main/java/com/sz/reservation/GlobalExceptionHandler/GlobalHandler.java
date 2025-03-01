@@ -4,22 +4,40 @@ import com.sz.reservation.accountManagement.domain.exception.*;
 import com.sz.reservation.accountManagement.infrastructure.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.method.MethodValidationException;
+import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
+
+    @ExceptionHandler(value = InvalidTokenException.class)
+    public ProblemDetail handleInvalidTokenException(InvalidTokenException exception){
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid verification token");
+        problemDetail.setDetail("Verification token  uploaded is not valid");
+        logger.info("the token :{}  , is not valid" ,exception.getToken());
+        return problemDetail;
+    }
+
+
     @ExceptionHandler(value = MediaNotSupportedException.class )
     public ProblemDetail handleMediaNotSupportedException(MediaNotSupportedException exception){
        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
@@ -52,8 +70,8 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleUserAlreadyRegisteredException(UsernameAlreadyRegisteredException exception){
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Username already registered exception");
-        problemDetail.setDetail("The username is already use");
-        logger.info("error trying to insert user, username: {} already in use",exception.getUsername());
+        problemDetail.setDetail("The username is already in use");
+        logger.info("error trying to insert/update user, username: {} already in use",exception.getUsername());
         return problemDetail;
     }
 
@@ -84,7 +102,6 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Bad Request");
         Map<String, String> validationErrors = new HashMap<>();
@@ -131,5 +148,42 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(problemDetail, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    protected ResponseEntity<Object> handleMethodValidationException(MethodValidationException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Bad Request");
+        ArrayList<String> validationErrors = new ArrayList<>();
+        for(ParameterValidationResult p: ex.getParameterValidationResults()){
+            for (MessageSourceResolvable m:p.getResolvableErrors()){
+                validationErrors.add(m.getDefaultMessage());
+            }
+        }
+        problemDetail.setDetail("Invalid Parameters " + validationErrors);
+        logger.info("request from : {} , contain invalid parameters:{}",request.getUserPrincipal(),validationErrors);
+        return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
+    }
 
+    @Override
+    protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setDetail("missing path variable");
+        return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setDetail("missing servlet request parameter");
+        return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setDetail("missing servlet request multipart parameter");
+        return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
+    }
 }

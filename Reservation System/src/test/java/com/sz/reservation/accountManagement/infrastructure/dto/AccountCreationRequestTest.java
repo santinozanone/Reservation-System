@@ -50,6 +50,7 @@ class AccountCreationRequestTest {
                 multipartFile,
                 "eightcharacterlong");
 
+
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
     }

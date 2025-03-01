@@ -7,8 +7,9 @@ import java.util.Optional;
 
 public interface AccountRepository {
 
-	void updateAccount();
+	void updateAccount(Account account);
 	void registerNotEnabledNotVerifiedUser(AccountCreationData user);
+	Optional<Account> findAccountByUserId(String userId);
 
 	Optional<Account> findAccountByUsername(String username);
 

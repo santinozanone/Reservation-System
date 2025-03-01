@@ -91,8 +91,23 @@ public class AccountRepositoryMySql implements AccountRepository {
 
 
     @Override
-    public void updateAccount() {
+    public void updateAccount(Account account) {
+        if (account == null)throw new IllegalArgumentException("account cannot be null");
+        PhoneNumber phoneNumber =  account.getPhoneNumber();
+        String accountSql = "update account set username = ?, name = ?, surname = ?, profilePicturePath = ?, password = ?,verified = ?,enabled = ? where iduser = UUID_TO_BIN(?)";
+        String phoneNumberSql = "update phone_number set countryCode = ?, phoneNumber = ? where idphoneNumber = UUID_TO_BIN(?)";
+        try {
+            logger.debug("executing update on account with id:{}", account.getId());
+            jdbcTemplate.update(accountSql,  account.getUniqueUsername(),account.getName(),account.getSurname(),account.getProfilePicture().getImagePath(),
+                    account.getPassword(),account.isVerified(),account.isEnabled(),account.getId());
 
+            logger.debug("executing update on phoneNumber with id:{}", phoneNumber.getId());
+            jdbcTemplate.update(phoneNumberSql,phoneNumber.getCountryCode(),phoneNumber.getPhoneNumber(),phoneNumber.getId());
+        }catch (DuplicateKeyException exception){
+            logger.info("error trying to update user with uuid:{}, username:{}, email:{}, duplicate key exception",
+                    account.getId(), account.getUniqueUsername(), account.getUniqueEmail());
+            handleSqlIntegrityException(account.getUniqueEmail(), account.getUniqueUsername(), exception);
+        }
     }
 
     @Override
@@ -109,8 +124,6 @@ public class AccountRepositoryMySql implements AccountRepository {
         String phoneNumberSql = "INSERT INTO phone_number(idphoneNumber,countryCode,phoneNumber) VALUES (UUID_TO_BIN(?),?,?)";
         String accountSql = "INSERT INTO account (iduser, username, name, surname, email, birthDate, password, profilePicturePath, phoneNumberId,createdAt,verified,enabled) " +
                 "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, UUID_TO_BIN(?), ?,?,?)";
-        String verificationTokenSql = "INSERT INTO verification_token(token,created_at,expires_at,account_id) VALUES (UUID_TO_BIN(?),?,?,UUID_TO_BIN(?))";
-
 
         //Inserting phone number
         String phoneId = accountCreationData.getPhoneNumber().getId();
@@ -121,7 +134,7 @@ public class AccountRepositoryMySql implements AccountRepository {
 
         //Inserting account
         boolean verified = false;
-        boolean enabled = true;
+        boolean enabled = false;
         String profilePicturePath = accountCreationData.getProfilePicture().getImagePath();
         logger.debug("executing account data insertion: {}", accountSql);
         try {
@@ -133,11 +146,30 @@ public class AccountRepositoryMySql implements AccountRepository {
                     accountCreationData.getId(), accountCreationData.getUsername(), accountCreationData.getEmail());
             handleSqlIntegrityException(accountCreationData.getEmail(), accountCreationData.getUsername(), exception);
         }
-        logger.debug(INSERT_MARKER, "executing verification token insert: {}", verificationTokenSql);
-        String expires_at = dateFormatter.format(accountCreationData.getVerificationToken().getExpirationDate());
-        jdbcTemplate.update(verificationTokenSql, accountCreationData.getVerificationToken().getToken(), dateFormatter.format(localDateTime), expires_at, accountCreationData.getId());
         logger.info("Successfully inserted user with uuid:{}, username:{}, email:{}", accountCreationData.getId(), accountCreationData.getUsername(), accountCreationData.getEmail());
 
+    }
+
+    @Override
+    public Optional<Account> findAccountByUserId(String userId) {
+        if (userId == null)throw new IllegalArgumentException("userId cannot be null");
+        logger.debug(QUERY_MARKER, "finding account with userId: {} ", userId);
+        String accountQuery = "select BIN_TO_UUID(iduser) as iduser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.idphoneNumber) as phoneId,ph.countryCode,ph.phoneNumber,ac.profilePicturePath,ac.password,ac.verified,ac.enabled from account " +
+                "as ac inner join phone_number as ph on ac.phoneNumberId = ph.idphoneNumber where ac.iduser = UUID_TO_BIN(?)";
+        logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
+
+        Account account = jdbcTemplate.query(
+                accountQuery,
+                new ResultSetExtractor<Account>() {
+                    @Override
+                    public Account extractData(ResultSet resultSet) throws SQLException, DataAccessException {
+                        if (!resultSet.next()) return null;
+                        return new Account(resultSet.getString("iduser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
+                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("countryCode"), resultSet.getString("phoneNumber")),
+                                new ProfilePicture(resultSet.getString("profilePicturePath")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
+                    }
+                }, userId);
+        return Optional.ofNullable(account);
     }
 
 

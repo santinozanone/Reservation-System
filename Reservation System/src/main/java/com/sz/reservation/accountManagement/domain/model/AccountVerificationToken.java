@@ -6,6 +6,7 @@ public class AccountVerificationToken {
 
     private String userId;
     private String verificationToken;
+
     private LocalDate expiresAt;
 
     public AccountVerificationToken(String userId,String verificationToken, LocalDate expiresAt) {
@@ -26,13 +27,9 @@ public class AccountVerificationToken {
         return verificationToken;
     }
 
-    public boolean isValid(String token){
-        if (matchesToken(token) && !isExpired()) return true;
+    public boolean isValid(){
+        if (!isExpired()) return true;
         return false;
-    }
-
-    private boolean matchesToken(String token){
-        return verificationToken.equals(token);
     }
 
     private boolean isExpired(){
