@@ -37,6 +37,7 @@ public class AccountVerificationTokenMySql implements AccountVerificationTokenRe
 
     @Override
     public Optional<AccountVerificationToken> findByToken(String token) {
+        if (token == null || token.isEmpty()) throw new IllegalArgumentException("token cannot be null or empty");
         logger.debug(QUERY_MARKER, "executing select for token : {}", token);
         AccountVerificationToken accountVerificationToken;
         String sql = "Select BIN_TO_UUID(account_id),BIN_TO_UUID(token),expires_at from verification_token where token = UUID_TO_BIN(?)";
@@ -56,6 +57,7 @@ public class AccountVerificationTokenMySql implements AccountVerificationTokenRe
 
     @Override
     public void save(AccountVerificationToken accountVerificationToken) {
+        if (accountVerificationToken == null)throw new IllegalArgumentException("account verification token cannot be null");
         logger.debug(INSERT_MARKER, "executing verification token insert: {}", accountVerificationToken.getToken());
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String createdAt = dateFormatter.format(LocalDate.now());

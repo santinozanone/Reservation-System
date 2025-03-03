@@ -216,21 +216,21 @@ class AccountRepositoryMySqlTestIT {
 
     @Test
     public void Should_ThrowIllegalArgumentException_When_FindByUsernameIsNull(){
-        Assertions.assertThrows(IllegalArgumentException.class,()->{ // assert second user fails
+        Assertions.assertThrows(IllegalArgumentException.class,()->{
             accountRepositoryMySql.findAccountByUsername(null);
         });
     }
 
     @Test
     public void Should_ThrowIllegalArgumentException_When_FindByEmailIsNull(){
-        Assertions.assertThrows(IllegalArgumentException.class,()->{ // assert second user fails
+        Assertions.assertThrows(IllegalArgumentException.class,()->{
             accountRepositoryMySql.findAccountByEmail(null);
         });
     }
 
     @Test
     public void Should_ThrowIllegalArgumentException_When_CreationDataIsNull(){
-        Assertions.assertThrows(IllegalArgumentException.class,()->{ // assert second user fails
+        Assertions.assertThrows(IllegalArgumentException.class,()->{
             accountRepositoryMySql.registerNotEnabledNotVerifiedUser(null);
         });
     }

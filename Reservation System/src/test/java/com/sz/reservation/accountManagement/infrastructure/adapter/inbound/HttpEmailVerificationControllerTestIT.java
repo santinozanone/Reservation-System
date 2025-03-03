@@ -17,7 +17,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -43,17 +42,9 @@ import java.util.Optional;
 @DisplayName("Integration testing HttpEmailVerificationControllerTest")
 public class HttpEmailVerificationControllerTestIT {
 
-
-    @Autowired
-    private  HttpEmailVerificationController controller;
-
-    private Logger logger = LogManager.getLogger(HttpEmailVerificationControllerTestIT.class);
-
     @Autowired
     private AccountVerificationTokenRepository verificationTokenRepository;
 
-    @Autowired
-    private AccountVerificationUseCase useCase;
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
@@ -70,41 +61,97 @@ public class HttpEmailVerificationControllerTestIT {
     @Transactional
     public void Should_enabledAndVerifyAccountCorrectly_When_ValidToken(){
         //arrange
-        AccountCreationData accountCreationData = accountCreationData();
-        //act, (insert user)
-        accountRepository.registerNotEnabledNotVerifiedUser(accountCreationData);
-        //assert
-        Optional<Account> account = accountRepository.findAccountByEmail(accountCreationData.getEmail());
-        Assertions.assertTrue(account.isPresent());
+        String email = "inventedEmail@miau.com";
+        String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        LocalDate expirationDate = LocalDate.now().plusDays(7);
 
-
-        AccountVerificationToken verificationToken = accountCreationData.getVerificationToken();
-        //act
-        verificationTokenRepository.save(verificationToken);
-        //assert
-        Assertions.assertTrue(verificationTokenRepository.findByToken(verificationToken.getToken()).isPresent());
-
+        AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
 
         //act and assert
+        insertUser(userId,email,verificationToken);
+        verificationTokenRepository.save(accountVerificationToken);
+        Assertions.assertTrue(verificationTokenRepository.findByToken(accountVerificationToken.getToken()).isPresent());
+
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token",verificationToken.getToken()).build()).exchange().expectStatus().isOk();
-
-
+                .path("/api/v1/account/verify").queryParam("token",accountVerificationToken.getToken()).build()).exchange().expectStatus().isOk();
 
 
         //assert account is enabled
-        Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(accountCreationData.getEmail());
-        Assertions.assertTrue(OptionalAccount.isPresent());
-        Assertions.assertTrue(OptionalAccount.get().isEnabled());
-        Assertions.assertTrue(OptionalAccount.get().isVerified());
+        Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
+        Assertions.assertTrue(OptionalAccount.isPresent()); // account must exists
+        Assertions.assertTrue(OptionalAccount.get().isEnabled()); // must be enabled
+        Assertions.assertTrue(OptionalAccount.get().isVerified()); // must be verified
     }
 
 
-    public AccountCreationData accountCreationData(){
+    @Test
+    @Transactional
+    public void Should_ReturnBadRequest_When_TokenIsNotInDB(){
         //arrange
         String email = "inventedEmail@miau.com";
         String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        String userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        String tokenNotInDb =  "01854f09-742d-7d86-a3da-b0127c8facc4";
+        String tokenToInsert = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
+        LocalDate expirationDate = LocalDate.now().plusDays(7);
+        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,tokenToInsert,expirationDate);
+
+        //act and assert
+        insertUser(userId,email,tokenToInsert);
+        verificationTokenRepository.save(verificationToken);
+        Assertions.assertTrue(verificationTokenRepository.findByToken(verificationToken.getToken()).isPresent());
+
+        client.post().uri(uriBuilder -> uriBuilder // sending request with token that doesnt exists
+                .path("/api/v1/account/verify").queryParam("token",tokenNotInDb).build()).exchange().expectStatus().isBadRequest();
+
+
+        //assert account is not enabled and not verified
+        Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
+        Assertions.assertTrue(OptionalAccount.isPresent()); // account must exists
+        Assertions.assertFalse(OptionalAccount.get().isEnabled()); // must not be enabled
+        Assertions.assertFalse(OptionalAccount.get().isVerified()); // must not be verified
+    }
+
+
+    @Test
+    @Transactional
+    public void Should_ReturnBadRequest_When_TokenProvidedIsNotValidFormat() {
+        String invalidToken = "01954f09-742d-7d86-a3dab-0127c8facc4"; // invalidFormat
+        //assert
+        client.post().uri(uriBuilder -> uriBuilder // sending request with invalid format
+                .path("/api/v1/account/verify").queryParam("token", invalidToken).build()).exchange().expectStatus().isBadRequest();
+    }
+
+    @Test
+    @Transactional
+    public void Should_ReturnBadRequest_When_TokenIsExpired() {
+        //arrange
+        String email = "inventedEmail@miau.com";
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        String expiredToken = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
+        LocalDate expiredDate = LocalDate.of(2025,3,2);
+        AccountVerificationToken expiredVerificationToken = new AccountVerificationToken(userId,expiredToken,expiredDate);
+
+
+        //act
+        insertUser(userId,email,expiredToken); // save user
+        verificationTokenRepository.save(expiredVerificationToken); // insert expired token in db
+
+        //assert
+        Assertions.assertTrue(verificationTokenRepository.findByToken(expiredToken).isPresent()); // assert token exists
+        client.post().uri(uriBuilder -> uriBuilder // sending request with expired token
+                .path("/api/v1/account/verify").queryParam("token", expiredToken).build()).exchange().expectStatus().isBadRequest();
+
+        Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
+        Assertions.assertTrue(OptionalAccount.isPresent()); // account must exists
+        Assertions.assertFalse(OptionalAccount.get().isEnabled()); // must not be enabled
+        Assertions.assertFalse(OptionalAccount.get().isVerified()); // must not be verified
+    }
+
+
+
+    private void insertUser(String userId,String email,String userVerificationToken){
+        //arrange
         LocalDate expirationDate = LocalDate.now().plusDays(7);
 
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
@@ -112,6 +159,8 @@ public class HttpEmailVerificationControllerTestIT {
 
         HashingService hashingService = new BCryptPasswordHashingService();
         String password =hashingService.hash("ultrasafepassword");
+
+        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,userVerificationToken,expirationDate);
 
         AccountCreationData accountCreationData = new AccountCreationData(
                 userId,
@@ -124,9 +173,13 @@ public class HttpEmailVerificationControllerTestIT {
                 "Argentina",
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
+                verificationToken);
 
-        return accountCreationData;
+        //act, (insert user)
+        accountRepository.registerNotEnabledNotVerifiedUser(accountCreationData);
+        //assert
+        Optional<Account> account = accountRepository.findAccountByEmail(accountCreationData.getEmail());
+        Assertions.assertTrue(account.isPresent());
     }
 
 
