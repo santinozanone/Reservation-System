@@ -148,6 +148,35 @@ public class HttpEmailVerificationControllerTestIT {
         Assertions.assertFalse(OptionalAccount.get().isVerified()); // must not be verified
     }
 
+    @Test
+    @Transactional
+    public void Should_ReturnBadRequest_When_AlreadyVerifiedUser() {
+        //arrange
+        String email = "inventedEmail@miau.com";
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        String token = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
+        LocalDate date = LocalDate.of(2025,3,5);
+        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,token,date);
+
+
+        //act and assert
+        insertUser(userId,email,token); // save user
+        verificationTokenRepository.save(verificationToken); // insert token in db
+        Assertions.assertTrue(verificationTokenRepository.findByToken(token).isPresent()); // assert token exists
+
+        client.post().uri(uriBuilder -> uriBuilder // verify token
+                .path("/api/v1/account/verify").queryParam("token", token).build()).exchange().expectStatus().isOk();
+
+        client.post().uri(uriBuilder -> uriBuilder // verify token again
+                .path("/api/v1/account/verify").queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
+
+
+        Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
+        Assertions.assertTrue(OptionalAccount.isPresent()); // account must exists
+        Assertions.assertTrue(OptionalAccount.get().isEnabled()); // must be enabled
+        Assertions.assertTrue(OptionalAccount.get().isVerified()); // must be verified
+    }
+
 
 
     private void insertUser(String userId,String email,String userVerificationToken){

@@ -28,13 +28,13 @@ public class SendGridVerificationTokenEmailSender implements VerificationTokenEm
     @Value("${SENDGRID.APIKEY}")
     private String API_KEY;
 
-    private String REDIRECT_URL = "http://localhost:8080/Reservation-System-0.0.1-SNAPSHOT/api/v1/account/verify?token=";
+    private String REDIRECT_URL = "http://localhost:8080/Reservation-System-0.0.1-SNAPSHOT/api/v1/account/verify";
 
     private final int ACCEPTED_202 = 202;
 
     @Override
     public void sendEmailTo(String email,String username ,String token)  {
-        REDIRECT_URL = REDIRECT_URL.concat(token);
+        //REDIRECT_URL = REDIRECT_URL.concat(token);
         logger.debug("starting sending email to: {} , with username:{} , and token: {} ",email,username,token);
 
         Email from = new Email("reservation.notificationsender@gmail.com");
@@ -55,7 +55,7 @@ public class SendGridVerificationTokenEmailSender implements VerificationTokenEm
         mail.setFrom(from);
         mail.addContent(content);
         mail.addPersonalization(personalization);
-        mail.setTemplateId("d-2cf97d64b6c8495c9e22d1a7b49c00cb"); //d-2cf97d64b6c8495c9e22d1a7b49c00cb
+        mail.setTemplateId("d-2cf97d64b6c8495c9e22d1a7b49c00cb");
 
 
         SendGrid sg = new SendGrid(API_KEY);

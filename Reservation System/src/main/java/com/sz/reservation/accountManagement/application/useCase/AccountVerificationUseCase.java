@@ -1,5 +1,6 @@
 package com.sz.reservation.accountManagement.application.useCase;
 
+import com.sz.reservation.accountManagement.domain.exception.AccountAlreadyVerifiedException;
 import com.sz.reservation.accountManagement.domain.exception.InvalidTokenException;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
@@ -32,6 +33,7 @@ public class AccountVerificationUseCase {
             throw new RuntimeException("UserId " +verificationToken.getUserId() + " obtained from verification token does not exists") ; // maybe should be custom exception
         }
         Account account = optionalAccount.get();
+        if (account.isVerified() ) throw new AccountAlreadyVerifiedException(account.getId());
         account.setAccountVerified(); // set account verified to true
         account.enableAccount(); // set account enabled to true
         accountRepository.updateAccount(account);

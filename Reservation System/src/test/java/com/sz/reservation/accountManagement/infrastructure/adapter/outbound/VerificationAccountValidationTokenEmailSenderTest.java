@@ -24,9 +24,9 @@ class VerificationAccountValidationTokenEmailSenderTest {
     @Test
     public void Should_SendEmailCorrectlyNotThrowError_When_Used() {
         //Arrange
-        String email = "fakeemail@gmail.com";
-        String username = "tomas";
-        String token = "12345";
+        String email = "zanone.santinoet36@gmail.com";
+        String username = "tomas4";
+        String token = "01854f09-742d-7d86-a3da-b0127c8facc4";
 
         //Act and assert
         assertDoesNotThrow(() ->{

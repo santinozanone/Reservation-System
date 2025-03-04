@@ -39,7 +39,7 @@ public class HttpEmailVerificationController {
         validateToken(token);
         logger.debug("validation correct");
         accountVerificationUseCase.verifyAccount(token);
-        return new ResponseEntity<>("email verified successfully  ", HttpStatus.OK);
+        return new ResponseEntity<>("email verified successfully ", HttpStatus.OK);
     }
 
     private void validateToken(String token){

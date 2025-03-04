@@ -32,11 +32,19 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleInvalidTokenException(InvalidTokenException exception){
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Invalid verification token");
-        problemDetail.setDetail("Verification token  uploaded is not valid");
+        problemDetail.setDetail("Verification token uploaded is not valid");
         logger.info("the token :{}  , is not valid" ,exception.getToken());
         return problemDetail;
     }
 
+    @ExceptionHandler(value = AccountAlreadyVerifiedException.class)
+    public ProblemDetail handleAccountAlreadyVerifiedException(AccountAlreadyVerifiedException exception){
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Account already verified");
+        problemDetail.setDetail("The account is already verified");
+        logger.info("the account with id :{}  , is already verified" ,exception.getUserId());
+        return problemDetail;
+    }
 
     @ExceptionHandler(value = MediaNotSupportedException.class )
     public ProblemDetail handleMediaNotSupportedException(MediaNotSupportedException exception){
