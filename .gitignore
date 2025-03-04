@@ -1,5 +1,6 @@
 /.metadata/
 target/
 logs/
+ReservationLogs/
 /build/
 *.properties

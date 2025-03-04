@@ -476,3 +476,32 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * Modified the db schema, so now the account tables has a new field, "verified" , before i had "enabled" but i wanted to be able to differentiate between an enabled account and a verified account, so i can disable an account when needed.
 * Modified the repository and account classes to fit the new field.
 * Added a method in the localpfpstorage test for creating the directory for storing the pictures and deleting it afterward.
+
+---
+### 27/02/2025
+#### **What was done today:** 
+* Found a bug in the @transactional method, forgot that inner classes call dont work because its a proxy
+* Refactored registration use case for better readability and better functionality
+* Created the profilePicture service class, which handles validation,resizing and storage
+* Created jdbcTemplate bean instead of creating a new one in each repository
+* Created verification email endpoint
+* Changed verification email endpoint name.
+* Created verification email use case.
+* Modified emailverificationtoken class so it has the userId.
+* Created a repository for emailverificationtoken so it can be handled separately
+* Ended up not specifying a temp directory for multipart, instead will use tomcat temp directory
+* Changed log4j2 logs folder name to /ReservationLogs
+* Refactored accountVerificationToken so it has a isValid public method.
+
+### 28/02/2025
+#### **What was done today:** 
+* Added findUserbyId method
+* Added more methods to global exception handler
+* Created a invalidVerificationToken exception
+* Finishied verificationEmail use case
+* Finished unit testing of emailverificationtoken controller
+* Used mockito for unit testing
+* Changed the email template, so it now has a verify button.
+* Added integration testing for the email verification, which creates an account first.
+* Added an updateAccount method
+* Finished the accountVerificationToken repository
