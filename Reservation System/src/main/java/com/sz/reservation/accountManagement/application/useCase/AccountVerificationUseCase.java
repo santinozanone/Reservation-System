@@ -47,8 +47,8 @@ public class AccountVerificationUseCase {
             throw new InvalidTokenException(token);
         }
         AccountVerificationToken verificationToken = optionalVerificationToken.get();
-        if (!verificationToken.isValid()){
-            logger.debug("invalid token:{}",token);
+        if (verificationToken.isExpired()){
+            logger.debug("the token:{}, is Expired",token);
             throw new InvalidTokenException(token);
         }
         return verificationToken;

@@ -27,12 +27,9 @@ public class AccountVerificationToken {
         return verificationToken;
     }
 
-    public boolean isValid(){
-        if (!isExpired()) return true;
-        return false;
-    }
 
-    private boolean isExpired(){
+
+    public boolean isExpired(){
         return LocalDate.now().isAfter(expiresAt);
     }
 }
