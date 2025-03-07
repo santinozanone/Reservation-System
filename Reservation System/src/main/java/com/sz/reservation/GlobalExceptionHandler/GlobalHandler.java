@@ -6,7 +6,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.*;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+
 import org.springframework.validation.method.MethodValidationException;
 import org.springframework.validation.method.ParameterValidationResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,6 +29,16 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
+
+
+
+    @ExceptionHandler(value = AuthenticationException.class)
+    public ProblemDetail handleAuthenticationException(AuthenticationException e){
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
+        problemDetail.setTitle("Invalid credentials");
+        problemDetail.setDetail("invalid email or password");
+        return problemDetail;
+    }
 
     @ExceptionHandler(value = InvalidTokenException.class)
     public ProblemDetail handleInvalidTokenException(InvalidTokenException exception){

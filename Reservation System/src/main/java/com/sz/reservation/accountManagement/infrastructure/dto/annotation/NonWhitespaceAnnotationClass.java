@@ -1,4 +1,4 @@
-package com.sz.reservation.accountManagement.infrastructure.annotation;
+package com.sz.reservation.accountManagement.infrastructure.dto.annotation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

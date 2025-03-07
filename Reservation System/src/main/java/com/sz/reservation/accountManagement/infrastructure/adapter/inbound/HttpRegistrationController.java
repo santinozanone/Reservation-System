@@ -27,7 +27,6 @@ public class HttpRegistrationController {
 	}
 	@PostMapping("/register")
 	public ResponseEntity<String> registerUser(@ModelAttribute @Valid AccountCreationRequest request) throws IOException {
-
 		logger.info("User registration request with email {}, arrived",request.getEmail());
 		accountRegistrationUseCase.registerNotEnabledUser(request);
 		logger.info("User with email {} registered succesfully",request.getEmail());

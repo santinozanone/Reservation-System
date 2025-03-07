@@ -73,12 +73,33 @@
 
 	</build>
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>6.4.3</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-test -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<version>6.4.3</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-web -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>6.4.3</version>
+		</dependency>
+
 
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webflux</artifactId>
-			<version>6.2.1</version>
+			<version>6.2.3</version>
 		</dependency>
 
 
@@ -140,7 +161,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<version>6.2.2</version>
+			<version>6.2.3</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -194,7 +215,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>6.2.2</version>
+			<version>6.2.3</version>
 		</dependency>
 
 		<dependency>
@@ -218,7 +239,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>6.2.1</version>
+			<version>6.2.3</version>
 		</dependency>
 
 		<dependency>

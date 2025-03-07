@@ -44,28 +44,8 @@ public class AccountRepositoryMySql implements AccountRepository {
     }
 
 
-    @Override
-    public Optional<Account> findAccountByUsername(String username) {
-        if (username == null)throw new IllegalArgumentException("username cannot be null");
-        logger.debug(QUERY_MARKER, "finding account with username: {} ", username);
-        String accountQuery = "select BIN_TO_UUID(iduser) as iduser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.idphoneNumber) as phoneId,ph.countryCode,ph.phoneNumber,ac.profilePicturePath,ac.password,ac.verified,ac.enabled from account " +
-                "as ac inner join phone_number as ph on ac.phoneNumberId = ph.idphoneNumber where ac.username = ?";
-        logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
-        Account account = jdbcTemplate.query(
-                accountQuery,
-                new ResultSetExtractor<Account>() {
-                    @Override
-                    public Account extractData(ResultSet resultSet) throws SQLException, DataAccessException {
-                        if (!resultSet.next()) return null;
-                        return new Account(resultSet.getString("iduser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
-                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("countryCode"), resultSet.getString("phoneNumber")),
-                                new ProfilePicture(resultSet.getString("profilePicturePath")), resultSet.getString("password"),resultSet.getBoolean("verified"), resultSet.getBoolean("enabled"));
-                    }
-                }, username);
 
-        return Optional.ofNullable(account);
-    }
 
     @Override
     public Optional<Account> findAccountByEmail(String email) {

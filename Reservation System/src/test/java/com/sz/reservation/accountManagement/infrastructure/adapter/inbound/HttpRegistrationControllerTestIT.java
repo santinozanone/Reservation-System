@@ -1,7 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.ServletConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import org.junit.jupiter.api.*;
@@ -30,10 +29,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextHierarchy({
-        @ContextConfiguration(classes = RootConfig.class),
-        @ContextConfiguration(classes = ServletConfig.class)
-})
+@ContextConfiguration(classes = RootConfig.class)
+
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

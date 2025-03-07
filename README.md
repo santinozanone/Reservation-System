@@ -505,3 +505,19 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * Added integration testing for the email verification, which creates an account first.
 * Added an updateAccount method
 * Finished the accountVerificationToken repository
+
+### 06/03/2025
+#### **What was done today:** 
+* Started using a dev branch from which feature branches are used to add new functionality
+* Read the spring security documentation
+* Added spring security with basic auth (email and password), with no granted authorities so no need to modify the db schema
+* Implemented custom userDetails and userDetailsService
+* Decided app will be totally statelss so disabled all type of session in the server side
+* Added custom exception handler for authentication failure
+* Re learnt about CORS and CSRF (CSRF is disabled only for testing purposes, because i am using postman)
+* Deleted findByUsername method in repository given that because of its unique but modifiable nature i thought it could lead or be source of attacks, given that
+  for example, when trying to retrieve by username , someone logs in the same account and changes it, then in that case the select query will return an empty account, or ,
+  in the case someone could use the username we had before, another account. So i decided to not have it.
+* All the spring security related classes are stored in a security package inside infrastructure.
+* I also moved the annotation package of infrastructure inside the dto package of infrastructure
+* Also added a method called verify2 just for testing some things for spring security

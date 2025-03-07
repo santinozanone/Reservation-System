@@ -1,16 +1,13 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
-import com.sz.reservation.GlobalExceptionHandler.GlobalHandler;
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
 import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.ServletConfig;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +23,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
-@ContextHierarchy({
-        @ContextConfiguration(classes = RootConfig.class),
-        @ContextConfiguration(classes = ServletConfig.class)
-})
+@ContextConfiguration(classes = RootConfig.class)
+
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

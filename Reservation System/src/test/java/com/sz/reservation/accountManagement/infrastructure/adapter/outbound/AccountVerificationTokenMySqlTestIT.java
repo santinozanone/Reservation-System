@@ -11,13 +11,11 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerifica
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.ServletConfig;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -33,10 +31,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("integration testing account verification token mysql db")
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextHierarchy({
-        @ContextConfiguration(classes = RootConfig.class),
-        @ContextConfiguration(classes = ServletConfig.class)
-})
+@ContextConfiguration(classes = RootConfig.class)
+
 @ActiveProfiles({"test","default"})
 class AccountVerificationTokenMySqlTestIT {
 

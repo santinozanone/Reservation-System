@@ -1,7 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.ServletConfig;
 import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTokenEmailSender;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Email sending service test")
-@SpringJUnitWebConfig(classes = {RootConfig.class, ServletConfig.class})
+@SpringJUnitWebConfig(classes = {RootConfig.class})
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 class VerificationAccountValidationTokenEmailSenderTest {

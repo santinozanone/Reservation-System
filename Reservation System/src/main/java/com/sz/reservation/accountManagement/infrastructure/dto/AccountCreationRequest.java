@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.dto;
 
-import com.sz.reservation.accountManagement.infrastructure.annotation.NotNullNotWhitespace;
+import com.sz.reservation.accountManagement.infrastructure.dto.annotation.NotNullNotWhitespace;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;

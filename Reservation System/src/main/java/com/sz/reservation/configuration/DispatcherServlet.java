@@ -1,5 +1,6 @@
 package com.sz.reservation.configuration;
 
+import com.sz.reservation.configuration.security.WebSecurityConfig;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -10,13 +11,13 @@ public class DispatcherServlet extends AbstractAnnotationConfigDispatcherServlet
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 		// TODO Auto-generated method stub
-		return new Class<?>[] {RootConfig.class};
+		return new Class<?>[] {WebSecurityConfig.class,RootConfig.class };
 	}
 
 	@Override
 	protected Class<?>[] getServletConfigClasses() {
 		// TODO Auto-generated method stub
-		return new Class<?>[] {ServletConfig.class};
+		return null;
 	}
 
 	@Override

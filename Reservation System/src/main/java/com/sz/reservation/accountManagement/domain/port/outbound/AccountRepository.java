@@ -11,8 +11,6 @@ public interface AccountRepository {
 	void registerNotEnabledNotVerifiedUser(AccountCreationData user);
 	Optional<Account> findAccountByUserId(String userId);
 
-	Optional<Account> findAccountByUsername(String username);
-
 	Optional<Account> findAccountByEmail(String email);
 
 

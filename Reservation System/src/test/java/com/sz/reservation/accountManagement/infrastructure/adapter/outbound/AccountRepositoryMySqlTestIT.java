@@ -2,7 +2,6 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.ServletConfig;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.domain.exception.EmailAlreadyRegisteredException;
 import com.sz.reservation.accountManagement.domain.exception.UsernameAlreadyRegisteredException;
@@ -28,10 +27,8 @@ import java.util.Optional;
 
 @DisplayName("Testing Account db ")
 @ExtendWith(SpringExtension.class)
-@ContextHierarchy({
-        @ContextConfiguration(classes = RootConfig.class),
-        @ContextConfiguration(classes = ServletConfig.class)
-})
+@ContextConfiguration(classes = RootConfig.class)
+
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -203,23 +200,6 @@ class AccountRepositoryMySqlTestIT {
         Assertions.assertFalse(account.isPresent());
     }
 
-    @Test
-    @Transactional
-    public void Should_ReturnEmptyOptional_When_AccountNotExistsWithUsername(){
-        //arrange
-        String username = "tomCruise";
-        //assert
-        Optional<Account> account = accountRepositoryMySql.findAccountByUsername(username);
-        Assertions.assertFalse(account.isPresent());
-    }
-
-
-    @Test
-    public void Should_ThrowIllegalArgumentException_When_FindByUsernameIsNull(){
-        Assertions.assertThrows(IllegalArgumentException.class,()->{
-            accountRepositoryMySql.findAccountByUsername(null);
-        });
-    }
 
     @Test
     public void Should_ThrowIllegalArgumentException_When_FindByEmailIsNull(){

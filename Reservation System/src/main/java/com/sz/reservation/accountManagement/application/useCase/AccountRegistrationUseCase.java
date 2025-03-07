@@ -5,6 +5,7 @@ import com.sz.reservation.accountManagement.application.service.AccountCreation;
 import com.sz.reservation.accountManagement.application.service.ProfilePictureService;
 import com.sz.reservation.accountManagement.domain.exception.EmailAlreadyRegisteredException;
 import com.sz.reservation.accountManagement.domain.exception.UsernameAlreadyRegisteredException;
+import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.*;
+import java.util.Optional;
 
 
 public class AccountRegistrationUseCase {
@@ -78,10 +80,12 @@ public class AccountRegistrationUseCase {
     }
 
     private void validateAccount(AccountCreationRequest accountCreationRequest) {
-        if (accountRepository.findAccountByEmail(accountCreationRequest.getEmail()).isPresent()) {
+        Optional<Account> optionalAccount = accountRepository.findAccountByEmail(accountCreationRequest.getEmail());
+        if (optionalAccount.isEmpty()) return;
+        if (optionalAccount.get().getUniqueEmail().equals(accountCreationRequest.getEmail())) {
             throw new EmailAlreadyRegisteredException(accountCreationRequest.getEmail());
         }
-        if (accountRepository.findAccountByUsername(accountCreationRequest.getUsername()).isPresent()) {
+        if (optionalAccount.get().getUniqueUsername().equals(accountCreationRequest.getUsername())) {
             throw new UsernameAlreadyRegisteredException(accountCreationRequest.getUsername());
         }
     }

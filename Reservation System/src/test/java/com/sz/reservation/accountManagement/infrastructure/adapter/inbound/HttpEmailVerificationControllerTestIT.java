@@ -2,7 +2,6 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
-import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
@@ -12,9 +11,6 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerifica
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.ServletConfig;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +28,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
-@ContextHierarchy({
-        @ContextConfiguration(classes = RootConfig.class),
-        @ContextConfiguration(classes = ServletConfig.class)
-})
+@ContextConfiguration(classes = RootConfig.class)
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -129,7 +122,7 @@ public class HttpEmailVerificationControllerTestIT {
         String email = "inventedEmail@miau.com";
         String userId = UuidCreator.getTimeOrderedEpoch().toString();
         String expiredToken = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
-        LocalDate expiredDate = LocalDate.of(2025,3,2);
+        LocalDate expiredDate = LocalDate.now().minusYears(1);
         AccountVerificationToken expiredVerificationToken = new AccountVerificationToken(userId,expiredToken,expiredDate);
 
 
@@ -155,7 +148,7 @@ public class HttpEmailVerificationControllerTestIT {
         String email = "inventedEmail@miau.com";
         String userId = UuidCreator.getTimeOrderedEpoch().toString();
         String token = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
-        LocalDate date = LocalDate.of(2025,3,5);
+        LocalDate date = LocalDate.now().plusDays(7);
         AccountVerificationToken verificationToken = new AccountVerificationToken(userId,token,date);
 
 
