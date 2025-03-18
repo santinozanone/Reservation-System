@@ -4,6 +4,8 @@ import com.github.f4b6a3.uuid.util.UuidValidator;
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
 import com.sz.reservation.accountManagement.domain.exception.InvalidTokenException;
 import com.sz.reservation.accountManagement.infrastructure.dto.annotation.NotNullNotWhitespace;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/account")
 @Validated
 public class HttpEmailVerificationController {
     private Logger logger = LogManager.getLogger(HttpEmailVerificationController.class);
@@ -31,8 +33,9 @@ public class HttpEmailVerificationController {
         this.accountVerificationUseCase = accountVerificationUseCase;
     }
 
-    @PostMapping("/account/verify")
-    public ResponseEntity<String> verifyActivationToken(@RequestParam("token") @Size(min = 36,max = 36,message = "token must be 36 characters") @NotNullNotWhitespace String token){
+    @PostMapping("/verification")
+    public ResponseEntity<String> verifyActivationToken(@RequestParam("token") @Size(min = 36,max = 36,message = "token must be 36 characters")
+                                                            @NotNullNotWhitespace String token){
         logger.info("received token with :{} characters",token.length());
         validateToken(token);
         logger.debug("validation correct");
@@ -40,11 +43,15 @@ public class HttpEmailVerificationController {
         return new ResponseEntity<>("email verified successfully ", HttpStatus.OK);
     }
 
-    @GetMapping("/account/verify2")
-    public ResponseEntity<String> getmapping(@RequestParam("token") @Size(min = 36,max = 36,message = "token must be 36 characters") @NotNullNotWhitespace String token){
-        logger.info("received token with :{} characters",token.length());
-        return new ResponseEntity<>("email verified successfully ", HttpStatus.OK);
+    @PostMapping("/verification/resend")
+    public ResponseEntity<String> resendActivationToken(@RequestParam("token") @Size(min = 36,max = 36,message = "token must be 36 characters")
+                                                            @NotNullNotWhitespace String token){
+        logger.info("received verification token resend for old token :{} ",token);
+        validateToken(token);
+        accountVerificationUseCase.resendVerificationTokenEmail(token);
+        return new ResponseEntity<>("account verification token resent successfully ", HttpStatus.OK);
     }
+
 
     private void validateToken(String token){
         if (!UuidValidator.isValid(token,UUID_VERSION)) throw new InvalidTokenException(token);

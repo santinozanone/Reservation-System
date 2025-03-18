@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -39,6 +38,7 @@ class HttpEmailVerificationControllerTest {
     private WebApplicationContext context;
     private  WebTestClient client;
 
+    private String VERIFICATION_PATH = "/api/v1/account/verification";
 
     @BeforeAll
     private  void instantiatingValidator(){
@@ -58,7 +58,7 @@ class HttpEmailVerificationControllerTest {
 
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token",token).build()).exchange().expectStatus().isOk();
+                .path(VERIFICATION_PATH).queryParam("token",token).build()).exchange().expectStatus().isOk();
     }
 
     @Test
@@ -69,7 +69,7 @@ class HttpEmailVerificationControllerTest {
 
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token",token).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token",token).build()).exchange().expectStatus().isBadRequest();
     }
 
     @Test
@@ -79,14 +79,14 @@ class HttpEmailVerificationControllerTest {
 
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token",token).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token",token).build()).exchange().expectStatus().isBadRequest();
     }
 
     @Test
     public void Should_ReturnBadRequest_When_TokenIsNull(){
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token", (Object) null).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", (Object) null).build()).exchange().expectStatus().isBadRequest();
     }
 
 
@@ -94,7 +94,7 @@ class HttpEmailVerificationControllerTest {
     public void Should_ReturnBadRequest_When_TokenIsBlank(){
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token", "").build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", "").build()).exchange().expectStatus().isBadRequest();
     }
 
     @Test
@@ -104,7 +104,7 @@ class HttpEmailVerificationControllerTest {
 
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
     }
 
     @Test
@@ -114,7 +114,7 @@ class HttpEmailVerificationControllerTest {
 
         //act and assert
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
     }
 
 

@@ -11,12 +11,14 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerifica
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.configuration.RootConfig;
+import com.sz.reservation.configuration.security.WebSecurityConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -27,8 +29,11 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = RootConfig.class)
+@ContextConfiguration(classes = {RootConfig.class, WebSecurityConfig.class})
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -44,11 +49,13 @@ public class HttpEmailVerificationControllerTestIT {
     private WebApplicationContext context;
     private WebTestClient client;
 
+    private String VERIFICATION_PATH = "/api/v1/account/verification";
+    private String RESEND_VERIFICATION_PATH = "/api/v1/account/verification/resend";
+
     @BeforeAll
     private void instantiatingValidator(){
-        client = MockMvcWebTestClient.bindToApplicationContext(context).build();
+        client = MockMvcWebTestClient.bindToApplicationContext(context).apply(SecurityMockMvcConfigurers.springSecurity()).build();
     }
-
 
     @Test
     @Transactional
@@ -67,7 +74,7 @@ public class HttpEmailVerificationControllerTestIT {
         Assertions.assertTrue(verificationTokenRepository.findByToken(accountVerificationToken.getToken()).isPresent());
 
         client.post().uri(uriBuilder -> uriBuilder
-                .path("/api/v1/account/verify").queryParam("token",accountVerificationToken.getToken()).build()).exchange().expectStatus().isOk();
+                .path(VERIFICATION_PATH).queryParam("token",accountVerificationToken.getToken()).build()).exchange().expectStatus().isOk();
 
 
         //assert account is enabled
@@ -95,7 +102,7 @@ public class HttpEmailVerificationControllerTestIT {
         Assertions.assertTrue(verificationTokenRepository.findByToken(verificationToken.getToken()).isPresent());
 
         client.post().uri(uriBuilder -> uriBuilder // sending request with token that doesnt exists
-                .path("/api/v1/account/verify").queryParam("token",tokenNotInDb).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token",tokenNotInDb).build()).exchange().expectStatus().isBadRequest();
 
 
         //assert account is not enabled and not verified
@@ -112,7 +119,7 @@ public class HttpEmailVerificationControllerTestIT {
         String invalidToken = "01954f09-742d-7d86-a3dab-0127c8facc4"; // invalidFormat
         //assert
         client.post().uri(uriBuilder -> uriBuilder // sending request with invalid format
-                .path("/api/v1/account/verify").queryParam("token", invalidToken).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", invalidToken).build()).exchange().expectStatus().isBadRequest();
     }
 
     @Test
@@ -133,7 +140,7 @@ public class HttpEmailVerificationControllerTestIT {
         //assert
         Assertions.assertTrue(verificationTokenRepository.findByToken(expiredToken).isPresent()); // assert token exists
         client.post().uri(uriBuilder -> uriBuilder // sending request with expired token
-                .path("/api/v1/account/verify").queryParam("token", expiredToken).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", expiredToken).build()).exchange().expectStatus().isBadRequest();
 
         Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
         Assertions.assertTrue(OptionalAccount.isPresent()); // account must exists
@@ -158,10 +165,10 @@ public class HttpEmailVerificationControllerTestIT {
         Assertions.assertTrue(verificationTokenRepository.findByToken(token).isPresent()); // assert token exists
 
         client.post().uri(uriBuilder -> uriBuilder // verify token
-                .path("/api/v1/account/verify").queryParam("token", token).build()).exchange().expectStatus().isOk();
+                .path(VERIFICATION_PATH).queryParam("token", token).build()).exchange().expectStatus().isOk();
 
         client.post().uri(uriBuilder -> uriBuilder // verify token again
-                .path("/api/v1/account/verify").queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
+                .path(VERIFICATION_PATH).queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
 
 
         Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
@@ -169,6 +176,59 @@ public class HttpEmailVerificationControllerTestIT {
         Assertions.assertTrue(OptionalAccount.get().isEnabled()); // must be enabled
         Assertions.assertTrue(OptionalAccount.get().isVerified()); // must be verified
     }
+
+
+
+
+    @Test
+    @Transactional
+    public void Should_ReturnBadRequest_When_ResendingValidToken(){
+        //arrange
+        String email = "inventedEmail@miau.com";
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        String token = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
+        LocalDate date = LocalDate.now().plusDays(7);
+        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,token,date);
+
+
+        //act and assert
+        insertUser(userId,email,token); // save user
+        verificationTokenRepository.save(verificationToken); // insert token in db
+
+        client.post().uri(uriBuilder -> uriBuilder // verify token
+                .path(RESEND_VERIFICATION_PATH).queryParam("token", token).build()).exchange().expectStatus().isBadRequest();
+
+        //verify old token hasnt changed
+        Optional<AccountVerificationToken> optionalOldAccountVerificationToken = verificationTokenRepository.findByToken(token);
+        assertTrue(optionalOldAccountVerificationToken.isPresent());
+        assertEquals(token, optionalOldAccountVerificationToken.get().getToken());
+    }
+
+
+    @Test
+    @Transactional
+    public void Should_ReturnOK_When_ResendingInvalidToken(){
+        //arrange
+        String email = "inventedEmail@miau.com";
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        String token = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
+        LocalDate date = LocalDate.now().minusDays(7);
+        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,token,date);
+
+
+        //act and assert
+        insertUser(userId,email,token); // save user
+        verificationTokenRepository.save(verificationToken); // insert token in db
+
+        client.post().uri(uriBuilder -> uriBuilder // verify token
+                .path(RESEND_VERIFICATION_PATH).queryParam("token", token).build()).exchange().expectStatus().isOk();
+
+
+        //verify old token does not exist
+        Optional<AccountVerificationToken> optionalOldAccountVerificationToken = verificationTokenRepository.findByToken(token);
+        assertTrue(optionalOldAccountVerificationToken.isEmpty());
+    }
+
 
 
 

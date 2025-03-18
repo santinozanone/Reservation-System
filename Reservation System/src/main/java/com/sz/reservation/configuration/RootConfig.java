@@ -104,8 +104,9 @@ public class RootConfig {
     }
 
     @Bean
-    public AccountVerificationUseCase accountVerificationUseCase(AccountRepository accountRepository,AccountVerificationTokenRepository verificationTokenRepository){
-        return new AccountVerificationUseCase(accountRepository,verificationTokenRepository);
+    public AccountVerificationUseCase accountVerificationUseCase(AccountRepository accountRepository,AccountVerificationTokenRepository verificationTokenRepository,
+                                                                 VerificationTokenEmailSender verificationTokenEmailSender){
+        return new AccountVerificationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender);
     }
 
     @Bean

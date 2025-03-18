@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +32,13 @@ import java.util.Map;
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
 
-
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ProblemDetail handleAccessDeniedException(AccessDeniedException e){
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setTitle("Access denied");
+        problemDetail.setDetail("this account does not have permission to access the specified resource");
+        return problemDetail;
+    }
 
     @ExceptionHandler(value = AuthenticationException.class)
     public ProblemDetail handleAuthenticationException(AuthenticationException e){
@@ -44,7 +52,7 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleInvalidTokenException(InvalidTokenException exception){
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Invalid verification token");
-        problemDetail.setDetail("Verification token uploaded is not valid");
+        problemDetail.setDetail(exception.getMessage());
         logger.info("the token :{}  , is not valid" ,exception.getToken());
         return problemDetail;
     }

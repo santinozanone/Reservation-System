@@ -12,7 +12,6 @@ import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -46,6 +45,7 @@ class HttpRegistrationControllerTestIT {
 
     WebTestClient client ;
 
+    private String REGISTRATION_PATH = "/api/v1/account/registration";
 
     @BeforeAll
     public void instantiateClient(){
@@ -87,7 +87,7 @@ class HttpRegistrationControllerTestIT {
 
         //act and assert
         // asserting response status
-        client.post().uri("/api/v1/register")
+        client.post().uri(REGISTRATION_PATH)
                 .bodyValue(builder.build())
                 .exchange()
                 .expectStatus().isCreated();
@@ -127,12 +127,12 @@ class HttpRegistrationControllerTestIT {
 
         //act and assert
         //first insert
-        client.post().uri("/api/v1/register")
+        client.post().uri(REGISTRATION_PATH)
                 .bodyValue(builder.build())
                 .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
 
         //second insert
-        client.post().uri("/api/v1/register")
+        client.post().uri(REGISTRATION_PATH)
                 .bodyValue(builder.build())
                 .exchange()
                 .expectStatus().isBadRequest(); // second one should fail
@@ -183,12 +183,12 @@ class HttpRegistrationControllerTestIT {
 
         //act and assert
         //first insert
-        client.post().uri("/api/v1/register")
+        client.post().uri(REGISTRATION_PATH)
                 .bodyValue(firstBuilder.build())
                 .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
 
         //second insert
-        client.post().uri("/api/v1/register")
+        client.post().uri(REGISTRATION_PATH)
                 .bodyValue(secondBuilder.build())
                 .exchange()
                 .expectStatus().isBadRequest(); // second one should fail
@@ -209,7 +209,7 @@ class HttpRegistrationControllerTestIT {
     @Test
     public void Should_ReturnBadRequest_When_EmptyInput()  {
         //arrange act and assert
-        client.post().uri("/api/v1/register").exchange().expectStatus().isBadRequest();
+        client.post().uri(REGISTRATION_PATH).exchange().expectStatus().isBadRequest();
     }
 
 

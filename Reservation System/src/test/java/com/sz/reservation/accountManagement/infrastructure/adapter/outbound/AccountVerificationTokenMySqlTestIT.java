@@ -42,6 +42,8 @@ class AccountVerificationTokenMySqlTestIT {
     @Autowired
     private AccountRepository accountRepository;
 
+
+
     @Test
     @Transactional
     public void Should_ReturnToken_When_TokenExistsInDb(){
@@ -63,6 +65,71 @@ class AccountVerificationTokenMySqlTestIT {
         assertEquals(expirationDate,verificationTokenFromDb.get().getExpirationDate());
     }
 
+    @Test
+    @Transactional
+    public void Should_UpdateTokenCorrectly_WhenExistsInDb(){
+        //arrange
+        // old token
+        String oldVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        LocalDate expirationDate = LocalDate.now().plusDays(7);
+        AccountVerificationToken oldAccountVerificationToken = new AccountVerificationToken(userId,oldVerificationToken,expirationDate);
+
+        //new token
+        String newVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        AccountVerificationToken newAccountVerificationToken = new AccountVerificationToken(userId,newVerificationToken,expirationDate);
+
+        //act
+        insertUser(userId,oldVerificationToken);
+        verificationTokenRepository.save(oldAccountVerificationToken);
+        verificationTokenRepository.update(oldAccountVerificationToken.getToken(),newAccountVerificationToken);
+
+        //assert
+        // verify new token exists
+        Optional<AccountVerificationToken> optionalNewAccountVerificationToken = verificationTokenRepository.findByToken(newVerificationToken);
+        assertTrue(optionalNewAccountVerificationToken.isPresent());
+        //verify token is equal to the new one
+        assertEquals(newVerificationToken, optionalNewAccountVerificationToken.get().getToken());
+
+        //verify old token does not exist
+        Optional<AccountVerificationToken> optionalOldAccountVerificationToken = verificationTokenRepository.findByToken(oldVerificationToken);
+        assertTrue(optionalOldAccountVerificationToken.isEmpty());
+
+    }
+
+    @Test
+    public void Should_ThrowIllegalArgumentException_When_UpdatingNewAccountVerificationTokenIsNull(){
+        //act and assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            verificationTokenRepository.update("",null);
+        });
+    }
+
+    @Test
+    public void Should_ThrowIllegalArgumentException_When_UpdatingOldAccountVerificationTokenIsNull(){
+        // assert
+        String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        LocalDate expirationDate = LocalDate.now().plusDays(7);
+        AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
+        //act
+        assertThrows(IllegalArgumentException.class, () -> {
+            verificationTokenRepository.update(null,accountVerificationToken);
+        });
+    }
+
+    @Test
+    public void Should_ThrowIllegalArgumentException_When_UpdatingOldAndNewAccountVerificationTokenAreNull(){
+        // assert
+        String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        String userId = UuidCreator.getTimeOrderedEpoch().toString();
+        LocalDate expirationDate = LocalDate.now().plusDays(7);
+        AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
+        //act
+        assertThrows(IllegalArgumentException.class, () -> {
+            verificationTokenRepository.update(null,null);
+        });
+    }
 
     @Test
     public void Should_ReturnEmptyOption_When_TokenDoesNotExistsInDb(){

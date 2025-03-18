@@ -521,3 +521,22 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * All the spring security related classes are stored in a security package inside infrastructure.
 * I also moved the annotation package of infrastructure inside the dto package of infrastructure
 * Also added a method called verify2 just for testing some things for spring security
+
+### 16/03/2025
+#### **What was done today:** 
+* Investigated all day about csrf and xss vulnerabilities in order to decide if continue using basic auth or other type of authentication
+  so basically i can use different approaches for handling this, but the main problem i had was that as i am using an Stateless mechanism i cannot 
+  use csrf token as intended because they are designed to work with http sessions, there are some work around but i didnt like them,
+  so, or i use localStorage (or sessionStorage) or i use cookies.
+  lets go with cookies first, when using cookies and dont want to use csrf protection is mandatory that they are not used for authentication, that means
+  that the backend should not expect an authentication cookie, instead it should expect a custom header, and the frontend should read the cookie value and put in the header.
+  in this way csrf protection is not needed because the cookies are not used for authentication directly and a csrf attack cannot read the cookie. its also mandatory to configure the 
+  "httpOnly" attribute to false, this way the cookie value can be read, the "secure" attribute to true, so the cookie is only sent in a secure channel like https.
+  if dont want to use cookies we can use localstorage for storing the credentials and set the value manually too, both approaches are not vulnerable to csrf but can be vulnerable to
+  xss.
+
+  However if i were to use a stateful api, i would use cookies with the secure attribute, and httpOnly set to true, this way the cookie value cannot be read and is less vulnerable to xss, obvioulsy csrf token will be used too.
+  
+* Given that this will be the backend for a specific front end and not a public api, CORS will have to be properly configured in order to only allow the frontend specific domain requests to the browser.
+
+

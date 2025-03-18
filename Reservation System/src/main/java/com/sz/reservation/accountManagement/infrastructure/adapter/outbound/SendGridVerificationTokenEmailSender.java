@@ -28,7 +28,7 @@ public class SendGridVerificationTokenEmailSender implements VerificationTokenEm
     @Value("${SENDGRID.APIKEY}")
     private String API_KEY;
 
-    private String REDIRECT_URL = "http://localhost:8080/Reservation-System-0.0.1-SNAPSHOT/api/v1/account/verify";
+    private String REDIRECT_URL = "http://localhost:8080/Reservation-System-0.0.1-SNAPSHOT/api/v1/account/verification";
 
     private final int ACCEPTED_202 = 202;
 

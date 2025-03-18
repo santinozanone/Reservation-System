@@ -16,7 +16,7 @@ import com.sz.reservation.accountManagement.application.useCase.AccountRegistrat
 import java.io.IOException;
 
 @Controller
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/account")
 public class HttpRegistrationController {
 	private Logger logger = LogManager.getLogger(HttpRegistrationController.class);
 
@@ -25,7 +25,7 @@ public class HttpRegistrationController {
 	public HttpRegistrationController(AccountRegistrationUseCase accountRegistrationUseCase) {
 		this.accountRegistrationUseCase = accountRegistrationUseCase;
 	}
-	@PostMapping("/register")
+	@PostMapping("/registration")
 	public ResponseEntity<String> registerUser(@ModelAttribute @Valid AccountCreationRequest request) throws IOException {
 		logger.info("User registration request with email {}, arrived",request.getEmail());
 		accountRegistrationUseCase.registerNotEnabledUser(request);

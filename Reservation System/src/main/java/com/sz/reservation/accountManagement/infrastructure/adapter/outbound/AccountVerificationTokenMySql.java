@@ -66,4 +66,16 @@ public class AccountVerificationTokenMySql implements AccountVerificationTokenRe
                 "(UUID_TO_BIN(?),?,?,UUID_TO_BIN(?))";
         jdbcTemplate.update(sql,accountVerificationToken.getToken(),createdAt,expirationDate,accountVerificationToken.getUserId());
     }
+
+    @Override
+    public void update(String oldToken, AccountVerificationToken newToken) {
+        if (oldToken == null || oldToken.isEmpty() || newToken == null )throw new IllegalArgumentException("old token or new token cannot be null or empty");
+        logger.debug(INSERT_MARKER, "executing verification token update, old token: {}", oldToken);
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String createdAt = dateFormatter.format(LocalDate.now());
+        String expirationDate = dateFormatter.format(newToken.getExpirationDate());
+        String sql = "update verification_token set token = UUID_TO_BIN(?), created_at = ?, expires_at = ?, account_id = UUID_TO_BIN(?) where token = UUID_TO_BIN(?)";
+        jdbcTemplate.update(sql,newToken.getToken(),createdAt,expirationDate,newToken.getUserId(),oldToken);
+    }
 }
