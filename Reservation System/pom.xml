@@ -33,6 +33,7 @@
 					</dependency>
 				</dependencies>
 				<configuration>
+					<argLine>-javaagent:C:/Users/losmelli/Downloads/spring-instrument-6.2.4.jar</argLine>
 					<reportFormat>plain</reportFormat>
 					<consoleOutputReporter>
 						<disable>true</disable>
@@ -52,6 +53,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.2</version>
+
 				<dependencies>
 					<dependency>
 						<groupId>me.fabriciorby</groupId>
@@ -61,6 +63,7 @@
 
 				</dependencies>
 				<configuration>
+					<argLine>-javaagent:C:/Users/losmelli/Downloads/spring-instrument-6.2.4.jar</argLine>
 					<reportFormat>plain</reportFormat>
 					<consoleOutputReporter>
 						<disable>true</disable>
@@ -73,6 +76,23 @@
 
 	</build>
 	<dependencies>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-aspects -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>6.2.4</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-instrument -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-instrument</artifactId>
+			<version>6.2.4</version>
+		</dependency>
+
+
+
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>

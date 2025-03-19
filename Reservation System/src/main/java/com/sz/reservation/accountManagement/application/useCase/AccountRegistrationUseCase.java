@@ -67,10 +67,6 @@ public class AccountRegistrationUseCase {
         }
         logger.info("sending verification email to: {}", accountCreationData.getEmail());
         emailSender.sendEmailTo(accountCreationData.getEmail(), accountCreationData.getUsername(), accountCreationData.getVerificationToken().getToken()); // then send email
-
-        //TODO: CHANGE TRANSACTION MODE TO ASPECTJ FOR SELF INVOCATIONS
-        //TODO: Protect the file upload from CSRF attacks
-
     }
 
     @Transactional
@@ -89,6 +85,4 @@ public class AccountRegistrationUseCase {
             throw new UsernameAlreadyRegisteredException(accountCreationRequest.getUsername());
         }
     }
-
-
 }

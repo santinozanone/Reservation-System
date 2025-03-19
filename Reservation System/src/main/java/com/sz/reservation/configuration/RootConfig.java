@@ -29,8 +29,8 @@ import javax.sql.DataSource;
 @ComponentScan("com.sz.reservation")
 @EnableWebMvc
 @PropertySource("classpath:application.properties")
-@EnableTransactionManagement
-
+@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+@EnableLoadTimeWeaving
 public class RootConfig {
 
     @Bean
