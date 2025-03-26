@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-@Repository
 public class AccountRepositoryMySql implements AccountRepository {
     private JdbcTemplate jdbcTemplate;
 

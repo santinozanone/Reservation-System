@@ -1,13 +1,15 @@
-package com.sz.reservation.configuration;
+package com.sz.reservation.globalConfiguration;
 
 import com.sz.reservation.accountManagement.application.service.AccountCreation;
 import com.sz.reservation.accountManagement.application.service.ProfilePictureService;
 import com.sz.reservation.accountManagement.application.useCase.*;
+import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
 import com.sz.reservation.accountManagement.domain.port.outbound.ProfilePictureStorage;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTokenEmailSender;
 import com.sz.reservation.accountManagement.domain.service.*;
+import com.sz.reservation.accountManagement.infrastructure.adapter.outbound.AccountRepositoryMySql;
 import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
@@ -15,7 +17,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -26,7 +27,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan("com.sz.reservation")
+@Import({AccountConfig.class})
+@ComponentScan
 @EnableWebMvc
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
@@ -88,9 +90,8 @@ public class RootConfig {
     }
 
     @Bean
-    public ProfilePictureService profilePictureService(ProfilePictureStorage profilePictureStorage,ProfilePictureTypeValidator profilePictureTypeValidator,
-                                                       MultipartImageResizingService multipartImageResizingService){
-        return new ProfilePictureService(profilePictureStorage,profilePictureTypeValidator,multipartImageResizingService);
+    public AccountRepository accountRepository(JdbcTemplate jdbcTemplate){
+        return new AccountRepositoryMySql(jdbcTemplate);
     }
 
     @Bean
@@ -103,22 +104,6 @@ public class RootConfig {
         return new DataSourceTransactionManager(dataSource);
     }
 
-    @Bean
-    public AccountVerificationUseCase accountVerificationUseCase(AccountRepository accountRepository,AccountVerificationTokenRepository verificationTokenRepository,
-                                                                 VerificationTokenEmailSender verificationTokenEmailSender){
-        return new AccountVerificationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender);
-    }
 
-    @Bean
-    public AccountCreation accountCreation(PhoneNumberValidator phoneNumberValidator,HashingService hashingService){
-        return new AccountCreation(phoneNumberValidator, hashingService);
-    }
-
-    @Bean
-    public AccountRegistrationUseCase registrationUseCase(AccountRepository accountRepository, AccountVerificationTokenRepository verificationTokenRepository,
-                                                          ProfilePictureService profilePictureService,VerificationTokenEmailSender verificationTokenEmailSender,
-                                                          AccountCreation accountCreation){
-        return new AccountRegistrationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender,profilePictureService,accountCreation);
-    }
 
 }

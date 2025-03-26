@@ -1,4 +1,4 @@
-package com.sz.reservation.accountManagement.infrastructure.security;
+package com.sz.reservation.globalConfiguration.security.authEntryPoint;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
-import com.sz.reservation.configuration.RootConfig;
+import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTokenEmailSender;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

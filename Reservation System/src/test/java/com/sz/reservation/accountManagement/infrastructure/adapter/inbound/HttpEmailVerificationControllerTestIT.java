@@ -10,12 +10,11 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountReposito
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
-import com.sz.reservation.configuration.RootConfig;
-import com.sz.reservation.configuration.security.WebSecurityConfig;
+import com.sz.reservation.globalConfiguration.RootConfig;
+import com.sz.reservation.globalConfiguration.security.WebSecurityConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;

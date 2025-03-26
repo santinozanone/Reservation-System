@@ -1,4 +1,4 @@
-package com.sz.reservation.GlobalExceptionHandler;
+package com.sz.reservation.globalConfiguration.globalExceptionHandler;
 
 import com.sz.reservation.accountManagement.domain.exception.*;
 import com.sz.reservation.accountManagement.infrastructure.exception.*;

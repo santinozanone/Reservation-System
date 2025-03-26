@@ -1,7 +1,7 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
-import com.sz.reservation.configuration.RootConfig;
+import com.sz.reservation.globalConfiguration.RootConfig;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +22,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = RootConfig.class)
+@ContextConfiguration(classes = {RootConfig.class})
 
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})

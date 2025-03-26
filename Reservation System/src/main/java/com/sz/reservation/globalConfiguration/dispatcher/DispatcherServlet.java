@@ -1,17 +1,16 @@
-package com.sz.reservation.configuration;
+package com.sz.reservation.globalConfiguration.dispatcher;
 
-import com.sz.reservation.configuration.security.WebSecurityConfig;
+import com.sz.reservation.globalConfiguration.RootConfig;
+import com.sz.reservation.globalConfiguration.security.WebSecurityConfig;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletRegistration;
-import jakarta.servlet.annotation.MultipartConfig;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class DispatcherServlet extends AbstractAnnotationConfigDispatcherServletInitializer {
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 		// TODO Auto-generated method stub
-		return new Class<?>[] {WebSecurityConfig.class,RootConfig.class };
+		return new Class<?>[] {WebSecurityConfig.class, RootConfig.class };
 	}
 
 	@Override

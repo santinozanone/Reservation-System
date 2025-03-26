@@ -1,4 +1,4 @@
-package com.sz.reservation.accountManagement.infrastructure.security;
+package com.sz.reservation.globalConfiguration.security.userDetails;
 
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;

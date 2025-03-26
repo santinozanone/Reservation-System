@@ -1,4 +1,4 @@
-package com.sz.reservation.accountManagement.infrastructure.security;
+package com.sz.reservation.globalConfiguration.security.userDetails;
 
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;

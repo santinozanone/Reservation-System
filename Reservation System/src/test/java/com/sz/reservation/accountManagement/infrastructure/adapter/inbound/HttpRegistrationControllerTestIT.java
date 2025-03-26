@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
-import com.sz.reservation.configuration.RootConfig;
+import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import org.junit.jupiter.api.*;

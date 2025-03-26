@@ -1,4 +1,4 @@
-package com.sz.reservation.configuration.security;
+package com.sz.reservation.globalConfiguration.security;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 
