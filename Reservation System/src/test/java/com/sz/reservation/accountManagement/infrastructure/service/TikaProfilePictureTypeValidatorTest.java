@@ -14,12 +14,12 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Testing StandardProfilePictureValidator")
-class StandardProfilePictureTypeValidatorTest {
-    private static StandardProfilePictureTypeValidator validator;
+class TikaProfilePictureTypeValidatorTest {
+    private static TikaProfilePictureTypeValidator validator;
 
     @BeforeAll
     private static void instantiatingValidator(){
-        validator = new StandardProfilePictureTypeValidator(new TikaFileValidator());
+        validator = new TikaProfilePictureTypeValidator(new TikaFileValidator());
     }
 
 

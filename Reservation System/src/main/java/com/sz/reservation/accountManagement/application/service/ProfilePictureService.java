@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.application.service;
 
-import com.sz.reservation.accountManagement.domain.exception.MediaNotSupportedException;
+import com.sz.reservation.globalConfiguration.exception.MediaNotSupportedException;
 import com.sz.reservation.accountManagement.domain.port.outbound.ProfilePictureStorage;
 import com.sz.reservation.accountManagement.domain.service.MultipartImageResizingService;
 import com.sz.reservation.accountManagement.domain.service.ProfilePictureTypeValidator;

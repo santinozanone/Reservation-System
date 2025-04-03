@@ -27,6 +27,6 @@ public class DispatcherServlet extends AbstractAnnotationConfigDispatcherServlet
 
 	@Override
 	protected void customizeRegistration(ServletRegistration.Dynamic registration) {
-		registration.setMultipartConfig(new MultipartConfigElement("",1048576,2097152 ,0));
+		registration.setMultipartConfig(new MultipartConfigElement("",2097152,3145728  ,2097152));// 2MB,3MB
 	}
 }

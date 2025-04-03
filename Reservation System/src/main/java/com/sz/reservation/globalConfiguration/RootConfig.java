@@ -10,6 +10,7 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountReposito
 import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTokenEmailSender;
 import com.sz.reservation.accountManagement.domain.service.*;
 import com.sz.reservation.accountManagement.infrastructure.adapter.outbound.AccountRepositoryMySql;
+import com.sz.reservation.propertyManagement.configuration.PropertyConfig;
 import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
@@ -27,7 +28,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.sql.DataSource;
 
 @Configuration
-@Import({AccountConfig.class})
+@Import({AccountConfig.class, PropertyConfig.class})
 @ComponentScan
 @EnableWebMvc
 @PropertySource("classpath:application.properties")

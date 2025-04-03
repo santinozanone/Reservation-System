@@ -1,4 +1,4 @@
-package com.sz.reservation.accountManagement.domain.exception;
+package com.sz.reservation.globalConfiguration.exception;
 
 public class MediaNotSupportedException extends RuntimeException{
     public MediaNotSupportedException(String message) {

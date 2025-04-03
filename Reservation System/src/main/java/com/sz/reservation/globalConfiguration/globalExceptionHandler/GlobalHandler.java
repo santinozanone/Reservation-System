@@ -2,6 +2,7 @@ package com.sz.reservation.globalConfiguration.globalExceptionHandler;
 
 import com.sz.reservation.accountManagement.domain.exception.*;
 import com.sz.reservation.accountManagement.infrastructure.exception.*;
+import com.sz.reservation.globalConfiguration.exception.MediaNotSupportedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSourceResolvable;

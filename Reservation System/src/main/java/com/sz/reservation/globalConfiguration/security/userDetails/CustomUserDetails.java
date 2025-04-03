@@ -42,6 +42,10 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer {
         return username;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     @Override
     public boolean isEnabled() {
         return enabled;

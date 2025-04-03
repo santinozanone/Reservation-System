@@ -13,14 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Component
-public class StandardProfilePictureTypeValidator implements ProfilePictureTypeValidator {
-    private Logger logger = LogManager.getLogger(StandardProfilePictureTypeValidator.class);
+public class TikaProfilePictureTypeValidator implements ProfilePictureTypeValidator {
+    private Logger logger = LogManager.getLogger(TikaProfilePictureTypeValidator.class);
 
     private FileTypeValidator fileTypeValidator;
     private final String TYPE_JPEG = "jpeg";
     private final String TYPE_PNG = "png";
     private final String TYPE_JPG = "jpg";
-    public StandardProfilePictureTypeValidator(FileTypeValidator fileTypeValidator) {
+    public TikaProfilePictureTypeValidator(FileTypeValidator fileTypeValidator) {
         this.fileTypeValidator = fileTypeValidator;
     }
 
