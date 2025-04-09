@@ -2,6 +2,7 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
+import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
@@ -12,6 +13,7 @@ import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("integration testing account verification token mysql db")
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = RootConfig.class)
+@ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
 
 @ActiveProfiles({"test","default"})
 class AccountVerificationTokenMySqlTestIT {
@@ -42,14 +44,21 @@ class AccountVerificationTokenMySqlTestIT {
     private AccountRepository accountRepository;
 
 
+    private String userId;
+    private String verificationToken;
+    private LocalDate expirationDate;
+
+    @BeforeEach
+    void initializeVariables() {
+        userId = UuidCreator.getTimeOrderedEpoch().toString();
+        verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        expirationDate = LocalDate.now().plusDays(7);
+    }
 
     @Test
     @Transactional
     public void Should_ReturnToken_When_TokenExistsInDb(){
         //arrange
-        String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
         AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
 
         //act
@@ -69,29 +78,28 @@ class AccountVerificationTokenMySqlTestIT {
     public void Should_UpdateTokenCorrectly_WhenExistsInDb(){
         //arrange
         // old token
-        String oldVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
-        AccountVerificationToken oldAccountVerificationToken = new AccountVerificationToken(userId,oldVerificationToken,expirationDate);
+        AccountVerificationToken oldAccountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
 
         //new token
         String newVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
         AccountVerificationToken newAccountVerificationToken = new AccountVerificationToken(userId,newVerificationToken,expirationDate);
 
         //act
-        insertUser(userId,oldVerificationToken);
+        insertUser(userId,verificationToken);
         verificationTokenRepository.save(oldAccountVerificationToken);
         verificationTokenRepository.update(oldAccountVerificationToken.getToken(),newAccountVerificationToken);
 
         //assert
+
         // verify new token exists
         Optional<AccountVerificationToken> optionalNewAccountVerificationToken = verificationTokenRepository.findByToken(newVerificationToken);
         assertTrue(optionalNewAccountVerificationToken.isPresent());
+
         //verify token is equal to the new one
         assertEquals(newVerificationToken, optionalNewAccountVerificationToken.get().getToken());
 
         //verify old token does not exist
-        Optional<AccountVerificationToken> optionalOldAccountVerificationToken = verificationTokenRepository.findByToken(oldVerificationToken);
+        Optional<AccountVerificationToken> optionalOldAccountVerificationToken = verificationTokenRepository.findByToken(verificationToken);
         assertTrue(optionalOldAccountVerificationToken.isEmpty());
 
     }
@@ -107,9 +115,6 @@ class AccountVerificationTokenMySqlTestIT {
     @Test
     public void Should_ThrowIllegalArgumentException_When_UpdatingOldAccountVerificationTokenIsNull(){
         // assert
-        String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
         AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
         //act
         assertThrows(IllegalArgumentException.class, () -> {
@@ -120,11 +125,6 @@ class AccountVerificationTokenMySqlTestIT {
     @Test
     public void Should_ThrowIllegalArgumentException_When_UpdatingOldAndNewAccountVerificationTokenAreNull(){
         // assert
-        String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
-        AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
-        //act
         assertThrows(IllegalArgumentException.class, () -> {
             verificationTokenRepository.update(null,null);
         });
@@ -134,7 +134,6 @@ class AccountVerificationTokenMySqlTestIT {
     public void Should_ReturnEmptyOption_When_TokenDoesNotExistsInDb(){
         //arrange
         String tokenNotInDb =  "01854f09-742d-7d86-a3da-b0127c8facc4";
-
         //assert
         Optional<AccountVerificationToken> verificationTokenFromDb = verificationTokenRepository.findByToken(tokenNotInDb);
         assertTrue(verificationTokenFromDb.isEmpty());
@@ -168,11 +167,15 @@ class AccountVerificationTokenMySqlTestIT {
     private void insertUser(String userId,String userVerificationToken){
         //arrange
         String email = "inventedEmail@miau.com";
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
+        String username = "wolfofwallstreet";
+        String name = "jordan";
+        String surname = "belfort";
+        expirationDate = LocalDate.now().plusDays(7);
 
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448899");
-
+        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
+        LocalDate birthDate = LocalDate.now().minusDays(10);
+        String nationality = "Argentina";
         HashingService hashingService = new BCryptPasswordHashingService();
         String password =hashingService.hash("ultrasafepassword");
 
@@ -180,13 +183,13 @@ class AccountVerificationTokenMySqlTestIT {
 
         AccountCreationData accountCreationData = new AccountCreationData(
                 userId,
-                "wolfofwallstreet",
-                "jordan",
-                "belfort",
+                username,
+                name,
+                surname,
                 email,
                 phoneNumber,
-                LocalDate.now(),
-                "Argentina",
+                birthDate,
+                nationality,
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 verificationToken);

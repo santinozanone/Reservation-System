@@ -10,12 +10,12 @@ public class PhoneNumber {
 	private String phoneNumber;
 	private final String ARGENTINIAN_COUNTRY_CODE = "+54";
 	private final String ARGENTINIAN_SPECIAL_CHARACTER = "9";
-
+	private final String INTERNATIONAL_PREFIX = "+";
 
 
 	public PhoneNumber(String id,String countryCode, String phoneNumber) {
 		this.id = id;
-		this.countryCode = countryCode;
+		this.countryCode = formatCountryCode(countryCode);
 		this.phoneNumber = formatNumber(countryCode,phoneNumber);
 	}
 
@@ -29,6 +29,13 @@ public class PhoneNumber {
 
 	public String getPhoneNumber() {
 		return phoneNumber;
+	}
+
+	private String formatCountryCode(String countryCode){
+		if (!countryCode.startsWith(INTERNATIONAL_PREFIX)){
+			return INTERNATIONAL_PREFIX.concat(countryCode);
+		}
+		return countryCode;
 	}
 	
 	private String formatNumber(String countryCode,String phoneNumber){

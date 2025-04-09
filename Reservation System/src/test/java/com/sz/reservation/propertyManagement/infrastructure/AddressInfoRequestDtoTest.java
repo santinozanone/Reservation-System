@@ -106,6 +106,18 @@ class AddressInfoRequestDtoTest {
         //assert
         assertEquals(1, violations.size());
     }
+    @Test
+    public void Should_ThrowException_When_CountryLengthBiggerThanMax(){
+        //arrange
+        country = "AR".repeat(32);
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(1, violations.size());
+    }
 
 
     //streetAddress tests
@@ -113,6 +125,30 @@ class AddressInfoRequestDtoTest {
     public void Should_ThrowException_When_BlankStreetAddress(){
         //arrange
         streetAddress = "";
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(2, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_StreetAddressLengthLessThanMin(){
+        //arrange
+        streetAddress = "s";
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(1, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_StreetAddressLengthBiggerThanMax(){
+        //arrange
+        streetAddress = "lola mora".repeat(30);
         AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
 
         //act
@@ -160,6 +196,30 @@ class AddressInfoRequestDtoTest {
         Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
 
         //assert
+        assertEquals(2, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_PostalCodeLengthBiggerThanMax(){
+        //arrange
+        postalCode = "0000".repeat(11);
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(1, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_PostalCodeLengthLessThanMin(){
+        //arrange
+        postalCode = "0";
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
         assertEquals(1, violations.size());
     }
 
@@ -176,7 +236,7 @@ class AddressInfoRequestDtoTest {
         assertEquals(1, violations.size());
     }
 
-    //postalCode tests
+    //region tests
     @Test
     public void Should_ThrowException_When_BlankRegion(){
         //arrange
@@ -187,9 +247,33 @@ class AddressInfoRequestDtoTest {
         Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
 
         //assert
-        assertEquals(1, violations.size());
+        assertEquals(2, violations.size());
     }
 
+    @Test
+    public void Should_ThrowException_When_RegionLengthBiggerThanMax(){
+        //arrange
+        region = "Buenos Aires".repeat(5);
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(1, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_RegionLengthLessThanMin(){
+        //arrange
+        region = "bue";
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(1, violations.size());
+    }
     @Test
     public void Should_ThrowException_When_NullRegion(){
         //arrange
@@ -203,11 +287,36 @@ class AddressInfoRequestDtoTest {
         assertEquals(1, violations.size());
     }
 
-    //postalCode tests
+    //locality tests
     @Test
     public void Should_ThrowException_When_BlankLocality(){
         //arrange
         locality = "";
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(2, violations.size());
+    }
+
+    @Test
+    public void Should_ThrowException_When_LocalityLengthLessThanMin(){
+        //arrange
+        locality = "3";
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
+
+        //act
+        Set<ConstraintViolation<AddressInfoRequestDto>> violations = validator.validate(addressInfoRequestDto );
+
+        //assert
+        assertEquals(1, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_LocalityLengthBiggerThanMax(){
+        //arrange
+        locality = "Puerto Madero".repeat(10);
         AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,streetAddress,apartmentNumber,postalCode,region,locality);
 
         //act

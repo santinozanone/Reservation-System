@@ -64,18 +64,13 @@ class ListingRequestDtoTest {
             listingPhotos.add(multipartFile);
         }
 
-
         listingDescription = "New beautiful house near the beach";
-
         listingTitle = "listing title";
-
         numberOfGuestAllowed = 4;
-
         numberOfBeds = 4;
         numberOfBedrooms = 4;
         numberOfBathroom = 4;
         pricePerNight = 20;
-
         propertyType = PropertyType.HOUSE;
         housingType = HousingType.ENTIRE;
         reservationType = ReservationType.OWNER_APPROVAL;
@@ -97,7 +92,7 @@ class ListingRequestDtoTest {
     public void Should_CreateObjectCorrectly_When_ValidListingTitle() {
         //arrange
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -111,8 +106,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_emptyListingTitle() {
         //arrange
         listingTitle = "";
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -127,8 +122,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_nullListingTitle() {
         //arrange
         listingTitle = null;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -143,8 +138,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_ListingTitleSize_LessThanMin() {
         //arrange
         listingTitle = "miau";
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -160,8 +155,8 @@ class ListingRequestDtoTest {
         //arrange
         listingTitle = "miau".repeat(10); // 40 char word
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -179,8 +174,8 @@ class ListingRequestDtoTest {
         //arrange
         listingDescription = "words".repeat(100); // 5 characters * 100 = 500 char
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -196,8 +191,8 @@ class ListingRequestDtoTest {
         //arrange
         listingDescription = "words".repeat(101); // 5 characters * 101 = 505 char
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -214,8 +209,8 @@ class ListingRequestDtoTest {
         //arrange
         listingDescription = "word"; // 4 characters
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -231,8 +226,8 @@ class ListingRequestDtoTest {
         //arrange
         listingDescription = null;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -248,8 +243,8 @@ class ListingRequestDtoTest {
         //arrange
         listingDescription = "";
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -262,12 +257,28 @@ class ListingRequestDtoTest {
 
     //AddressInfoRequestDto test
     @Test
-    public void Should_ThrowException_When_AddressInfoRequestCountry_IsBlank() {
+    public void Should_ThrowException_When_AddressInfoRequestCountry_IsNotValid() {
         //arrange
-        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto("c","addrress","1111","arg","arg");
+        String country = "c"; //1 char country is not valid
+        AddressInfoRequestDto addressInfoRequestDto = new AddressInfoRequestDto(country,"addrress","1111","caba","Puerto Madero");
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
+                numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
+                propertyType, housingType, reservationType, amenitiesTypeList);
+
+        //act
+        Set<ConstraintViolation<ListingRequestDto>> violations = validator.validate(listingRequestDto);
+
+        //assert
+        assertEquals(1, violations.size());
+    }
+    @Test
+    public void Should_ThrowException_When_AddressInfoRequest_IsNull() {
+        //arrange
+        addressInfoRequestDto = null;
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -283,8 +294,8 @@ class ListingRequestDtoTest {
     @Test
     public void Should_CreateListingCorrectly_When_ListingPhotos_IsValid() throws IOException {
         //arrange
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -294,12 +305,14 @@ class ListingRequestDtoTest {
         //assert
         assertEquals(0, violations.size());
     }
+
+    /*
     @Test
     public void Should_ThrowException_When_NullListingPhotos() throws IOException {
         //arrange
         listingPhotos = null;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -310,12 +323,14 @@ class ListingRequestDtoTest {
         assertEquals(1, violations.size());
     }
 
-    @Test
+     */
+
+  /*  @Test
     public void Should_ThrowException_When_EmptyListingPhotos(){
         //arrange
         listingPhotos = new ArrayList<>();
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -324,8 +339,9 @@ class ListingRequestDtoTest {
 
         //assert
         assertEquals(2, violations.size());
-    }
+    }*/
 
+    /*
     @Test
     public void Should_ThrowException_When_ListingPhotos_LessThanMin() throws IOException {
         //arrange
@@ -336,8 +352,8 @@ class ListingRequestDtoTest {
             MockMultipartFile multipartFile = new MockMultipartFile("file","logo.png", MediaType.IMAGE_PNG_VALUE ,imageLogo);
             listingPhotos.add(multipartFile);
         }
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -347,6 +363,10 @@ class ListingRequestDtoTest {
         //assert
         assertEquals(1, violations.size());
     }
+
+     */
+
+    /*
     @Test
     public void Should_ThrowException_When_ListingPhotos_MoreThanMax() throws IOException {
         //arrange
@@ -357,8 +377,8 @@ class ListingRequestDtoTest {
             MockMultipartFile multipartFile = new MockMultipartFile("file","logo.png", MediaType.IMAGE_PNG_VALUE ,imageLogo);
             listingPhotos.add(multipartFile);
         }
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -369,14 +389,16 @@ class ListingRequestDtoTest {
         assertEquals(1, violations.size());
     }
 
+     */
+
     //numberOfGuestAllowed test
     @Test
     public void Should_CreateObjectCorrectly_When_ValidNumberOfGuestAllowed() {
         //arrange
         numberOfGuestAllowed = 10;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -386,8 +408,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_numberOfGuestAllowed_IsLowerThanMin() {
         //arrange
         numberOfGuestAllowed = 0;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -402,8 +424,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_numberOfGuestAllowed_IsBiggerThanMax() {
         //arrange
         numberOfGuestAllowed = 17;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -420,8 +442,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBeds = 10;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -438,8 +460,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBeds = 0;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -455,8 +477,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBeds = 51;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -473,8 +495,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBedrooms = 10;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -491,8 +513,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBedrooms = -1;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -508,8 +530,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBedrooms = 51;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -526,8 +548,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBathroom = 10;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -544,8 +566,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBathroom = 0;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -561,8 +583,8 @@ class ListingRequestDtoTest {
         //arrange
         numberOfBathroom = 51;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -579,8 +601,8 @@ class ListingRequestDtoTest {
         //arrange
         pricePerNight = 11;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -597,8 +619,8 @@ class ListingRequestDtoTest {
         //arrange
         pricePerNight = 9;
 
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -615,8 +637,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_propertyType_IsNull() {
         //arrange
         propertyType = null;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -634,8 +656,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_housingType_IsNull() {
         //arrange
         housingType = null;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -652,8 +674,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_reservationType_IsNull() {
         //arrange
         reservationType = null;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -669,8 +691,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_amenitiesList_IsNull() {
         //arrange
         amenitiesTypeList = null;
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -685,8 +707,8 @@ class ListingRequestDtoTest {
     public void Should_ThrowException_When_amenitiesList_IsEmpty() {
         //arrange
         amenitiesTypeList = new ArrayList<>();
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 
@@ -700,8 +722,8 @@ class ListingRequestDtoTest {
     @Test
     public void Should_CreateListingCorrectly_When_amenitiesList_ContainsAmenities() {
         //arrange
-        ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
-                listingDescription, addressInfoRequestDto,listingPhotos,
+         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
+                listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
                 propertyType, housingType, reservationType, amenitiesTypeList);
 

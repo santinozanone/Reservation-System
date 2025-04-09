@@ -81,6 +81,7 @@ public class AccountRepositoryMySql implements AccountRepository {
                     account.getPassword(),account.isVerified(),account.isEnabled(),account.getId());
 
             logger.debug("executing update on phoneNumber with id:{}", phoneNumber.getId());
+            logger.error("miauu,{}",phoneNumber.getCountryCode());
             jdbcTemplate.update(phoneNumberSql,phoneNumber.getCountryCode(),phoneNumber.getPhoneNumber(),phoneNumber.getId());
         }catch (DuplicateKeyException exception){
             logger.info("error trying to update user with uuid:{}, username:{}, email:{}, duplicate key exception",

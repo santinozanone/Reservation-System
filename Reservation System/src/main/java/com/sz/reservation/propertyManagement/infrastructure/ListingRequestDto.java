@@ -20,11 +20,8 @@ public class ListingRequestDto {
     private String listingDescription;
 
     @Valid
+    @NotNull
     private AddressInfoRequestDto addressInfoDto;
-
-    @NotEmpty
-    @Size(min = 5,max = 50)
-    private List<MultipartFile> listingPhotos;
 
     @Min(1)
     @Max(16)
@@ -58,11 +55,10 @@ public class ListingRequestDto {
     @NotEmpty
     private List<AmenitiesType> amenities;
 
-    public ListingRequestDto(String listingTitle, String listingDescription, AddressInfoRequestDto addressInfoDto, List<MultipartFile> listingPhotos, int numberOfGuestAllowed, int numberOfBeds, int numberOfBedrooms, int numberOfBathroom, double pricePerNight, PropertyType propertyType, HousingType housingType, ReservationType reservationType, List<AmenitiesType> amenities) {
+    public ListingRequestDto(String listingTitle, String listingDescription, AddressInfoRequestDto addressInfoDto, int numberOfGuestAllowed, int numberOfBeds, int numberOfBedrooms, int numberOfBathroom, double pricePerNight, PropertyType propertyType, HousingType housingType, ReservationType reservationType, List<AmenitiesType> amenities) {
         this.listingTitle = listingTitle;
         this.listingDescription = listingDescription;
         this.addressInfoDto = addressInfoDto;
-        this.listingPhotos = listingPhotos;
         this.numberOfGuestAllowed = numberOfGuestAllowed;
         this.numberOfBeds = numberOfBeds;
         this.numberOfBedrooms = numberOfBedrooms;
@@ -84,10 +80,6 @@ public class ListingRequestDto {
 
     public AddressInfoRequestDto getAddressInfoDto() {
         return addressInfoDto;
-    }
-
-    public List<MultipartFile> getListingPhotos() {
-        return listingPhotos;
     }
 
     public int getNumberOfGuestAllowed() {

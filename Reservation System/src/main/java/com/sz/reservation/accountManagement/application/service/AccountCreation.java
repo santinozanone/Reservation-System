@@ -19,6 +19,8 @@ import java.time.LocalDate;
 public class AccountCreation {
     private PhoneNumberValidator phoneNumberValidator;
     private HashingService hashingService;
+
+    private final String INTERNATIONAL_PREFIX = "+";
     private Logger logger = LogManager.getLogger(AccountCreation.class);
     public AccountCreation(PhoneNumberValidator phoneNumberValidator,HashingService hashingService){
         this.phoneNumberValidator = phoneNumberValidator;
@@ -30,7 +32,10 @@ public class AccountCreation {
         String registrationEmail = accountCreationRequest.getEmail();
         logger.info("creating account creation data for user with email: {}",registrationEmail);
         //Phone number validation
-        if (!phoneNumberValidator.isValid(accountCreationRequest.getCountryCode(), accountCreationRequest.getPhoneNumber())) {
+
+        String countryCode = INTERNATIONAL_PREFIX.concat(accountCreationRequest.getCountryCode());
+
+        if (!phoneNumberValidator.isValid(countryCode, accountCreationRequest.getPhoneNumber())) {
             throw new InvalidPhoneNumberException(accountCreationRequest.getCountryCode(),accountCreationRequest.getPhoneNumber());
         }
 
@@ -55,7 +60,7 @@ public class AccountCreation {
         AccountVerificationToken accountValidationToken = new AccountVerificationToken(userId,accountVerificationToken,expirationDate);
         logger.debug("creating phone number with, phoneID:{}, countryCode:{}, phoneNumber:{} for user with email: {}",phoneNumberId,accountCreationRequest.getCountryCode(), accountCreationRequest.getPhoneNumber(),registrationEmail);
         PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,accountCreationRequest.getCountryCode(), accountCreationRequest.getPhoneNumber());
-
+        logger.error("perro ",phoneNumber.getCountryCode());
         logger.info("account creation data created successfully for user with email:{}",registrationEmail);
         return new AccountCreationData(
                 userId,

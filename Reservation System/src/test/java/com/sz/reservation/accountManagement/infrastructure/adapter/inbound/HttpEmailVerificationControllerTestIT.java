@@ -2,6 +2,7 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
+import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {RootConfig.class, WebSecurityConfig.class})
+@ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -48,12 +49,12 @@ public class HttpEmailVerificationControllerTestIT {
     private WebApplicationContext context;
     private WebTestClient client;
 
-    private String VERIFICATION_PATH = "/api/v1/account/verification";
-    private String RESEND_VERIFICATION_PATH = "/api/v1/account/verification/resend";
+    private String VERIFICATION_PATH = "/account/verification";
+    private String RESEND_VERIFICATION_PATH = "/account/verification/resend";
 
     @BeforeAll
     private void instantiatingValidator(){
-        client = MockMvcWebTestClient.bindToApplicationContext(context).apply(SecurityMockMvcConfigurers.springSecurity()).build();
+        client = MockMvcWebTestClient.bindToApplicationContext(context).build();
     }
 
     @Test
@@ -236,7 +237,7 @@ public class HttpEmailVerificationControllerTestIT {
         LocalDate expirationDate = LocalDate.now().plusDays(7);
 
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448899");
+        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
 
         HashingService hashingService = new BCryptPasswordHashingService();
         String password =hashingService.hash("ultrasafepassword");
@@ -260,6 +261,7 @@ public class HttpEmailVerificationControllerTestIT {
         accountRepository.registerNotEnabledNotVerifiedUser(accountCreationData);
         //assert
         Optional<Account> account = accountRepository.findAccountByEmail(accountCreationData.getEmail());
+        assertEquals("+54",account.get().getPhoneNumber().getCountryCode());
         Assertions.assertTrue(account.isPresent());
     }
 

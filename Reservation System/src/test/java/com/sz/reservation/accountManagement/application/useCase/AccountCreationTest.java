@@ -1,9 +1,11 @@
 package com.sz.reservation.accountManagement.application.useCase;
 
+import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.application.service.AccountCreation;
 import com.sz.reservation.accountManagement.domain.exception.InvalidPhoneNumberException;
 import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
+import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.domain.service.PhoneNumberValidator;
 import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRequest;
@@ -15,12 +17,11 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -39,6 +40,36 @@ class AccountCreationTest {
             .messageInterpolator(new ParameterMessageInterpolator())
             .getValidator();
 
+    private String username;
+    private String name;
+    private String surname;
+    private String email;
+    private String phoneNumber;
+    private String countryCode;
+
+    private LocalDate birthDate;
+    private String nationality;
+
+    private MultipartFile multipartFile;
+    private String password;
+
+    private ProfilePicture profile;
+    @BeforeEach
+    public void initializeVariables(){
+        username = "wolfofwallstreet";
+        name = "jordan";
+        surname = "belfort";
+        email = "inventedEmail@miau.com";
+        countryCode = "54";
+        phoneNumber = "1111448899";
+        birthDate = LocalDate.now().minusDays(10);
+        nationality = "Argentina";
+        password ="ultrasafepassword";
+
+        String path = "src/test/resources/bird.jpg";
+        profile = new ProfilePicture(path);
+        multipartFile = new MockMultipartFile("fake","fake.png", MediaType.IMAGE_PNG_VALUE,new byte[0]);
+    }
 
     @BeforeAll
     private static void initializingAccountCreation(){
@@ -50,26 +81,22 @@ class AccountCreationTest {
     @Test
     public void Should_ReturnAccountCreationData_When_ValidRequest() throws IOException {
         //arrange
-        String path = "src/test/resources/bird.jpg";
-        ProfilePicture profile = new ProfilePicture(path);
-        MockMultipartFile multipartFile = new MockMultipartFile("fake","fake.png", MediaType.IMAGE_PNG_VALUE,new byte[0]);
         AccountCreationRequest request = new AccountCreationRequest(
-                "Mike17",
-                "mike",
-                "kawasaki",
-                "notRealEmail@not.gmail",
-                "+54",
-                "1111111111",
-                LocalDate.of(2014,4,15),
-                "argentina",
+                username,
+                name,
+                surname,
+                email,
+                countryCode,
+                phoneNumber,
+                birthDate,
+                nationality,
                 multipartFile,
-                "eightcharacterlong");
+                password);
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         if (!violations.isEmpty()) throw new IllegalArgumentException("Illegal arguments supplied "+ violations.toString());
 
         //act
         AccountCreationData data = accountCreation.accountCreationData(request,profile);
-
 
         //assert
         Assertions.assertNotNull(data);
@@ -80,20 +107,18 @@ class AccountCreationTest {
     @Test
     public void ShouldThrowInvalidPhoneNumberException_WhenInvalidPhoneNumber(){
         //arrange
-        String path = "src/test/resources/bird.jpg";
-        ProfilePicture profile = new ProfilePicture(path);
-        MockMultipartFile multipartFile = new MockMultipartFile("fake","fake.png", MediaType.IMAGE_PNG_VALUE,new byte[0]);
+        phoneNumber = "000";
         AccountCreationRequest request = new AccountCreationRequest(
-                "Mike17",
-                "mike",
-                "kawasaki",
-                "notRealEmail@not.gmail",
-                "+54",
-                "000",
-                LocalDate.of(2014,4,15),
-                "argentina",
+                username,
+                name,
+                surname,
+                email,
+                countryCode,
+                phoneNumber,
+                birthDate,
+                nationality,
                 multipartFile,
-                "eightcharacterlong");
+                password);
 
         //act and assert
         assertThrows(InvalidPhoneNumberException.class,() -> {
@@ -104,10 +129,6 @@ class AccountCreationTest {
 
     @Test
     public void ShouldThrowIllegalArgumentException_WhenNullAccountRequest(){
-        //arrange
-        String path = "src/test/resources/bird.jpg";
-        ProfilePicture profile = new ProfilePicture(path);
-
         //act and assert
         assertThrows(IllegalArgumentException.class,() -> {
             accountCreation.accountCreationData(null, profile);
@@ -117,22 +138,22 @@ class AccountCreationTest {
     @Test
     public void ShouldThrowIllegalArgumentException_WhenNullProfile(){
         //arrange
-        MockMultipartFile multipartFile = new MockMultipartFile("fake","fake.png", MediaType.IMAGE_PNG_VALUE,new byte[0]);
+        profile = null;
         AccountCreationRequest request = new AccountCreationRequest(
-                "Mike17",
-                "mike",
-                "kawasaki",
-                "notRealEmail@not.gmail",
-                "+54",
-                "000",
-                LocalDate.of(2014,4,15),
-                "argentina",
+                username,
+                name,
+                surname,
+                email,
+                countryCode,
+                phoneNumber,
+                birthDate,
+                nationality,
                 multipartFile,
-                "eightcharacterlong");
+                password);
 
         //act and assert
         assertThrows(IllegalArgumentException.class,() -> {
-            accountCreation.accountCreationData(request, null);
+            accountCreation.accountCreationData(request, profile);
         });
     }
 

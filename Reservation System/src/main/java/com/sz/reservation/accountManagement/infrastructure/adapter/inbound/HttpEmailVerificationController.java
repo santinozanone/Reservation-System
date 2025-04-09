@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/api/v1/account")
 @Validated
 public class HttpEmailVerificationController {
     private Logger logger = LogManager.getLogger(HttpEmailVerificationController.class);
@@ -33,7 +32,7 @@ public class HttpEmailVerificationController {
         this.accountVerificationUseCase = accountVerificationUseCase;
     }
 
-    @PostMapping("/verification")
+    @PostMapping("/account/verification")
     public ResponseEntity<String> verifyActivationToken(@RequestParam("token") @Size(min = 36,max = 36,message = "token must be 36 characters")
                                                             @NotNullNotWhitespace String token){
         logger.info("received token with :{} characters",token.length());
@@ -43,7 +42,7 @@ public class HttpEmailVerificationController {
         return new ResponseEntity<>("email verified successfully ", HttpStatus.OK);
     }
 
-    @PostMapping("/verification/resend")
+    @PostMapping("/account/verification/resend")
     public ResponseEntity<String> resendActivationToken(@RequestParam("token") @Size(min = 36,max = 36,message = "token must be 36 characters")
                                                             @NotNullNotWhitespace String token){
         logger.info("received verification token resend for old token :{} ",token);

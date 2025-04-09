@@ -1,5 +1,10 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+import com.sz.reservation.accountManagement.configuration.AccountConfig;
+import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
+import com.sz.reservation.accountManagement.domain.service.HashingService;
+import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
@@ -22,13 +27,14 @@ import org.springframework.web.context.WebApplicationContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = RootConfig.class)
+@ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
 
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
@@ -45,7 +51,37 @@ class HttpRegistrationControllerTestIT {
 
     WebTestClient client ;
 
-    private String REGISTRATION_PATH = "/api/v1/account/registration";
+    private String REGISTRATION_PATH = "/registration";
+
+    private String email;
+    private String userId;
+
+    private String username;
+    private String name;
+    private String surname;
+
+    private String phoneNumber;
+    private String countryCode;
+
+    private String birthDate;
+    private String nationality;
+
+    private String password;
+
+
+    @BeforeEach
+    public void initializeVariables(){
+        userId = UuidCreator.getTimeOrderedEpoch().toString();
+        username = "wolfofwallstreet";
+        name = "jordan";
+        surname = "belfort";
+        email = "inventedEmail@miau.com";
+        countryCode = "54";
+        phoneNumber = "1111448899";
+        birthDate = LocalDate.now().minusDays(10).toString();
+        nationality = "Argentina";
+        password ="ultrasafepassword";
+    }
 
     @BeforeAll
     public void instantiateClient(){
@@ -67,22 +103,21 @@ class HttpRegistrationControllerTestIT {
     @Transactional
     public void Should_CreateAccount_And_StoreProfilePicture_When_ValidRequest() throws IOException {
         //arrange
-        String email = "zanone.santinoet36@gmail.com";
         String path = "src/test/resources/bird.jpg";
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("username","eloytejero");
-        builder.part("name","eloy");
-        builder.part("surname","eloy");
+        builder.part("username",username);
+        builder.part("name",name);
+        builder.part("surname",surname);
         builder.part("email",email);
-        builder.part("countryCode","+54");
-        builder.part("phoneNumber","1144001478");
-        builder.part("birthDate","2010-04-04");
-        builder.part("nationality","argentina");
+        builder.part("countryCode",countryCode);
+        builder.part("phoneNumber",phoneNumber);
+        builder.part("birthDate",birthDate);
+        builder.part("nationality",nationality);
         builder.part("profilePicture",multipartFile.getResource());
-        builder.part("password","eightcharacterlong");
+        builder.part("password",password);
 
 
         //act and assert
@@ -107,23 +142,36 @@ class HttpRegistrationControllerTestIT {
     @Transactional
     public void Should_ReturnError_When_AlreadyInUseUsername() throws IOException {
         //arrange
-        String email = "zanone.santinoet36@gmail.com";
         String path = "src/test/resources/bird.jpg";
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
 
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("username","eloytejero");
-        builder.part("name","eloy");
-        builder.part("surname","eloy");
+        builder.part("username",username);
+        builder.part("name",name);
+        builder.part("surname",surname);
         builder.part("email",email);
-        builder.part("countryCode","+54");
-        builder.part("phoneNumber","1144001478");
-        builder.part("birthDate","2010-04-04");
-        builder.part("nationality","argentina");
+        builder.part("countryCode",countryCode);
+        builder.part("phoneNumber",phoneNumber);
+        builder.part("birthDate",birthDate);
+        builder.part("nationality",nationality);
         builder.part("profilePicture",multipartFile.getResource());
-        builder.part("password","eightcharacterlong");
+        builder.part("password",password);
 
+        String otherEmail = "otherEmail@gmail.com"; // changing email so it only detects username in use
+
+        //second builder
+        MultipartBodyBuilder secondBuilder = new MultipartBodyBuilder();
+        secondBuilder.part("username",username);
+        secondBuilder.part("name",name);
+        secondBuilder.part("surname",nationality);
+        secondBuilder.part("email",otherEmail);
+        secondBuilder.part("countryCode",countryCode);
+        secondBuilder.part("phoneNumber",phoneNumber);
+        secondBuilder.part("birthDate",birthDate);
+        secondBuilder.part("nationality",nationality);
+        secondBuilder.part("profilePicture",multipartFile.getResource());
+        secondBuilder.part("password",password);
 
         //act and assert
         //first insert
@@ -133,7 +181,7 @@ class HttpRegistrationControllerTestIT {
 
         //second insert
         client.post().uri(REGISTRATION_PATH)
-                .bodyValue(builder.build())
+                .bodyValue(secondBuilder.build())
                 .exchange()
                 .expectStatus().isBadRequest(); // second one should fail
 
@@ -152,34 +200,35 @@ class HttpRegistrationControllerTestIT {
     @Transactional
     public void Should_ReturnError_When_AlreadyInUseEmail() throws IOException {
         //arrange
-        String email = "zanone.santinoet36@gmail.com";
         String path = "src/test/resources/bird.jpg";
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
 
         MultipartBodyBuilder firstBuilder = new MultipartBodyBuilder();
-        firstBuilder.part("username","eloytejero");
-        firstBuilder.part("name","eloy");
-        firstBuilder.part("surname","eloy");
+        firstBuilder.part("username",username);
+        firstBuilder.part("name",name);
+        firstBuilder.part("surname",surname);
         firstBuilder.part("email",email);
-        firstBuilder.part("countryCode","+54");
-        firstBuilder.part("phoneNumber","1144001478");
-        firstBuilder.part("birthDate","2010-04-04");
-        firstBuilder.part("nationality","argentina");
+        firstBuilder.part("countryCode",countryCode);
+        firstBuilder.part("phoneNumber",phoneNumber);
+        firstBuilder.part("birthDate",birthDate);
+        firstBuilder.part("nationality",nationality);
         firstBuilder.part("profilePicture",multipartFile.getResource());
-        firstBuilder.part("password","eightcharacterlong");
+        firstBuilder.part("password",password);
+
+       username = "santino"; // change username so only detects that the email is already in use
 
         MultipartBodyBuilder secondBuilder = new MultipartBodyBuilder();
-        secondBuilder.part("username","santino");
-        secondBuilder.part("name","eloy");
-        secondBuilder.part("surname","eloy");
-        secondBuilder.part("email","zanone.santinoet36@gmail.com");
-        secondBuilder.part("countryCode","+54");
-        secondBuilder.part("phoneNumber","1144001478");
-        secondBuilder.part("birthDate","2010-04-04");
-        secondBuilder.part("nationality","argentina");
+        secondBuilder.part("username",username);
+        secondBuilder.part("name",name);
+        secondBuilder.part("surname",nationality);
+        secondBuilder.part("email",email);
+        secondBuilder.part("countryCode",countryCode);
+        secondBuilder.part("phoneNumber",phoneNumber);
+        secondBuilder.part("birthDate",birthDate);
+        secondBuilder.part("nationality",nationality);
         secondBuilder.part("profilePicture",multipartFile.getResource());
-        secondBuilder.part("password","eightcharacterlong");
+        secondBuilder.part("password",password);
 
         //act and assert
         //first insert
@@ -189,7 +238,7 @@ class HttpRegistrationControllerTestIT {
 
         //second insert
         client.post().uri(REGISTRATION_PATH)
-                .bodyValue(secondBuilder.build())
+                .bodyValue(firstBuilder.build())
                 .exchange()
                 .expectStatus().isBadRequest(); // second one should fail
 

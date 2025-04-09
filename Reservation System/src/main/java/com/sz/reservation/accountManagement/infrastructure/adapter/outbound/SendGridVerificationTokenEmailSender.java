@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-@Component
-@Profile("prod")
+//@Component
+//@Profile("prod")
 public class SendGridVerificationTokenEmailSender implements VerificationTokenEmailSender {
     private Logger logger = LogManager.getLogger(SendGridVerificationTokenEmailSender.class);
 

@@ -15,9 +15,11 @@ import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -28,9 +30,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.sql.DataSource;
 
 @Configuration
-@Import({AccountConfig.class, PropertyConfig.class})
-@ComponentScan
+@ComponentScan(basePackages = "com.sz.reservation.globalConfiguration")
+/*@ComponentScan(basePackages = "com.sz.reservation.globalConfiguration",
+                excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX,
+                        pattern = "com\\.sz\\.reservation\\.globalConfiguration\\.security\\..*"))*/
 @EnableWebMvc
+
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableLoadTimeWeaving
@@ -48,10 +53,6 @@ public class RootConfig {
         return new LocalValidatorFactoryBean();
     }
 
-    @Bean
-    public StandardServletMultipartResolver multipartResolver(){
-        return new StandardServletMultipartResolver();
-    }
 
 
 

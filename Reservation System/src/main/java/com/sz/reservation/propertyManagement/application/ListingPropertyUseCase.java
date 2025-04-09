@@ -35,11 +35,13 @@ public class ListingPropertyUseCase {
         String userEmail = userDetails.getEmail();
         logger.info("starting listing process for user:{} ",userEmail);
 
-        List<MultipartFile> multipartPhotos = listingRequestDto.getListingPhotos();
+      /*  List<MultipartFile> multipartPhotos = listingRequestDto.getListingPhotos();
         if (!tikaListingPhotosValidator.isPhotoListValid(multipartPhotos)) {
             throw new MediaNotSupportedException("invalid format for one or more listing photos");
         }
         List<ListingPhoto> listingPhotos = listingPhotosService.createListingPhotoList(multipartPhotos);
+
+
 
         String id = UuidCreator.getTimeOrderedEpoch().toString();
         ListingProperty listingProperty = new ListingProperty(id,listingRequestDto.getListingTitle(),
@@ -58,6 +60,8 @@ public class ListingPropertyUseCase {
 
         logger.info("sending email to user :{}",userEmail);
         //send email
+
+       */
 
     }
 

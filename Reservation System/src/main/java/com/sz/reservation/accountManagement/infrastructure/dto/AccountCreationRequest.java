@@ -31,7 +31,8 @@ public class AccountCreationRequest {
 
     @NotBlank(message = "countryCode cannot be blank")
     @Size(max = 3,message = "country code must be maximum 3 characters")
-    private String countryCode;// An example would be: "+54"
+    @Pattern(regexp = "^[0-9]+$",message = "country code only allows numbers")
+    private String countryCode;// An example would be: "54"
 
 
     @NotBlank(message = "phoneNumber cannot be blank")
@@ -56,6 +57,9 @@ public class AccountCreationRequest {
     @Size(min = 8,message = "password must be minimum 8 characters long")
     @Size(max = 255,message = "password must be maximum 255 characters long")
     private String password;
+
+
+
 
     public AccountCreationRequest(String username, String name, String surname, String email, String countryCode , String phoneNumber, LocalDate birthDate, String nationality, MultipartFile profilePicture, String password) {
         this.username = username;

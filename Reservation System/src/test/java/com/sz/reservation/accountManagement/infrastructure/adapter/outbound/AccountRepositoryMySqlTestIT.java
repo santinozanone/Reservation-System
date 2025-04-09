@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Optional;
 
-@DisplayName("Testing Account db ")
+@DisplayName("Testing Account Repository MYSQL db ")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = RootConfig.class)
 
@@ -32,36 +32,58 @@ import java.util.Optional;
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AccountRepositoryMySqlTestIT {
+    private String email;
+    private String userId;
 
+    private String username;
+    private String name;
+    private String surname;
+    private String userVerificationToken;
+    private LocalDate expirationDate;
+
+    private String phoneNumberId;
+    private PhoneNumber phoneNumber;
+
+    private LocalDate birthDate;
+    private String nationality;
+
+    private HashingService hashingService;
+    private String password;
     @Autowired
-    private AccountRepository accountRepositoryMySql ;
+    private AccountRepository accountRepositoryMySql;
 
+    @BeforeEach
+    public void initializeVariables(){
+        email = "inventedEmail@miau.com";
+        userId = UuidCreator.getTimeOrderedEpoch().toString();
+        username = "wolfofwallstreet";
+        name = "jordan";
+        surname = "belfort";
+        userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
+        expirationDate = LocalDate.now().plusDays(7);
+
+        phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
+        phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
+        birthDate = LocalDate.now().minusDays(10);
+        nationality = "Argentina";
+        hashingService = new BCryptPasswordHashingService();
+        password =hashingService.hash("ultrasafepassword");
+    }
 
 
     @Test
     @Transactional
     public void Should_createAccountCorrectly_When_ValidData(){
         //arrange
-        String email = "inventedEmail@miau.com";
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        String userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
-
-        String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448899");
-
-        HashingService hashingService = new BCryptPasswordHashingService();
-        String password =hashingService.hash("ultrasafepassword");
-
         AccountCreationData accountCreationData = new AccountCreationData(
                 userId,
-                "wolfofwallstreet",
-                "jordan",
-                "belfort",
+                username,
+                name,
+                surname,
                 email,
                 phoneNumber,
-                LocalDate.now(),
-                "Argentina",
+                birthDate,
+                nationality,
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
@@ -78,43 +100,34 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_ThrowEmailAlreadyRegisteredException_When_EmailAlreadyRegistered(){
         //arrange
-        String email = "inventedEmail@miau.com";
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        String userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
-
-        String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
-
-        HashingService hashingService = new BCryptPasswordHashingService();
-        String password =hashingService.hash("ultrasafepassword");
-
         AccountCreationData accountCreationData = new AccountCreationData(
                 userId,
-                "wolfofwallstreet",
-                "jordan",
-                "belfort",
+                username,
+                name,
+                surname,
                 email,
                 phoneNumber,
-                LocalDate.now(),
-                "Argentina",
+                birthDate,
+                nationality,
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
 
         // generate new uuids
         userId = UuidCreator.getTimeOrderedEpoch().toString();
+        username = "wolf"; // different username than first account
         phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
+
         AccountCreationData dataWithDifferentUsername = new AccountCreationData(
                 userId,
-                "wolf",
-                "jordan",
-                "belfort",
+                username,
+                name,
+                surname,
                 email,
                 phoneNumber,
-                LocalDate.now(),
-                "Argentina",
+                birthDate,
+                nationality,
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
@@ -135,26 +148,15 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_ThrowUsernameAlreadyRegisteredException_When_UsernameAlreadyRegistered(){
         //arrange
-        String email = "inventedEmail@miau.com";
-        String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        String userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
-
-        String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448897");
-
-        HashingService hashingService = new BCryptPasswordHashingService();
-        String password =hashingService.hash("ultrasafepassword");
-
         AccountCreationData accountCreationData = new AccountCreationData(
                 userId,
-                "wolfofwallstreet",
-                "jordan",
-                "belfort",
+                username,
+                name,
+                surname,
                 email,
                 phoneNumber,
-                LocalDate.now(),
-                "Argentina",
+                birthDate,
+                nationality,
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
@@ -163,15 +165,16 @@ class AccountRepositoryMySqlTestIT {
         userId = UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
+        String secondEmail = "inventedEmail2@miau.com";
         AccountCreationData dataWithDifferentEmail = new AccountCreationData(
                 userId,
-                "wolfofwallstreet",
-                "jordan",
-                "belfort",
-                "inventedEmail2@miau.com",
+                username,
+                name,
+                surname,
+                secondEmail,
                 phoneNumber,
                 LocalDate.now(),
-                "Argentina",
+                nationality,
                 password,
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
