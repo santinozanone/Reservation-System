@@ -31,11 +31,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = "com.sz.reservation.globalConfiguration")
-/*@ComponentScan(basePackages = "com.sz.reservation.globalConfiguration",
-                excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX,
-                        pattern = "com\\.sz\\.reservation\\.globalConfiguration\\.security\\..*"))*/
 @EnableWebMvc
-
 @PropertySource("classpath:application.properties")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableLoadTimeWeaving

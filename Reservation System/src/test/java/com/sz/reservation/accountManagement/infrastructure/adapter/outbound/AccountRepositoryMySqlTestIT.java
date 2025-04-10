@@ -1,6 +1,7 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.domain.exception.EmailAlreadyRegisteredException;
@@ -26,7 +27,7 @@ import java.util.Optional;
 
 @DisplayName("Testing Account Repository MYSQL db ")
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = RootConfig.class)
+@ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
 
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})

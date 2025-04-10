@@ -25,7 +25,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 @EnableWebSecurity(debug = true)
-@ComponentScan
+//@ComponentScan
 public class WebSecurityConfig {
 
    /* @Autowired
@@ -40,20 +40,19 @@ public class WebSecurityConfig {
     //maybe i should have 3 dispatcher servlets now that i think because i have errors othertwise,
     // should have / , /api/v1/account/listing, /api/v1/account/*
 
-    @Bean
+   /* @Bean
     MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
         return new MvcRequestMatcher.Builder(introspector);
     }
-
+*/
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
-        mvc.servletPath("/api/v1");
-        http
+    @Order(2)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        //mvc.servletPath("/api/v1");
+        http.securityMatcher("/api/v1/account/*")
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(mvc.pattern("/account/*")).permitAll()
-                        .requestMatchers("/error/**").permitAll()
-
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -62,6 +61,26 @@ public class WebSecurityConfig {
                 //        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
                 //.httpBasic(Customizer.withDefaults()
                  //       basicConfigurer.authenticationEntryPoint(authEntryPoint)
+                //)
+                .csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean
+    @Order(1)
+    public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
+       // mvc.servletPath("/api/v1/host");
+        http.securityMatcher("/api/v1/host/*")
+                .authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().permitAll()
+                )
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                //  .exceptionHandling(handlingConfigurer ->
+                //        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
+                //.httpBasic(Customizer.withDefaults()
+                //       basicConfigurer.authenticationEntryPoint(authEntryPoint)
                 //)
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();

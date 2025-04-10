@@ -4,7 +4,6 @@ import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.globalConfiguration.security.WebSecurityConfig;
 import com.sz.reservation.propertyManagement.configuration.PropertyConfig;
-import com.sz.reservation.propertyManagement.configuration.security.ListingWebSecurity;
 import jakarta.servlet.*;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
@@ -27,24 +26,23 @@ public class DispatcherServletInitializer implements WebApplicationInitializer {
         AnnotationConfigWebApplicationContext defaultContext = new AnnotationConfigWebApplicationContext();
         defaultContext.register(AccountConfig.class);
         defaultContext.setParent(rootContext);
-        //defaultContext.refresh();
+
         DispatcherServlet defaultDispatcher = new DispatcherServlet(defaultContext); // defining the config class
         ServletRegistration.Dynamic firstDispatcher = servletContext.addServlet("root1Dispatcher", defaultDispatcher);
-        firstDispatcher.setLoadOnStartup(1);
+        firstDispatcher.setLoadOnStartup(2);
         firstDispatcher.addMapping("/api/v1/*");
         firstDispatcher.setMultipartConfig(new MultipartConfigElement(null,2097152,3145728,2097152)); // 2MB,3MB,2MB
 
 
 
         // creating the /account/listing/* dispatcher
-      /*  AnnotationConfigWebApplicationContext listingContext = new AnnotationConfigWebApplicationContext();
-        listingContext.register(PropertyConfig.class, ListingWebSecurity.class); // defining the config class
-        listingContext.refresh();
+        AnnotationConfigWebApplicationContext listingContext = new AnnotationConfigWebApplicationContext();
+        listingContext.register(PropertyConfig.class); // defining the config class
         DispatcherServlet hostDispatcher = new DispatcherServlet(listingContext);
         ServletRegistration.Dynamic secondDispatcher = servletContext.addServlet("hostServlet", hostDispatcher);
         secondDispatcher.setLoadOnStartup(1);
         //secondDispatcher.setMultipartConfig(new MultipartConfigElement(null,52428800,1635778560 ,52428800)); //50MB,1560MB,50MB
-        secondDispatcher.addMapping("/api/v1/host/*");*/
+        secondDispatcher.addMapping("/api/v1/host/*");
 
 
 
