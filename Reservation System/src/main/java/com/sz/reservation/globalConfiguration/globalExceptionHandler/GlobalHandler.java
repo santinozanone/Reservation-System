@@ -108,7 +108,7 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleEmailAlreadyRegisteredException(EmailAlreadyRegisteredException exception){
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("email already registered exception");
-        problemDetail.setDetail("The email is already use");
+        problemDetail.setDetail("The email is already in use");
         logger.info("error trying to insert user, email: {} already in use",exception.getEmail());
         return problemDetail;
     }

@@ -540,3 +540,58 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * Given that this will be the backend for a specific front end and not a public api, CORS will have to be properly configured in order to only allow the frontend specific domain requests to the browser.
 
 
+### 09/04/2025
+#### **What was done today:** 
+* After being away almost a month i came back, so what i have been doing in the last few days is:
+   * Refactoring unit and integration tests for better readability
+   * Creating the property management package
+   * Decided to split the property management in its own resource, by having a new endpoint /api/v1/host/*
+   * I have spent the last 4 days trying to configure a double dispatcher servlet system, one for /api/v1/*
+   and one for /api/v1/host/*. The motivation behind this comes because i wanted the system to be as fast as possible, so this is what happened.
+   First i had an endpoint that would receive an object called "listing request dto", which would have all the fields needed, that would include 10 or more fields and a multipart list of max 50. But then i realized that wasnt the most optimal way of doing that.
+   Imagine hundreds of request at the same time sending 50 photos of 50MB each.
+   So, what i resolved was, have 2 endpoints, the first one would only receive the dto,
+   but without the multipart fields, and having another endpoint for receiving the pictures.
+   The problem was that the multipart class used in spring loads all the media into disk or memory, depending on the threshold configured. for me that wasnt viable, so after hours reading and researching online what i found the most useful way of doing what i wanted was by streaming the data using the Apache commons upload.
+   From my understand spring also uses apache commons upload, but i couldnt figure a way to
+   use the streaming function.
+   This is where the problem started, in order to have 2 multipart resolver, (i needed to have 2 because remember that i have the /registration endpoint which must have a profile picture), the only way i found is to have 2 dispatcher servlets, and at first it was complicated but after some frustating days i could make it work, each dispatcher servlet
+   has a root context, containing the datasource and other utilities beans, and each dispatcher has its own controllers and etc. 
+   The main problem i found when doing this is the root configuration in regard to the childs, because in my root configuration i had some annotations like @enablewebmvc , @enablewebsecurity , etc.
+   In my mind i though that because the child context would "inherit" the beans (it doesnt inherit them, if it doesnt find it in its own context, it will go through its parent), it wasnt necessary to re-declare them , but after a lot of time i found it was needed, so i did it.
+   
+   ### 10/04/2025
+#### **What was done today:** 
+* So today was the "implement spring security" day, i have been fighting with errors a long way , first the [CVE-2023-34035](https://spring.io/security/cve-2023-34035), and then the 404 ,401 and 403 errors. It was rather difficult i must say to configure the dispatcher servlets, given that they obviously dont have the "/" default path anymore.
+I also found that i had to use the setParent() method  `FirstContext.setParent(rootContext);`
+like so, but the documentation didnt specify that, i found it by reading stack overflow.
+And then i had to read the spring security doc again, in order to understand the filter chain, because i could not understand if each dispatcher needed its own filter chain.
+After learning how it works, i tried to implement it, first its mandatory to define the order in the chain, and then we must have a bean called, MvcRequestMatcher.Builder,
+in order to determine the servlet path of
+each filter chain, and after that we must use the SecurityMatchers that differentiate from the requestMatcher, because the former only applies the security rules if the path matches the one assigned.
+EVERY TIME A PATH IS REQUESTED, mvc.pattern() must be used, otherwise it will throw the [CVE-2023-34035](https://spring.io/security/cve-2023-34035) error.
+
+so..
+* First define the servlet path with mvc
+* then use the securityMatcher using mvc,
+but keep in mind that after setting the servlet path, the following patterns used will be taking in account the servletpath.
+Here is my filter chain:
+```
+ @Bean
+    @Order(1)
+    public SecurityFilterChain securityFilterChain2(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
+        mvc.servletPath("/api/v1/host"); // defining the servlet path in the mvc Request Matcher
+        http.securityMatcher(mvc.pattern("/**")) // we need to use the same mvc in the security matcher,so it uses the servlet path previously defined
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(mvc.pattern("/listing/**")).hasAuthority("ENABLED_USER")) //mvc pattern again so it uses the servlet path
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(handlingConfigurer ->
+                        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
+                .httpBasic(basicConfigurer ->
+                        basicConfigurer.authenticationEntryPoint(authEntryPoint))
+                .csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+```
+And finally everything worked.

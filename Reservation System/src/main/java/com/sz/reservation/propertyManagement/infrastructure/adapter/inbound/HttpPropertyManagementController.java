@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 @Controller
-
+@RequestMapping("/listing")
 public class HttpPropertyManagementController {
     private Logger logger = LogManager.getLogger(HttpPropertyManagementController.class);
 
 
-    @PostMapping("/listing/images-upload")
+    @PostMapping("/images-upload")
     public ResponseEntity<String> uploadListingImages(){
         return new ResponseEntity<>("sasa",HttpStatus.OK);
     }

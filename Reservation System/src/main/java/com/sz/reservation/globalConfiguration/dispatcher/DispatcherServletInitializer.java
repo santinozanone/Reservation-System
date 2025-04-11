@@ -23,31 +23,27 @@ public class DispatcherServletInitializer implements WebApplicationInitializer {
         servletContext.addListener(new ContextLoaderListener(rootContext));
 
 
+        // creating the /api/v1/* dispatcher
         AnnotationConfigWebApplicationContext defaultContext = new AnnotationConfigWebApplicationContext();
-        defaultContext.register(AccountConfig.class);
+        defaultContext.register(AccountConfig.class); // defining the config class
         defaultContext.setParent(rootContext);
 
-        DispatcherServlet defaultDispatcher = new DispatcherServlet(defaultContext); // defining the config class
-        ServletRegistration.Dynamic firstDispatcher = servletContext.addServlet("root1Dispatcher", defaultDispatcher);
-        firstDispatcher.setLoadOnStartup(2);
+        DispatcherServlet defaultDispatcher = new DispatcherServlet(defaultContext); // creating the dispatcher
+        ServletRegistration.Dynamic firstDispatcher = servletContext.addServlet("DefaultDispatcher", defaultDispatcher);
+        firstDispatcher.setLoadOnStartup(2); // load 2 because the other dispatcher should run first
         firstDispatcher.addMapping("/api/v1/*");
         firstDispatcher.setMultipartConfig(new MultipartConfigElement(null,2097152,3145728,2097152)); // 2MB,3MB,2MB
 
 
 
-        // creating the /account/listing/* dispatcher
+        // creating the /api/v1/host/* dispatcher
         AnnotationConfigWebApplicationContext listingContext = new AnnotationConfigWebApplicationContext();
         listingContext.register(PropertyConfig.class); // defining the config class
-        DispatcherServlet hostDispatcher = new DispatcherServlet(listingContext);
-        ServletRegistration.Dynamic secondDispatcher = servletContext.addServlet("hostServlet", hostDispatcher);
+
+        DispatcherServlet hostDispatcher = new DispatcherServlet(listingContext); // creating the dispatcher
+        ServletRegistration.Dynamic secondDispatcher = servletContext.addServlet("hostDispatcher", hostDispatcher);
         secondDispatcher.setLoadOnStartup(1);
-        //secondDispatcher.setMultipartConfig(new MultipartConfigElement(null,52428800,1635778560 ,52428800)); //50MB,1560MB,50MB
         secondDispatcher.addMapping("/api/v1/host/*");
-
-
-
-
-
 
     }
 }

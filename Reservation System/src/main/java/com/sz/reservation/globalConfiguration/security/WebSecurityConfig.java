@@ -23,71 +23,59 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import java.util.Scanner;
+
 @Configuration
 @EnableWebSecurity(debug = true)
-//@ComponentScan
 public class WebSecurityConfig {
 
-   /* @Autowired
+    @Autowired
     @Qualifier("CustomAuthenticationEntryPoint")
     private AuthenticationEntryPoint authEntryPoint;
 
     @Autowired
     @Qualifier("CustomAccessDeniedHandler")
     private AccessDeniedHandler accessDeniedHandler;
-*/
 
-    //maybe i should have 3 dispatcher servlets now that i think because i have errors othertwise,
-    // should have / , /api/v1/account/listing, /api/v1/account/*
-
-   /* @Bean
-    MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
-        return new MvcRequestMatcher.Builder(introspector);
-    }
-*/
 
     @Bean
     @Order(2)
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        //mvc.servletPath("/api/v1");
-        http.securityMatcher("/api/v1/account/*")
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
+        mvc.servletPath("/api/v1"); // defining the servlet path in the mvc Request Matcher
+        http.securityMatcher(mvc.pattern("/**"))// we need to use the same mvc in the security matcher,so it uses the servlet path previously defined
                 .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().permitAll()
-                )
+                        .requestMatchers(mvc.pattern("/**")).permitAll())//mvc pattern again so it uses the servlet path
                 .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-              //  .exceptionHandling(handlingConfigurer ->
-                //        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
-                //.httpBasic(Customizer.withDefaults()
-                 //       basicConfigurer.authenticationEntryPoint(authEntryPoint)
-                //)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandlingConfigurer ->
+                        exceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
+
 
     @Bean
     @Order(1)
-    public SecurityFilterChain securityFilterChain2(HttpSecurity http) throws Exception {
-       // mvc.servletPath("/api/v1/host");
-        http.securityMatcher("/api/v1/host/*")
+    public SecurityFilterChain securityFilterChain2(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
+        mvc.servletPath("/api/v1/host"); // defining the servlet path in the mvc Request Matcher
+        http.securityMatcher(mvc.pattern("/**")) // we need to use the same mvc in the security matcher,so it uses the servlet path previously defined
                 .authorizeHttpRequests((authorize) -> authorize
-                        .anyRequest().permitAll()
-                )
+                        .requestMatchers(mvc.pattern("/listing/**")).hasAuthority("ENABLED_USER")) //mvc pattern again so it uses the servlet path
                 .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                //  .exceptionHandling(handlingConfigurer ->
-                //        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
-                //.httpBasic(Customizer.withDefaults()
-                //       basicConfigurer.authenticationEntryPoint(authEntryPoint)
-                //)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(handlingConfigurer ->
+                        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
+                .httpBasic(basicConfigurer ->
+                        basicConfigurer.authenticationEntryPoint(authEntryPoint))
                 .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 
 
-
+    @Bean
+    MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+        return new MvcRequestMatcher.Builder(introspector);
+    }
 
     @Bean
     public UserDetailsService userDetailsService(AccountRepository accountRepository) {
@@ -95,10 +83,9 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
 
 }
