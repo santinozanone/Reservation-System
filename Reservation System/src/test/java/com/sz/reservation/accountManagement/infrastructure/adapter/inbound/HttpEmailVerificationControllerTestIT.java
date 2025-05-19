@@ -53,7 +53,7 @@ public class HttpEmailVerificationControllerTestIT {
     private String RESEND_VERIFICATION_PATH = "/account/verification/resend";
 
     @BeforeAll
-    private void instantiatingValidator(){
+    public void instantiatingValidator(){
         client = MockMvcWebTestClient.bindToApplicationContext(context).build();
     }
 
@@ -254,7 +254,7 @@ public class HttpEmailVerificationControllerTestIT {
                 LocalDate.now(),
                 "Argentina",
                 password,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
+                new ProfilePicture("src/test/resources/pfp.jpg"),
                 verificationToken);
 
         //act, (insert user)

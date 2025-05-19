@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
@@ -54,8 +53,10 @@ class TikaFileValidatorTest {
         MediaType realMediaType = MediaType.IMAGE_PNG;
 
         //Act
-        MediaType type = fileValidator.getRealFileType(Files.newInputStream(tempPath, StandardOpenOption.READ));
-
+        MediaType type;
+        try (InputStream inputStream = Files.newInputStream(tempPath, StandardOpenOption.READ)) {
+            type = fileValidator.getRealFileType(Files.newInputStream(tempPath, StandardOpenOption.READ));
+        }
         //Assert
         Assertions.assertEquals(realMediaType, type);
     }
@@ -80,11 +81,13 @@ class TikaFileValidatorTest {
         //Arrange
         FileTypeValidator fileValidator = new TikaFileValidator();
         Path filePath = Path.of(outputFile.getAbsolutePath());
-        InputStream fileInputStream = Files.newInputStream(filePath, StandardOpenOption.READ);
         MediaType realMediaType = MediaType.IMAGE_PNG;
+        MediaType type;
 
-        //Act
-        MediaType type  = fileValidator.getRealFileType(fileInputStream);
+        try (InputStream fileInputStream = Files.newInputStream(filePath, StandardOpenOption.READ)){
+            //Act
+            type = fileValidator.getRealFileType(fileInputStream);
+        }
 
         //Assert
         Assertions.assertEquals(realMediaType, type);
@@ -95,13 +98,13 @@ class TikaFileValidatorTest {
         //Arrange
         File fileWithInventedExtension = CreateNewFileWithInventedExtension();
         Path filePath = Path.of(fileWithInventedExtension.getAbsolutePath());
-        InputStream fileInputStream = Files.newInputStream(filePath, StandardOpenOption.READ);
         FileTypeValidator fileValidator = new TikaFileValidator();
         MediaType realMediaType = MediaType.APPLICATION_OCTET_STREAM;
-
-        //Act
-        MediaType type = fileValidator.getRealFileType(fileInputStream);
-
+        MediaType type;
+        try ( InputStream fileInputStream = Files.newInputStream(filePath, StandardOpenOption.READ);){
+            //Act
+            type = fileValidator.getRealFileType(fileInputStream);
+        }
         //Assert
         Assertions.assertEquals(realMediaType, type);
 
@@ -115,10 +118,11 @@ class TikaFileValidatorTest {
         MockMultipartFile multipartFile = new MockMultipartFile("file","photo.txt",MediaType.TEXT_PLAIN_VALUE,"helloo".getBytes());
         FileTypeValidator validator = new TikaFileValidator();
         MediaType realMediaType = MediaType.TEXT_PLAIN;
-
+        MediaType type;
         //Act
-        MediaType type = validator.getRealFileType(multipartFile.getInputStream());
-
+        try (InputStream stream = multipartFile.getInputStream()){
+            type = validator.getRealFileType(stream);
+        }
         //Assert
         Assertions.assertEquals(realMediaType, type);
 

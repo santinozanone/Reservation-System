@@ -23,8 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Optional<Account> optionalAccount = accountRepository.findAccountByEmail(email);
         if (optionalAccount.isEmpty()) throw new UsernameNotFoundException("the user with email "+ email + " does not exists");
         Account account = optionalAccount.get();
-        CustomUserDetails customUserDetails = new CustomUserDetails(account.getUniqueUsername(),account.getPassword()
-        ,account.isEnabled(),account.getUniqueEmail());
-        return customUserDetails;
+        return new CustomUserDetails(account.getId(),account.getUniqueUsername(),account.getPassword()
+        ,account.isEnabled(),account.isVerified(),account.getUniqueEmail());
     }
 }

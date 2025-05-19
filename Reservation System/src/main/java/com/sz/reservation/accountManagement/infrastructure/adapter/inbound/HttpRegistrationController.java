@@ -12,11 +12,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.sz.reservation.accountManagement.application.useCase.AccountRegistrationUseCase;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
+import java.util.List;
 
 @Controller
-@RequestMapping("/registration")
+@RequestMapping("/account")
 public class HttpRegistrationController {
 	private Logger logger = LogManager.getLogger(HttpRegistrationController.class);
 
@@ -25,7 +27,7 @@ public class HttpRegistrationController {
 	public HttpRegistrationController(AccountRegistrationUseCase accountRegistrationUseCase) {
 		this.accountRegistrationUseCase = accountRegistrationUseCase;
 	}
-	@PostMapping
+	@PostMapping("/registration")
 	public ResponseEntity<String> registerUser(@ModelAttribute @Valid AccountCreationRequest request) throws IOException {
 
 		logger.info("User registration request with email {}, arrived",request.getEmail());
@@ -34,7 +36,6 @@ public class HttpRegistrationController {
 		return new ResponseEntity<>("User Registered Successfully, Pending validation",HttpStatus.CREATED);
 
 	}
-
 
 }
 

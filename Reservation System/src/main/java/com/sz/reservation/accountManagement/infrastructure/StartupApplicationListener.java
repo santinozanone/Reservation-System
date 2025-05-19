@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure;
 
-import com.sz.reservation.accountManagement.infrastructure.exception.DirectoryCreationException;
+import com.sz.reservation.globalConfiguration.exception.DirectoryCreationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;

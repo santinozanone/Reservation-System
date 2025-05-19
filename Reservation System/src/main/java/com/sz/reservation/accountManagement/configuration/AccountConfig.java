@@ -26,10 +26,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableLoadTimeWeaving
 public class AccountConfig {
 
-    //org.springframework.transaction.aspectj.AspectJTransactionManagementConfiguration
-    //BEAN:transactionAttributeSource","process.thread.name":"http-
-    //BEAN:org.springframework.transaction.config.internalTransactionAspect","process.thread.name":"http-
-    //BEAN:org.springframework.context.annotation.LoadTimeWeavingConfiguration","process.thread.name":"http-
     @Bean
     public StandardServletMultipartResolver multipartResolver(){
         return new StandardServletMultipartResolver();

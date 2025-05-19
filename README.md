@@ -595,3 +595,99 @@ Here is my filter chain:
     }
 ```
 And finally everything worked.
+
+   
+   ### 06/05/2025
+#### **What was done today:** 
+* A lot of time has happened since the last time i wrote in this vlog, but i been implementing different things and didnt have enough time to continue the project or write in here, but this are the updates i have so far.
+
+* The project has a package by feature approach with the intention of using some ddd concepts and hex architecture. 
+Now that i have both dispatcher servlets i also implemented an exception handler in each feature package, so each functionality answer to its own exceptions, there is also a global handler that manages the most common exceptions.
+
+At the moment the project has 3 packages:
+   * accountManagement
+   * globalConfiguration
+   * listingManagement
+
+i have also implemented the functionality of listing a property,
+which had to be divided in 2 different endpoints, but why?
+well, the problem that spring has with multipart resolving is that
+the files are loaded into memory first, or into a temp disk space(depends on the config), and when handling small files is totally fine. But my system should be able to support 30 images of 15MB each
+and that approach wasnt viable, the heap would collapse easily,
+if it collapsed with some postman requests, when tested with jmeter a disaster was born.
+So after reading and research like always, found that apache commons upload in STREAMING mode could be used, it only required the spring multipart resolver to be disabled. that was easy, given that i had 2 different dispatchers.
+Regarding the endpoints, users can submit a listing without photos to /api/v1/host/listing , and images to
+/api/v1/host/listing/images-upload.
+I still have to implement a background job that searches listings without images and deletes them from db after some time.
+
+Obviously all of this was unit and integration tested.
+
+* Next i added flyway, because i wanted to handle db migrations in my code, i use it with the maven integration plugin and two separate configuration files. prod and test, when running the command and specifying the maven profile, it loads test o prod.
+
+* Modified all the code, including tests to work with environment variables, because with friend we payed for a aws flyway instance so it will be deployed there.
+
+* Then i had some problems with some enums of the listing property functionality, those enum represent things like, property type, reservation type, etc,
+so the main concern was wether,
+   * Hardcode them in db and in enum.
+   * Each time the program starts ,take the values from the enum and insert them into db.
+   * Not store the values in db as fk but as simple strings and make the code the source of truth.
+
+   * This was also a difficult decision in which i had to find the pros and cons of each approach but ended up using the first approach,
+   the values are hardcoded in a flyway migration file and in the enum code, but when the application launches their test, i made different unit testing
+   that verifies that the db and enum are sync, otherwise it fails. this give me the certainty that the values are correct and also doesnt keep not normalized values in the db, as each has their corresponding PK.
+
+
+* The problem of today:😮😮😥😥
+* Following the ddd approach, i had to go back to the projects root and analyze some things, the use cases,flows,etc, because
+the idea is to have separated bounded context, whats a bounded context?, well from my understanding is this.
+every system has one or more domain, everything is pretty vague in ddd but its the business or specific area that you are developing.
+Each domain has a specific set of rules and behaviour that defines them
+in my case my domain would be a reservation system, each domain can have different sub domains, reservation system could be divided in
+account Management Domain
+reservation domain
+payment domain,etc.
+the bounded context is where do we draw the limits of each domain, for example the "account" meaning could be different depending in the context,
+in the reservation domain, we use the account concept, but is defined as host and guest, so even though they are accounts their representation is different.
+At the end of the day, the main idea is trying to build a better system, cohesive and extensible, not a ONCE SIZE FITS ALL, because that could be done, i mean,
+none says that you cannot have an account class containing all of that data but it will become a mess quickly. for example
+
+account
+-
+-accountId  
+-username  
+-name  
+-surname  
+-password  
+-profilePicture  
+-enabled
+
+* There is our account domain, it could be used in each part of the different context but it would be a waste of data, because for reservation context the only thing needed is the id and the username , so here we can say that there are at least 2 bounded context
+account and reservation, each should use their own version of the account class, suited for their needs.
+
+
+Another problem
+---
+How do we access the account information or information that is managed by other context. if each  should be "independent" and not interfere with others.
+there are multiple ways, but first lets see what we are against.
+
+![alt text](image-10.png)
+
+thats the listing table.
+
+and here are the bounded contexts
+![alt text](image-12.png)
+
+Approaches
+So why "cant" we access the listing table direcly you may ask, in fact, you can, but its not the best thing to do in this ocassion,
+a listing object has a set of rules and boundarys to comply in order to be created, so in order to do so you would have to duplicate the code used in the listing bc for being able to construct it.
+That creates an innecesary duplication, and if tomorrow someone decides to modify the rules you will also have to.
+
+Other option is to have some way of communcation between contexts, and, there are a lot. thery are called patterns
+In this case i think the most optimal is the Supplier-Consumer
+given that we have the listing and account supplier, and the reservation is the consumer
+![alt text](image-13.png)
+
+
+Another approach is to have different databases for each context, truly independent contexts, but if each B.C has their own databases how are they gonna access listings or accounts?, thats where other concepts arises, DOMAIN EVENTS.
+A domain event is just an event that is fired when the domain has complete an operation you think its useful to notify the other contexts. In our case it could be, "Account created", so once an account is created it, the event is fired, an the listing context will be listening for it, once it arrives, then we can insert the data
+into our represenation of an account or do what we want to do

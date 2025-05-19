@@ -4,3 +4,4 @@ logs/
 ReservationLogs/
 /build/
 *.properties
+*.conf

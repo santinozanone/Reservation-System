@@ -50,8 +50,8 @@ public class AccountRepositoryMySql implements AccountRepository {
     public Optional<Account> findAccountByEmail(String email) {
         if (email == null)throw new IllegalArgumentException("email cannot be null");
         logger.debug(QUERY_MARKER, "finding account with email: {} ", email);
-        String accountQuery = "select BIN_TO_UUID(iduser) as iduser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.idphoneNumber) as phoneId,ph.countryCode,ph.phoneNumber,ac.profilePicturePath,ac.password,ac.verified,ac.enabled from account " +
-                "as ac inner join phone_number as ph on ac.phoneNumberId = ph.idphoneNumber where ac.email = ?";
+        String accountQuery = "select BIN_TO_UUID(ac.id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
+                "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.email = ?";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
         Account account = jdbcTemplate.query(
@@ -60,9 +60,9 @@ public class AccountRepositoryMySql implements AccountRepository {
                     @Override
                     public Account extractData(ResultSet resultSet) throws SQLException, DataAccessException {
                         if (!resultSet.next()) return null;
-                        return new Account(resultSet.getString("iduser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
-                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("countryCode"), resultSet.getString("phoneNumber")),
-                                new ProfilePicture(resultSet.getString("profilePicturePath")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
+                        return new Account(resultSet.getString("idUser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
+                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("country_code"), resultSet.getString("number")),
+                                new ProfilePicture(resultSet.getString("profile_picture_path")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
                     }
                 }, email);
         return Optional.ofNullable(account);
@@ -73,8 +73,8 @@ public class AccountRepositoryMySql implements AccountRepository {
     public void updateAccount(Account account) {
         if (account == null)throw new IllegalArgumentException("account cannot be null");
         PhoneNumber phoneNumber =  account.getPhoneNumber();
-        String accountSql = "update account set username = ?, name = ?, surname = ?, profilePicturePath = ?, password = ?,verified = ?,enabled = ? where iduser = UUID_TO_BIN(?)";
-        String phoneNumberSql = "update phone_number set countryCode = ?, phoneNumber = ? where idphoneNumber = UUID_TO_BIN(?)";
+        String accountSql = "update account set username = ?, name = ?, surname = ?, profile_picture_path = ?, password = ?,verified = ?,enabled = ? where id_user = UUID_TO_BIN(?)";
+        String phoneNumberSql = "update phone_number set country_code = ?, number = ? where id_phone_number = UUID_TO_BIN(?)";
         try {
             logger.debug("executing update on account with id:{}", account.getId());
             jdbcTemplate.update(accountSql,  account.getUniqueUsername(),account.getName(),account.getSurname(),account.getProfilePicture().getImagePath(),
@@ -101,8 +101,8 @@ public class AccountRepositoryMySql implements AccountRepository {
         LocalDateTime localDateTime = LocalDateTime.now();
         String currentDate = dateTimeFormatter.format(localDateTime);
 
-        String phoneNumberSql = "INSERT INTO phone_number(idphoneNumber,countryCode,phoneNumber) VALUES (UUID_TO_BIN(?),?,?)";
-        String accountSql = "INSERT INTO account (iduser, username, name, surname, email, birthDate, password, profilePicturePath, phoneNumberId,createdAt,verified,enabled) " +
+        String phoneNumberSql = "INSERT INTO phone_number(id_phone_number,country_code,number) VALUES (UUID_TO_BIN(?),?,?)";
+        String accountSql = "INSERT INTO account (id_user, username, name, surname, email, birth_date, password, profile_picture_path, phone_number_id,created_at,verified,enabled) " +
                 "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, UUID_TO_BIN(?), ?,?,?)";
 
         //Inserting phone number
@@ -134,8 +134,8 @@ public class AccountRepositoryMySql implements AccountRepository {
     public Optional<Account> findAccountByUserId(String userId) {
         if (userId == null)throw new IllegalArgumentException("userId cannot be null");
         logger.debug(QUERY_MARKER, "finding account with userId: {} ", userId);
-        String accountQuery = "select BIN_TO_UUID(iduser) as iduser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.idphoneNumber) as phoneId,ph.countryCode,ph.phoneNumber,ac.profilePicturePath,ac.password,ac.verified,ac.enabled from account " +
-                "as ac inner join phone_number as ph on ac.phoneNumberId = ph.idphoneNumber where ac.iduser = UUID_TO_BIN(?)";
+        String accountQuery = "select BIN_TO_UUID(id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
+                "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.id_user = UUID_TO_BIN(?)";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
         Account account = jdbcTemplate.query(
@@ -144,9 +144,9 @@ public class AccountRepositoryMySql implements AccountRepository {
                     @Override
                     public Account extractData(ResultSet resultSet) throws SQLException, DataAccessException {
                         if (!resultSet.next()) return null;
-                        return new Account(resultSet.getString("iduser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
-                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("countryCode"), resultSet.getString("phoneNumber")),
-                                new ProfilePicture(resultSet.getString("profilePicturePath")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
+                        return new Account(resultSet.getString("idUser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
+                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("country_code"), resultSet.getString("number")),
+                                new ProfilePicture(resultSet.getString("profile_picture_path")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
                     }
                 }, userId);
         return Optional.ofNullable(account);

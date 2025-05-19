@@ -13,11 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Testing startup application listener")
 class StartupApplicationListenerTest {
 
-    private final static String pfpDirectory = "C:\\Users\\losmelli\\Music\\directory";
+    private  static String pfpDirectory;
     private static StartupApplicationListener startupApplicationListener;
 
     @BeforeAll
-    private static void instantiatingListener(){
+    public static void instantiatingListener(){
+        pfpDirectory = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION");
         startupApplicationListener = new StartupApplicationListener(pfpDirectory);
     }
 

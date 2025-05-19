@@ -12,8 +12,6 @@ import org.junit.jupiter.api.Test;
 class libPhoneNumberValidatorTest {
     private PhoneNumberValidator phoneNumberValidator = new LibPhoneNumberValidator();
 
-    private Logger logger = LogManager.getLogger(libPhoneNumberValidatorTest.class);
-
 
     @Test
     public void Should_ReturnTrue_When_ValidPhoneNumberProvided() {

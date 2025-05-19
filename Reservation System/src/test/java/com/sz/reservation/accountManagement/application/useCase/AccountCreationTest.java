@@ -72,7 +72,7 @@ class AccountCreationTest {
     }
 
     @BeforeAll
-    private static void initializingAccountCreation(){
+    public static void initializingAccountCreation(){
         PhoneNumberValidator phoneNumberValidator = new LibPhoneNumberValidator();
         HashingService service = new BCryptPasswordHashingService();
         accountCreation = new AccountCreation(phoneNumberValidator, service);

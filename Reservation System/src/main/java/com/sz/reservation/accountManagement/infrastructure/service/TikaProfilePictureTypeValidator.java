@@ -2,7 +2,7 @@ package com.sz.reservation.accountManagement.infrastructure.service;
 
 import com.google.common.io.Files;
 import com.sz.reservation.accountManagement.domain.service.ProfilePictureTypeValidator;
-import com.sz.reservation.accountManagement.infrastructure.exception.FileReadingException;
+import com.sz.reservation.globalConfiguration.exception.FileReadingException;
 import com.sz.reservation.util.FileTypeValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @Component
 public class TikaProfilePictureTypeValidator implements ProfilePictureTypeValidator {
@@ -38,8 +39,8 @@ public class TikaProfilePictureTypeValidator implements ProfilePictureTypeValida
             logger.info("profile picture validation failed: profile picture extension is not valid, extension = {}",fileExtension);
             return false;
         }
-        try {
-            mediaType = fileTypeValidator.getRealFileType(profilePicture.getInputStream());
+        try (InputStream profile = profilePicture.getInputStream()){
+            mediaType = fileTypeValidator.getRealFileType(profile);
             logger.debug("mediatype:{} ", mediaType);
         } catch (IOException e) {
             logger.error("IOException when trying to get input stream from profile picture: {}",profilePictureOriginalName);

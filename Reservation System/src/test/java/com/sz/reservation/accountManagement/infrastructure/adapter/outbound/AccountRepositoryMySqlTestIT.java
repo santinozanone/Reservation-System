@@ -86,7 +86,7 @@ class AccountRepositoryMySqlTestIT {
                 birthDate,
                 nationality,
                 password,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
+                new ProfilePicture("src/test/resources/pfp.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
 
         //act
@@ -111,7 +111,7 @@ class AccountRepositoryMySqlTestIT {
                 birthDate,
                 nationality,
                 password,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
+                new ProfilePicture("src/test/resources/pfp.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
 
         // generate new uuids
@@ -130,7 +130,7 @@ class AccountRepositoryMySqlTestIT {
                 birthDate,
                 nationality,
                 password,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
+                new ProfilePicture("src/test/resources/pfp.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
 
         //act
@@ -159,7 +159,7 @@ class AccountRepositoryMySqlTestIT {
                 birthDate,
                 nationality,
                 password,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
+                new ProfilePicture("src/test/resources/pfp.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
 
         // generate new uuids
@@ -177,7 +177,7 @@ class AccountRepositoryMySqlTestIT {
                 LocalDate.now(),
                 nationality,
                 password,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
+                new ProfilePicture("src/test/resources/pfp.jpg"),
                 new AccountVerificationToken(userId,userVerificationToken,expirationDate));
 
         //act

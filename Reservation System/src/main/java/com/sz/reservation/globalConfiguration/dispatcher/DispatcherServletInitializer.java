@@ -2,16 +2,12 @@ package com.sz.reservation.globalConfiguration.dispatcher;
 
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.globalConfiguration.RootConfig;
-import com.sz.reservation.globalConfiguration.security.WebSecurityConfig;
-import com.sz.reservation.propertyManagement.configuration.PropertyConfig;
+import com.sz.reservation.listingManagement.configuration.PropertyConfig;
 import jakarta.servlet.*;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
-
-import java.util.EnumSet;
 
 public class DispatcherServletInitializer implements WebApplicationInitializer {
 
@@ -32,7 +28,7 @@ public class DispatcherServletInitializer implements WebApplicationInitializer {
         ServletRegistration.Dynamic firstDispatcher = servletContext.addServlet("DefaultDispatcher", defaultDispatcher);
         firstDispatcher.setLoadOnStartup(2); // load 2 because the other dispatcher should run first
         firstDispatcher.addMapping("/api/v1/*");
-        firstDispatcher.setMultipartConfig(new MultipartConfigElement(null,2097152,3145728,2097152)); // 2MB,3MB,2MB
+        firstDispatcher.setMultipartConfig(new MultipartConfigElement(null,2047483647,3200000000L,209715200)); // 2MB,3MB,2MB
 
 
 

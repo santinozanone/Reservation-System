@@ -1,11 +1,11 @@
 package com.sz.reservation.globalConfiguration.globalExceptionHandler;
 
-import com.sz.reservation.accountManagement.domain.exception.*;
-import com.sz.reservation.accountManagement.infrastructure.exception.*;
-import com.sz.reservation.globalConfiguration.exception.MediaNotSupportedException;
+import com.sz.reservation.globalConfiguration.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -30,8 +30,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
+@Order(Ordered.LOWEST_PRECEDENCE)
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
+
 
     @ExceptionHandler(value = AccessDeniedException.class)
     public ProblemDetail handleAccessDeniedException(AccessDeniedException e){
@@ -49,75 +51,7 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(value = InvalidTokenException.class)
-    public ProblemDetail handleInvalidTokenException(InvalidTokenException exception){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Invalid verification token");
-        problemDetail.setDetail(exception.getMessage());
-        logger.info("the token :{}  , is not valid" ,exception.getToken());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(value = AccountAlreadyVerifiedException.class)
-    public ProblemDetail handleAccountAlreadyVerifiedException(AccountAlreadyVerifiedException exception){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Account already verified");
-        problemDetail.setDetail("The account is already verified");
-        logger.info("the account with id :{}  , is already verified" ,exception.getUserId());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(value = MediaNotSupportedException.class )
-    public ProblemDetail handleMediaNotSupportedException(MediaNotSupportedException exception){
-       ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-       problemDetail.setTitle("Media type not supported");
-       problemDetail.setDetail("Media type uploaded is not supported");
-       logger.info(exception.getMessage(),exception);
-       return problemDetail;
-    }
-
-    @ExceptionHandler(value = InvalidPhoneNumberException.class)
-    public ProblemDetail handleInvalidPhoneNumberException(InvalidPhoneNumberException exception){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Invalid phone number");
-        problemDetail.setDetail("The phone number provided is not valid, CountryCode : "+ exception.getCountryCode() + " PhoneNumber: " + exception.getPhoneNumber());
-        logger.info("Invalid phone number for user with email: , countryCode:{} , and phoneNumber:{}",exception.getCountryCode() , exception.getPhoneNumber());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(value = AccountNotEnabledException.class)
-    public ProblemDetail handleAccountNotEnabledException(AccountNotEnabledException exception){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
-        problemDetail.setTitle("Account not verified");
-        problemDetail.setDetail("The account attempting to use the system is not verified");
-        logger.info("The account trying to access the system with email:{} ,is not verified ",exception.getEmail(),exception);
-        return problemDetail;
-    }
-
-
-    @ExceptionHandler(value = UsernameAlreadyRegisteredException.class)
-    public ProblemDetail handleUserAlreadyRegisteredException(UsernameAlreadyRegisteredException exception){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Username already registered exception");
-        problemDetail.setDetail("The username is already in use");
-        logger.info("error trying to insert/update user, username: {} already in use",exception.getUsername());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(value = EmailAlreadyRegisteredException.class)
-    public ProblemDetail handleEmailAlreadyRegisteredException(EmailAlreadyRegisteredException exception){
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("email already registered exception");
-        problemDetail.setDetail("The email is already in use");
-        logger.info("error trying to insert user, email: {} already in use",exception.getEmail());
-        return problemDetail;
-    }
-
-
-
-
-    @ExceptionHandler(value = {FileReadingException.class, FileWritingException.class, JsonMarshalError.class,
-    NetworkErrorException.class, SendGridApiException.class,LibPhoneParserException.class,FileDeletionException.class})
+    @ExceptionHandler(value = {FileReadingException.class, FileWritingException.class,FileDeletionException.class, DirectoryCreationException.class})
     public ProblemDetail handleInfrastructureExceptions(Exception exception){
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problemDetail.setTitle("Internal server error");
@@ -125,8 +59,6 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         logger.error(exception.getMessage(),exception);
         return problemDetail;
     }
-
-
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -142,7 +74,6 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
 
     }
-
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
@@ -166,16 +97,6 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(problemDetail, HttpStatus.NOT_FOUND);
     }
 
-    //Handle all remaining errors
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
-                                                             HttpStatusCode statusCode, WebRequest request) {
-        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setDetail("The server could not handle this request");
-        logger.error("Unexpected error caused by:{} , produced by request :{} ",ex,request);
-        return new ResponseEntity<Object>(problemDetail, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
 
     @Override
     protected ResponseEntity<Object> handleMethodValidationException(MethodValidationException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
@@ -215,4 +136,16 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
         problemDetail.setDetail("missing servlet request multipart parameter");
         return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
     }
+
+    //Handle all remaining errors
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
+                                                             HttpStatusCode statusCode, WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setDetail("The server could not handle this request");
+        logger.error("Unexpected error caused by:{} , produced by request :{} ",ex,request);
+        return new ResponseEntity<Object>(problemDetail, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

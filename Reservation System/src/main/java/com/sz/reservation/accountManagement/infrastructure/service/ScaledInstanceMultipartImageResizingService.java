@@ -1,7 +1,7 @@
 package com.sz.reservation.accountManagement.infrastructure.service;
 
 import com.sz.reservation.accountManagement.domain.service.MultipartImageResizingService;
-import com.sz.reservation.accountManagement.infrastructure.exception.FileReadingException;
+import com.sz.reservation.globalConfiguration.exception.FileReadingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;

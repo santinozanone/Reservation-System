@@ -53,7 +53,7 @@ class AccountCreationRequestTest {
     }
 
     @BeforeAll
-    private static void instantiatingValidator(){
+    public static void instantiatingValidator(){
         validatorFactory = Validation.byDefaultProvider()
                 .configure()
                 .messageInterpolator(new ParameterMessageInterpolator())

@@ -58,7 +58,7 @@ class HttpEmailVerificationControllerTest {
 
 
     @BeforeAll
-    private  void instantiatingValidator(){
+    public void instantiatingValidator(){
         MockitoAnnotations.openMocks(this);
         // accountverificationusecase will do nothing because its method is void and is mocked
         controller = new HttpEmailVerificationController(accountVerificationUseCase);

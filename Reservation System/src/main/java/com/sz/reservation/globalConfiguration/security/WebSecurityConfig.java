@@ -50,6 +50,7 @@ public class WebSecurityConfig {
                 .exceptionHandling(exceptionHandlingConfigurer ->
                         exceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler))
                 .csrf(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
 
@@ -60,7 +61,7 @@ public class WebSecurityConfig {
         mvc.servletPath("/api/v1/host"); // defining the servlet path in the mvc Request Matcher
         http.securityMatcher(mvc.pattern("/**")) // we need to use the same mvc in the security matcher,so it uses the servlet path previously defined
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(mvc.pattern("/listing/**")).hasAuthority("ENABLED_USER")) //mvc pattern again so it uses the servlet path
+                        .requestMatchers(mvc.pattern("/listing/**")).hasAuthority("ENABLED_VERIFIED_USER")) //mvc pattern again so it uses the servlet path
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(handlingConfigurer ->

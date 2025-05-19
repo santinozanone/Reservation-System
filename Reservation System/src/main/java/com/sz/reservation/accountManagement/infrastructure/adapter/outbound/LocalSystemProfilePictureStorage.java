@@ -1,8 +1,8 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.sz.reservation.accountManagement.domain.port.outbound.ProfilePictureStorage;
-import com.sz.reservation.accountManagement.infrastructure.exception.FileDeletionException;
-import com.sz.reservation.accountManagement.infrastructure.exception.FileWritingException;
+import com.sz.reservation.globalConfiguration.exception.FileDeletionException;
+import com.sz.reservation.globalConfiguration.exception.FileWritingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;

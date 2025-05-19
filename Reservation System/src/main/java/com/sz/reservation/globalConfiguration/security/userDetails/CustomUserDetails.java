@@ -13,23 +13,29 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer {
     private String username;
     private String password;
     private boolean enabled;
+    private boolean verified;
 
     private String email;
+    private String id;
 
-    public CustomUserDetails(String username, String password, boolean enabled, String email) {
+    public CustomUserDetails(String id,String username, String password, boolean enabled,boolean verified ,String email) {
+        this.id = id;
         this.username = username;
         this.password = password;
-        this.enabled = true;
+        this.enabled = enabled;
+        this.verified = verified;
         this.email = email;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (!enabled) return Collections.emptyList();
-        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ENABLED_USER");
-        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(simpleGrantedAuthority);
-        return authorities;
+        if (enabled && verified) {
+            SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ENABLED_VERIFIED_USER");
+            ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(simpleGrantedAuthority);
+            return authorities;
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -40,6 +46,10 @@ public class CustomUserDetails implements UserDetails, CredentialsContainer {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getEmail() {

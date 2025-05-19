@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.service;
 
-import com.sz.reservation.accountManagement.infrastructure.exception.FileReadingException;
+import com.sz.reservation.globalConfiguration.exception.FileReadingException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ class ScaledInstanceMultipartImageResizingServiceTest {
     private static final int HEIGHT = 192;
 
     @BeforeAll
-    private static void instantiatingService(){
+    public static void instantiatingService(){
         resizingService = new ScaledInstanceMultipartImageResizingService(WIDTH,HEIGHT);
     }
 

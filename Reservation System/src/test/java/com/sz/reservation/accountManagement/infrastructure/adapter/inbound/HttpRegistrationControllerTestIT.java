@@ -51,7 +51,7 @@ class HttpRegistrationControllerTestIT {
 
     WebTestClient client ;
 
-    private String REGISTRATION_PATH = "/registration";
+    private String REGISTRATION_PATH = "/account/registration";
 
     private String email;
     private String userId;
@@ -142,7 +142,8 @@ class HttpRegistrationControllerTestIT {
     @Transactional
     public void Should_ReturnError_When_AlreadyInUseUsername() throws IOException {
         //arrange
-        String path = "src/test/resources/bird.jpg";
+        String path =  "src/test/resources/bird.jpg";
+
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
 
@@ -201,6 +202,7 @@ class HttpRegistrationControllerTestIT {
     public void Should_ReturnError_When_AlreadyInUseEmail() throws IOException {
         //arrange
         String path = "src/test/resources/bird.jpg";
+
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
 

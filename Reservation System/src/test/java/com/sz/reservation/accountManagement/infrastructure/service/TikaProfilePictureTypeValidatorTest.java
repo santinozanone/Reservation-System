@@ -18,7 +18,7 @@ class TikaProfilePictureTypeValidatorTest {
     private static TikaProfilePictureTypeValidator validator;
 
     @BeforeAll
-    private static void instantiatingValidator(){
+    public static void instantiatingValidator(){
         validator = new TikaProfilePictureTypeValidator(new TikaFileValidator());
     }
 

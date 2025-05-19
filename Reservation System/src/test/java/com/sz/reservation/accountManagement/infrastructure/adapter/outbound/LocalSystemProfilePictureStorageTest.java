@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
-import com.sz.reservation.accountManagement.infrastructure.exception.FileWritingException;
+import com.sz.reservation.globalConfiguration.exception.FileWritingException;
 import org.junit.jupiter.api.*;
 
 import java.awt.*;
@@ -18,12 +18,12 @@ class LocalSystemProfilePictureStorageTest {
     private static String filename ;
     private static LocalSystemProfilePictureStorage profilePictureStorage;
 
-    private static String localPfpDirectory = "D:\\Reservation-System\\Test-Profile-Picture\\";
+    private static String localPfpDirectory = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION");
     private static int WIDTH = 50;
     private static int HEIGHT = 50;
 
     @BeforeAll
-    private static void instantiatingStorage() throws IOException {
+    public static void instantiatingStorage() throws IOException {
         profilePictureStorage = new LocalSystemProfilePictureStorage(localPfpDirectory,WIDTH,HEIGHT);
         Path storage = Path.of(localPfpDirectory);
         if ( !Files.exists(storage)) {
@@ -32,7 +32,7 @@ class LocalSystemProfilePictureStorageTest {
     }
 
     @AfterAll
-    private static void deleteStorage() throws IOException {
+    public static void deleteStorage() throws IOException {
         Path storage = Path.of(localPfpDirectory);
         if (Files.exists(storage)) {
             Files.delete(storage);
@@ -42,11 +42,11 @@ class LocalSystemProfilePictureStorageTest {
 
 
     @BeforeEach
-    private void instantiatingFilename(){
+    public void instantiatingFilename(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
         String timestamp = dateFormat.format(new Date());
         String randomUUID = UUID.randomUUID().toString();
-        filename = "D:\\Reservation-System\\Profile-Picture\\".concat("pfp_").concat(timestamp).concat("-").concat(randomUUID).concat(".jpg");
+        filename = localPfpDirectory.concat("pfp_").concat(timestamp).concat("-").concat(randomUUID).concat(".jpg");
     }
 
     private void deleteFilename() throws IOException {
