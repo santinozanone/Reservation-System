@@ -25,8 +25,8 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.Scanner;
 
-@Configuration
-@EnableWebSecurity(debug = true)
+//@Configuration
+//@EnableWebSecurity(debug = true)
 public class WebSecurityConfig {
 
     @Autowired

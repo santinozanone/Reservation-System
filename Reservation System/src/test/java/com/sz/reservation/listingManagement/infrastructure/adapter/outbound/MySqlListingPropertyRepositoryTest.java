@@ -8,6 +8,7 @@ import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
 import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.infrastructure.adapter.outbound.AccountRepositoryMySql;
 import com.sz.reservation.globalConfiguration.RootConfig;
+import com.sz.reservation.listingManagement.configuration.ListingConfig;
 import com.sz.reservation.listingManagement.domain.ListingProperty;
 import com.sz.reservation.listingManagement.domain.*;
 import org.junit.jupiter.api.*;
@@ -28,7 +29,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = RootConfig.class)
+@ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Integration testing MySqlListingPropertyRepositoryTest")
@@ -157,7 +158,7 @@ class MySqlListingPropertyRepositoryTest {
         PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
         LocalDate birthDate = LocalDate.now().minusDays(10);
 
-        AccountCreationData accountCreationData = new AccountCreationData(
+        Account accountCreationData = new Account(
                 userId,
                 "username",
                 "name",
@@ -165,13 +166,13 @@ class MySqlListingPropertyRepositoryTest {
                 "inventedEmail@miau.com",
                 phoneNumber,
                 birthDate,
-                "Argentina",
-                "password",
                 new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
+                "password",
+                false,
+                false);
 
         //act
-        accountRepositoryMySql.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepositoryMySql.createAccount(accountCreationData);
 
         //assert
         Optional<Account> optionalAccount = accountRepositoryMySql.findAccountByEmail("inventedEmail@miau.com");

@@ -16,10 +16,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DisplayName("Account creation request Dto test")
-class AccountCreationRequestTest {
+class AccountCreationServiceRequestTest {
 
     private static  ValidatorFactory validatorFactory ;
     private static Validator  validator;
@@ -32,10 +32,8 @@ class AccountCreationRequestTest {
     private String phoneNumber;
     private LocalDate birthdate;
     private String nationality;
+    private MockMultipartFile multipartFile;
     private String password;
-
-    private String originalFilename;
-    private String fileName;
 
     @BeforeEach
     public void initializeVariables(){
@@ -47,9 +45,9 @@ class AccountCreationRequestTest {
         phoneNumber = "1111111111";
         birthdate = LocalDate.of(2014, 4, 15);
         nationality = "argentina";
+        multipartFile = new MockMultipartFile("fileName","originalFilename", MediaType.IMAGE_PNG_VALUE,new byte[0]);
+
         password = "eightcharacterlong";
-        originalFilename = "fake.png";
-        fileName = "fake";
     }
 
     @BeforeAll
@@ -67,18 +65,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_UsernameNull(){
         //arrange
         username = null;
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         //act and assert
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
@@ -89,39 +76,17 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_UsernameBlank(){
         //arrange
         username = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
-       Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
-       assertEquals(1,violations.size());
+        Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
+        assertEquals(1,violations.size());
     }
 
     @Test
     public void Should_ThrowException_When_UsernameBiggerThanMax(){
         //arrange
         username = "a".repeat(56);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -131,18 +96,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_UsernameHasWhitespaces(){
         //arrange
         username = " ".repeat(5);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -153,18 +107,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_NameIsBlank(){
         //arrange
         name = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size()); //Non blank and min size exception
@@ -174,18 +117,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_NameIsNull(){
         //arrange
         name = null;
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -194,18 +126,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_NameIsBiggerThanMax(){
         //arrange
         name = "a".repeat(56);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -217,18 +138,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_SurnameIsBlank(){
         //arrange
         surname = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size()); //Non blank and min size exception
@@ -238,18 +148,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_SurnameIsNull(){
         //arrange
         surname = null;
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -258,18 +157,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_SurnameIsBiggerThanMax(){
         //arrange
         surname = "a".repeat(56);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -281,18 +169,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_EmailIsIncorrect(){
         //arrange
         email = ".notRealEmail@not.gmail";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
@@ -302,18 +179,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_EmailNotContainDomain(){
         //arrange
         email = "invalid.gmail";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -323,18 +189,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_EmailIsNull(){
         //arrange
         email = null;
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         System.out.println("violation - " + violations.iterator().next().getMessage());
@@ -345,18 +200,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_EmailContainWhitespaces(){
         //arrange
         email = "notRealEmail @not.gmail";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -366,18 +210,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_WhenCountryCodeIsBlank(){
         //arrange
         countryCode = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size());
@@ -386,18 +219,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_WhenCountryCodeContainsWhitespace(){
         //arrange
         countryCode = " ";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size());
@@ -406,18 +228,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_WhenCountryCodeContainsNonNumericChar(){
         //arrange
         countryCode = "+54";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -427,18 +238,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_WhenCountryCodeIsBiggerThanMax(){
         //arrange
         countryCode = "1111";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -448,18 +248,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_WhenPhoneNumberIsBlank(){
         //arrange
         phoneNumber = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size());
@@ -469,18 +258,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_PhoneNumberSizeIsSmallerThanMin(){
         //arrange
         phoneNumber = "114";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -490,18 +268,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_PhoneNumberSizeIsBiggerThanMax(){
         //arrange
         phoneNumber = "1".repeat(14);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -511,18 +278,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_BirthdateIsNull(){
         //arrange
         birthdate = null;
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -533,18 +289,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_BirthdateIsInTheFuture(){
         //arrange
         birthdate = LocalDate.now().plusDays(2);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -555,19 +300,7 @@ class AccountCreationRequestTest {
         //arrange
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         birthdate =  LocalDate.parse("04-04-2026",dateTimeFormatter);
-
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -577,18 +310,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_NationalityIsBlank(){
         //arrange
         nationality = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size());
@@ -599,19 +321,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_NationalityIsSmallerThanMin(){
         //arrange
         nationality = "AR";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
-
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -621,19 +331,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_NationalityIsBiggerThanMax(){
         //arrange
         nationality = "ARGENTINA".repeat(10);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
-
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -643,19 +341,8 @@ class AccountCreationRequestTest {
     @Test
     public void Should_ThrowException_When_ProfilePictureIsNull(){
         //arrange
-        MockMultipartFile multipartFile = null;
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
-
+        multipartFile = null;
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -665,19 +352,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_PasswordIsNull(){
         //arrange
         password = null;
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
-
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -687,18 +362,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_PasswordIsBlank(){
         //arrange
         password = "";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(2,violations.size());
@@ -707,18 +371,7 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_PasswordIsSmallerThanMin(){
         //arrange
         password = "min";
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthdate,
-                nationality,
-                multipartFile,
-                password);
+        AccountCreationRequest request = creationRequest();
 
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         assertEquals(1,violations.size());
@@ -728,8 +381,14 @@ class AccountCreationRequestTest {
     public void Should_ThrowException_When_PasswordIsBiggerThanMax(){
         //arrange
         password = "hello".repeat(200);
-        MockMultipartFile multipartFile = new MockMultipartFile(fileName,originalFilename, MediaType.IMAGE_PNG_VALUE,new byte[0]);
-        AccountCreationRequest request = new AccountCreationRequest(
+        AccountCreationRequest request = creationRequest();
+
+        Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
+        assertEquals(1,violations.size());
+    }
+
+    private AccountCreationRequest creationRequest(){
+        return new AccountCreationRequest(
                 username,
                 name,
                 surname,
@@ -740,8 +399,5 @@ class AccountCreationRequestTest {
                 nationality,
                 multipartFile,
                 password);
-
-        Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
-        assertEquals(1,violations.size());
     }
 }

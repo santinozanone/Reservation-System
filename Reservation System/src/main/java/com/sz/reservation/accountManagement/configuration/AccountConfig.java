@@ -1,6 +1,6 @@
 package com.sz.reservation.accountManagement.configuration;
 
-import com.sz.reservation.accountManagement.application.service.AccountCreation;
+import com.sz.reservation.accountManagement.application.service.AccountCreationService;
 import com.sz.reservation.accountManagement.application.service.ProfilePictureService;
 import com.sz.reservation.accountManagement.application.useCase.AccountRegistrationUseCase;
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
@@ -12,19 +12,90 @@ import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.domain.service.MultipartImageResizingService;
 import com.sz.reservation.accountManagement.domain.service.PhoneNumberValidator;
 import com.sz.reservation.accountManagement.domain.service.ProfilePictureTypeValidator;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.flywaydb.core.Flyway;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import javax.sql.DataSource;
 
 
 @Configuration
 @ComponentScan(basePackages = "com.sz.reservation.accountManagement")
-@PropertySource("classpath:application.properties")
-@EnableWebMvc
+@PropertySource("classpath:account.properties")
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
+        SecurityAutoConfiguration.class,
+        LiquibaseAutoConfiguration.class,
+        FlywayAutoConfiguration.class})
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableLoadTimeWeaving
 public class AccountConfig {
+
+
+  //  @Bean
+    public FlywayMigrationStrategy flywayMigration(){
+        return new FlywayMigrationStrategy() {
+            @Override
+            public void migrate(Flyway flyway) {
+                Flyway.configure().locations("classpath:flyway/account/migration").dataSource(
+                        "jdbc:mysql://localhost:3306/test",
+                        "root",
+                        "12345").load().migrate();
+            }
+        };
+    }
+
+    @Bean
+    @Profile("prod")
+    public DataSource hikariCP(){
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/userDb");
+        config.setUsername("root");
+        config.setPassword("12345");
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("rewriteBatchedStatements", "true");
+        HikariDataSource ds = new HikariDataSource(config);
+        return ds;
+    }
+    @Bean
+    @Profile("test")
+    public DataSource testHikariCP(){
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://localhost:3306/usertestdb");
+        config.setUsername("root");
+        config.setPassword("12345");
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        config.addDataSourceProperty("rewriteBatchedStatements", "true");
+        HikariDataSource ds = new HikariDataSource(config);
+        return ds;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+        return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager(DataSource dataSource){
+        return new DataSourceTransactionManager(dataSource);
+    }
 
     @Bean
     public StandardServletMultipartResolver multipartResolver(){
@@ -43,14 +114,14 @@ public class AccountConfig {
     }
 
     @Bean
-    public AccountCreation accountCreation(PhoneNumberValidator phoneNumberValidator, HashingService hashingService){
-        return new AccountCreation(phoneNumberValidator, hashingService);
+    public AccountCreationService accountCreation(PhoneNumberValidator phoneNumberValidator, HashingService hashingService){
+        return new AccountCreationService(phoneNumberValidator, hashingService);
     }
 
     @Bean
     public AccountRegistrationUseCase registrationUseCase(AccountRepository accountRepository, AccountVerificationTokenRepository verificationTokenRepository,
                                                           ProfilePictureService profilePictureService, VerificationTokenEmailSender verificationTokenEmailSender,
-                                                          AccountCreation accountCreation){
-        return new AccountRegistrationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender,profilePictureService,accountCreation);
+                                                          AccountCreationService accountCreationService){
+        return new AccountRegistrationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender,profilePictureService, accountCreationService);
     }
 }

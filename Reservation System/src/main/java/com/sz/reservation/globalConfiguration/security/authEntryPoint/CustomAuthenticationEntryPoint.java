@@ -16,7 +16,7 @@ import java.io.IOException;
 
 @Component(value = "CustomAuthenticationEntryPoint")
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    @Autowired
+  //  @Autowired
     private HandlerExceptionResolver resolver;
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {

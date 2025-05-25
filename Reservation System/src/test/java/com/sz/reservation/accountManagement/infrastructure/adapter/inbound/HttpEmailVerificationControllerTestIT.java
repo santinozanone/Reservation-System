@@ -12,11 +12,9 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerifica
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.globalConfiguration.RootConfig;
-import com.sz.reservation.globalConfiguration.security.WebSecurityConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -69,7 +67,7 @@ public class HttpEmailVerificationControllerTestIT {
         AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
 
         //act and assert
-        insertUser(userId,email,verificationToken);
+        insertUser(userId,email);
         verificationTokenRepository.save(accountVerificationToken);
         Assertions.assertTrue(verificationTokenRepository.findByToken(accountVerificationToken.getToken()).isPresent());
 
@@ -97,7 +95,7 @@ public class HttpEmailVerificationControllerTestIT {
         AccountVerificationToken verificationToken = new AccountVerificationToken(userId,tokenToInsert,expirationDate);
 
         //act and assert
-        insertUser(userId,email,tokenToInsert);
+        insertUser(userId,email);
         verificationTokenRepository.save(verificationToken);
         Assertions.assertTrue(verificationTokenRepository.findByToken(verificationToken.getToken()).isPresent());
 
@@ -134,7 +132,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act
-        insertUser(userId,email,expiredToken); // save user
+        insertUser(userId,email); // save user
         verificationTokenRepository.save(expiredVerificationToken); // insert expired token in db
 
         //assert
@@ -160,7 +158,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act and assert
-        insertUser(userId,email,token); // save user
+        insertUser(userId,email); // save user
         verificationTokenRepository.save(verificationToken); // insert token in db
         Assertions.assertTrue(verificationTokenRepository.findByToken(token).isPresent()); // assert token exists
 
@@ -192,7 +190,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act and assert
-        insertUser(userId,email,token); // save user
+        insertUser(userId,email); // save user
         verificationTokenRepository.save(verificationToken); // insert token in db
 
         client.post().uri(uriBuilder -> uriBuilder // verify token
@@ -217,7 +215,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act and assert
-        insertUser(userId,email,token); // save user
+        insertUser(userId,email); // save user
         verificationTokenRepository.save(verificationToken); // insert token in db
 
         client.post().uri(uriBuilder -> uriBuilder // verify token
@@ -227,24 +225,18 @@ public class HttpEmailVerificationControllerTestIT {
         //verify old token does not exist
         Optional<AccountVerificationToken> optionalOldAccountVerificationToken = verificationTokenRepository.findByToken(token);
         assertTrue(optionalOldAccountVerificationToken.isEmpty());
+
+
     }
-
-
-
-
-    private void insertUser(String userId,String email,String userVerificationToken){
+    private void insertUser(String userId,String email){
         //arrange
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
-
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
 
         HashingService hashingService = new BCryptPasswordHashingService();
-        String password =hashingService.hash("ultrasafepassword");
+        String password = hashingService.hash("ultrasafepassword");
 
-        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,userVerificationToken,expirationDate);
-
-        AccountCreationData accountCreationData = new AccountCreationData(
+        Account account = new Account(
                 userId,
                 "wolfofwallstreet",
                 "jordan",
@@ -252,18 +244,21 @@ public class HttpEmailVerificationControllerTestIT {
                 email,
                 phoneNumber,
                 LocalDate.now(),
-                "Argentina",
-                password,
                 new ProfilePicture("src/test/resources/pfp.jpg"),
-                verificationToken);
+                password,
+                false,
+                false);
 
         //act, (insert user)
-        accountRepository.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepository.createAccount(account);
+
         //assert
-        Optional<Account> account = accountRepository.findAccountByEmail(accountCreationData.getEmail());
-        assertEquals("+54",account.get().getPhoneNumber().getCountryCode());
-        Assertions.assertTrue(account.isPresent());
+        Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(account.getUniqueEmail());
+        assertEquals("+54",OptionalAccount.get().getPhoneNumber().getCountryCode());
+        Assertions.assertTrue(OptionalAccount.isPresent());
     }
+
+
 
 
 

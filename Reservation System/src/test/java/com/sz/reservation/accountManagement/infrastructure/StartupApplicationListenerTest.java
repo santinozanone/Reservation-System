@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DisplayName("Testing startup application listener")
 class StartupApplicationListenerTest {
@@ -18,7 +18,7 @@ class StartupApplicationListenerTest {
 
     @BeforeAll
     public static void instantiatingListener(){
-        pfpDirectory = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION");
+        pfpDirectory = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION_TEST");
         startupApplicationListener = new StartupApplicationListener(pfpDirectory);
     }
 

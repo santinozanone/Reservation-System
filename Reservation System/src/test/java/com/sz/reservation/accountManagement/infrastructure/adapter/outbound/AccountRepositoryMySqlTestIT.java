@@ -1,9 +1,8 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.configuration.AccountConfig;
-import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
+import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.exception.EmailAlreadyRegisteredException;
 import com.sz.reservation.accountManagement.domain.exception.UsernameAlreadyRegisteredException;
 import com.sz.reservation.accountManagement.domain.model.Account;
@@ -13,6 +12,7 @@ import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
+import com.sz.reservation.globalConfiguration.RootConfig;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,7 @@ import java.util.Optional;
 @WebAppConfiguration
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 class AccountRepositoryMySqlTestIT {
     private String email;
     private String userId;
@@ -39,8 +40,6 @@ class AccountRepositoryMySqlTestIT {
     private String username;
     private String name;
     private String surname;
-    private String userVerificationToken;
-    private LocalDate expirationDate;
 
     private String phoneNumberId;
     private PhoneNumber phoneNumber;
@@ -50,6 +49,7 @@ class AccountRepositoryMySqlTestIT {
 
     private HashingService hashingService;
     private String password;
+
     @Autowired
     private AccountRepository accountRepositoryMySql;
 
@@ -60,9 +60,6 @@ class AccountRepositoryMySqlTestIT {
         username = "wolfofwallstreet";
         name = "jordan";
         surname = "belfort";
-        userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        expirationDate = LocalDate.now().plusDays(7);
-
         phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
         birthDate = LocalDate.now().minusDays(10);
@@ -76,72 +73,39 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_createAccountCorrectly_When_ValidData(){
         //arrange
-        AccountCreationData accountCreationData = new AccountCreationData(
-                userId,
-                username,
-                name,
-                surname,
-                email,
-                phoneNumber,
-                birthDate,
-                nationality,
-                password,
-                new ProfilePicture("src/test/resources/pfp.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
+        Account account = createAccount();
 
         //act
-        accountRepositoryMySql.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepositoryMySql.createAccount(account);
 
         //assert
-        Optional<Account> account = accountRepositoryMySql.findAccountByEmail(email);
-        Assertions.assertTrue(account.isPresent());
+        Optional<Account> optionalAccount = accountRepositoryMySql.findAccountByEmail(email);
+        Assertions.assertTrue(optionalAccount.isPresent());
     }
 
     @Test
     @Transactional
     public void Should_ThrowEmailAlreadyRegisteredException_When_EmailAlreadyRegistered(){
         //arrange
-        AccountCreationData accountCreationData = new AccountCreationData(
-                userId,
-                username,
-                name,
-                surname,
-                email,
-                phoneNumber,
-                birthDate,
-                nationality,
-                password,
-                new ProfilePicture("src/test/resources/pfp.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
+        Account account = createAccount();
 
         // generate new uuids
         userId = UuidCreator.getTimeOrderedEpoch().toString();
-        username = "wolf"; // different username than first account
+        username = "wolfs"; // different username than first account
         phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
 
-        AccountCreationData dataWithDifferentUsername = new AccountCreationData(
-                userId,
-                username,
-                name,
-                surname,
-                email,
-                phoneNumber,
-                birthDate,
-                nationality,
-                password,
-                new ProfilePicture("src/test/resources/pfp.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
+        Account accountWithDifferentUsername = createAccount();
 
         //act
-        accountRepositoryMySql.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepositoryMySql.createAccount(account);
 
         //assert
-        Optional<Account> account = accountRepositoryMySql.findAccountByEmail(email);
-        Assertions.assertTrue(account.isPresent()); // assert first registration is done correctly
+        Optional<Account> OptionalAccount = accountRepositoryMySql.findAccountByEmail(email);
+        Assertions.assertTrue(OptionalAccount.isPresent()); // assert first registration is done correctly
 
         Assertions.assertThrows(EmailAlreadyRegisteredException.class,()->{ // assert second user fails
-            accountRepositoryMySql.registerNotEnabledNotVerifiedUser(dataWithDifferentUsername);
+            accountRepositoryMySql.createAccount(accountWithDifferentUsername);
         });
     }
 
@@ -149,47 +113,25 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_ThrowUsernameAlreadyRegisteredException_When_UsernameAlreadyRegistered(){
         //arrange
-        AccountCreationData accountCreationData = new AccountCreationData(
-                userId,
-                username,
-                name,
-                surname,
-                email,
-                phoneNumber,
-                birthDate,
-                nationality,
-                password,
-                new ProfilePicture("src/test/resources/pfp.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
-
+        Account account = createAccount();
+        String unchangedEmail = email;
         // generate new uuids
         userId = UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
-        String secondEmail = "inventedEmail2@miau.com";
-        AccountCreationData dataWithDifferentEmail = new AccountCreationData(
-                userId,
-                username,
-                name,
-                surname,
-                secondEmail,
-                phoneNumber,
-                LocalDate.now(),
-                nationality,
-                password,
-                new ProfilePicture("src/test/resources/pfp.jpg"),
-                new AccountVerificationToken(userId,userVerificationToken,expirationDate));
+        email = "inventedEmail2@miau.com";
+
+        Account accountWithDifferentEmail = createAccount();
 
         //act
-        accountRepositoryMySql.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepositoryMySql.createAccount(account);
 
         //assert
-        Optional<Account> account = accountRepositoryMySql.findAccountByEmail(email);
-        Assertions.assertTrue(account.isPresent()); // assert first registration is done correctly
-
+        Optional<Account> optionalAccount = accountRepositoryMySql.findAccountByEmail(unchangedEmail);
+        Assertions.assertTrue(optionalAccount.isPresent()); // assert first registration is done correctly
 
         Assertions.assertThrows(UsernameAlreadyRegisteredException.class,()->{ // assert second user fails
-            accountRepositoryMySql.registerNotEnabledNotVerifiedUser(dataWithDifferentEmail);
+            accountRepositoryMySql.createAccount(accountWithDifferentEmail);
         });
     }
 
@@ -214,9 +156,25 @@ class AccountRepositoryMySqlTestIT {
     @Test
     public void Should_ThrowIllegalArgumentException_When_CreationDataIsNull(){
         Assertions.assertThrows(IllegalArgumentException.class,()->{
-            accountRepositoryMySql.registerNotEnabledNotVerifiedUser(null);
+            accountRepositoryMySql.createAccount(null);
         });
     }
 
+
+    private Account createAccount(){
+        return new Account(
+                userId,
+                username,
+                name,
+                surname,
+                email,
+                phoneNumber,
+                birthDate,
+                new ProfilePicture("src/test/resources/pfp.jpg"),
+                password,
+                false,
+                false
+        );
+    }
 
 }

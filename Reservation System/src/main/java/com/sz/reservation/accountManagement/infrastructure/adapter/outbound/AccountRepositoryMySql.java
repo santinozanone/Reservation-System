@@ -18,13 +18,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+@Repository
 public class AccountRepositoryMySql implements AccountRepository {
     private JdbcTemplate jdbcTemplate;
 
@@ -50,7 +51,7 @@ public class AccountRepositoryMySql implements AccountRepository {
     public Optional<Account> findAccountByEmail(String email) {
         if (email == null)throw new IllegalArgumentException("email cannot be null");
         logger.debug(QUERY_MARKER, "finding account with email: {} ", email);
-        String accountQuery = "select BIN_TO_UUID(ac.id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
+        String accountQuery = "select BIN_TO_UUID(ac.id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ac.birth_date,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
                 "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.email = ?";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
@@ -60,9 +61,19 @@ public class AccountRepositoryMySql implements AccountRepository {
                     @Override
                     public Account extractData(ResultSet resultSet) throws SQLException, DataAccessException {
                         if (!resultSet.next()) return null;
-                        return new Account(resultSet.getString("idUser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
-                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("country_code"), resultSet.getString("number")),
-                                new ProfilePicture(resultSet.getString("profile_picture_path")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
+                        return new Account(resultSet.getString("idUser"),
+                                resultSet.getString("username"),
+                                resultSet.getString("name"),
+                                resultSet.getString("surname"),
+                                resultSet.getString("email"),
+                                new PhoneNumber(resultSet.getString("phoneId"),
+                                        resultSet.getString("country_code"),
+                                        resultSet.getString("number")),
+                                resultSet.getDate("birth_date").toLocalDate(),
+                                new ProfilePicture(resultSet.getString("profile_picture_path")),
+                                resultSet.getString("password"),
+                                resultSet.getBoolean("verified"),
+                                resultSet.getBoolean("enabled"));
                     }
                 }, email);
         return Optional.ofNullable(account);
@@ -91,13 +102,13 @@ public class AccountRepositoryMySql implements AccountRepository {
     }
 
     @Override
-    public void registerNotEnabledNotVerifiedUser(AccountCreationData accountCreationData) {
-        if (accountCreationData == null)throw new IllegalArgumentException("accountCreationData cannot be null");
-        logger.debug("registering not enabled user with email: {} , in MySql db ", accountCreationData.getEmail());
+    public void createAccount(Account account) {
+        if (account == null)throw new IllegalArgumentException("account cannot be null");
+        logger.debug("registering not enabled user with email: {} , in MySql db ", account.getUniqueEmail());
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        String formattedBirthDate = dateFormatter.format(accountCreationData.getBirthDate());
+        String formattedBirthDate = dateFormatter.format(account.getBirthDate());
         LocalDateTime localDateTime = LocalDateTime.now();
         String currentDate = dateTimeFormatter.format(localDateTime);
 
@@ -106,27 +117,27 @@ public class AccountRepositoryMySql implements AccountRepository {
                 "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, UUID_TO_BIN(?), ?,?,?)";
 
         //Inserting phone number
-        String phoneId = accountCreationData.getPhoneNumber().getId();
-        String countryCode = accountCreationData.getPhoneNumber().getCountryCode();
-        String phoneNumber = accountCreationData.getPhoneNumber().getPhoneNumber();
+        String phoneId = account.getPhoneNumber().getId();
+        String countryCode = account.getPhoneNumber().getCountryCode();
+        String phoneNumber = account.getPhoneNumber().getPhoneNumber();
         logger.debug(INSERT_MARKER, "executing phone number insertion: {}", phoneNumberSql);
         jdbcTemplate.update(phoneNumberSql, phoneId, countryCode, phoneNumber);
 
         //Inserting account
         boolean verified = false;
         boolean enabled = false;
-        String profilePicturePath = accountCreationData.getProfilePicture().getImagePath();
+        String profilePicturePath = account.getProfilePicture().getImagePath();
         logger.debug("executing account data insertion: {}", accountSql);
         try {
-            jdbcTemplate.update(accountSql, accountCreationData.getId(), accountCreationData.getUsername(), accountCreationData.getName(),
-                    accountCreationData.getSurname(), accountCreationData.getEmail(), formattedBirthDate, accountCreationData.getPassword(),
+            jdbcTemplate.update(accountSql, account.getId(), account.getUniqueUsername(), account.getName(),
+                    account.getSurname(), account.getUniqueEmail(), formattedBirthDate, account.getPassword(),
                     profilePicturePath, phoneId, currentDate,verified ,enabled);
         } catch (DuplicateKeyException exception) {
             logger.info("error trying to insert user with uuid:{}, username:{}, email:{}, duplicate key exception",
-                    accountCreationData.getId(), accountCreationData.getUsername(), accountCreationData.getEmail());
-            handleSqlIntegrityException(accountCreationData.getEmail(), accountCreationData.getUsername(), exception);
+                    account.getId(), account.getUniqueUsername(), account.getUniqueEmail());
+            handleSqlIntegrityException(account.getUniqueEmail(), account.getUniqueUsername(), exception);
         }
-        logger.info("Successfully inserted user with uuid:{}, username:{}, email:{}", accountCreationData.getId(), accountCreationData.getUsername(), accountCreationData.getEmail());
+        logger.info("Successfully inserted user with uuid:{}, username:{}, email:{}", account.getId(), account.getUniqueUsername(), account.getUniqueEmail());
 
     }
 
@@ -134,7 +145,7 @@ public class AccountRepositoryMySql implements AccountRepository {
     public Optional<Account> findAccountByUserId(String userId) {
         if (userId == null)throw new IllegalArgumentException("userId cannot be null");
         logger.debug(QUERY_MARKER, "finding account with userId: {} ", userId);
-        String accountQuery = "select BIN_TO_UUID(id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
+        String accountQuery = "select BIN_TO_UUID(id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ac.birth_date,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
                 "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.id_user = UUID_TO_BIN(?)";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
@@ -144,9 +155,19 @@ public class AccountRepositoryMySql implements AccountRepository {
                     @Override
                     public Account extractData(ResultSet resultSet) throws SQLException, DataAccessException {
                         if (!resultSet.next()) return null;
-                        return new Account(resultSet.getString("idUser"), resultSet.getString("username"), resultSet.getString("name"), resultSet.getString("surname"),
-                                resultSet.getString("email"), new PhoneNumber(resultSet.getString("phoneId"), resultSet.getString("country_code"), resultSet.getString("number")),
-                                new ProfilePicture(resultSet.getString("profile_picture_path")), resultSet.getString("password"),resultSet.getBoolean("verified") ,resultSet.getBoolean("enabled"));
+                        return new Account(resultSet.getString("idUser"),
+                                resultSet.getString("username"),
+                                resultSet.getString("name"),
+                                resultSet.getString("surname"),
+                                resultSet.getString("email"),
+                                new PhoneNumber(resultSet.getString("phoneId"),
+                                        resultSet.getString("country_code"),
+                                        resultSet.getString("number")),
+                                resultSet.getDate("birth_date").toLocalDate(),
+                                new ProfilePicture(resultSet.getString("profile_picture_path")),
+                                resultSet.getString("password"),
+                                resultSet.getBoolean("verified"),
+                                resultSet.getBoolean("enabled"));
                     }
                 }, userId);
         return Optional.ofNullable(account);

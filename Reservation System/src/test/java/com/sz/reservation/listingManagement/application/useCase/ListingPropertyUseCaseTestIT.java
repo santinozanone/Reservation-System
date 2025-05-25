@@ -1,16 +1,14 @@
 package com.sz.reservation.listingManagement.application.useCase;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.domain.model.Account;
-import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
 import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingPropertyUseCase;
-import com.sz.reservation.listingManagement.configuration.PropertyConfig;
+import com.sz.reservation.listingManagement.configuration.ListingConfig;
 import com.sz.reservation.listingManagement.domain.*;
 import com.sz.reservation.listingManagement.domain.exception.InvalidListingIdException;
 import com.sz.reservation.listingManagement.domain.port.outbound.ListingImageMetadataRepository;
@@ -42,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
 @ActiveProfiles(profiles = {"test","default"})
-@ContextConfiguration(classes = {RootConfig.class, PropertyConfig.class})
+@ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ExtendWith(SpringExtension.class)
 @DisplayName("ListingPropertyUseCase Integration test")
 class ListingPropertyUseCaseTestIT {
@@ -328,7 +326,7 @@ class ListingPropertyUseCaseTestIT {
         double random = Math.random();
         String email = "email" + random + "@gmail.com";
 
-        AccountCreationData accountCreationData = new AccountCreationData(
+        Account account = new Account(
                 userId,
                 "username"+random,
                 "name",
@@ -336,17 +334,18 @@ class ListingPropertyUseCaseTestIT {
                 email,
                 new PhoneNumber(UuidCreator.getTimeOrderedEpoch().toString(),"54","1121010000"),
                 LocalDate.now().minusDays(10),
-                "argentina",
-                "password",
                 new ProfilePicture("src/test/resources/pfp.jpg"),
-                new AccountVerificationToken(userId, UuidCreator.getTimeOrderedEpoch().toString(),LocalDate.now().plusDays(10)));
+                "password",
+                false,
+                false);
+
 
         //act
-        accountRepositoryMySql.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepositoryMySql.createAccount(account);
 
         //assert
-        Optional<Account> account = accountRepositoryMySql.findAccountByEmail(email);
-        Assertions.assertTrue(account.isPresent());
+        Optional<Account> optionalAccount = accountRepositoryMySql.findAccountByEmail(email);
+        Assertions.assertTrue(optionalAccount.isPresent());
 
         return userId;
     }

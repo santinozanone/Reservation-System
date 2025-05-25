@@ -19,7 +19,7 @@ public class StartupApplicationListener  implements
     private String profilePictureDirectory;
 
     private Logger logger = LogManager.getLogger(StartupApplicationListener.class);
-    public StartupApplicationListener(@Value("${localpfpstorage.location}")String profilePictureDirectory) {
+    public StartupApplicationListener(@Value("${account.localpfpstorage.location}")String profilePictureDirectory) {
         this.profilePictureDirectory = profilePictureDirectory;
     }
 

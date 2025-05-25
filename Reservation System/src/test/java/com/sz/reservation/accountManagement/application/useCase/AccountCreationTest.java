@@ -1,24 +1,21 @@
 package com.sz.reservation.accountManagement.application.useCase;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
-import com.sz.reservation.accountManagement.application.service.AccountCreation;
+import com.sz.reservation.accountManagement.application.service.AccountCreationService;
 import com.sz.reservation.accountManagement.domain.exception.InvalidPhoneNumberException;
+import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
-import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.domain.service.PhoneNumberValidator;
 import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRequest;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.LibPhoneNumberValidator;
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +24,11 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Account creation test")
-class AccountCreationTest {
-    private static AccountCreation accountCreation;
+class AccountCreationServiceTest {
+    private static AccountCreationService accountCreationService;
     private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
             .configure()
             .messageInterpolator(new ParameterMessageInterpolator())
@@ -75,11 +72,11 @@ class AccountCreationTest {
     public static void initializingAccountCreation(){
         PhoneNumberValidator phoneNumberValidator = new LibPhoneNumberValidator();
         HashingService service = new BCryptPasswordHashingService();
-        accountCreation = new AccountCreation(phoneNumberValidator, service);
+        accountCreationService = new AccountCreationService(phoneNumberValidator, service);
     }
 
     @Test
-    public void Should_ReturnAccountCreationData_When_ValidRequest() throws IOException {
+    public void Should_ReturnAccount_When_ValidRequest() throws IOException {
         //arrange
         AccountCreationRequest request = new AccountCreationRequest(
                 username,
@@ -96,10 +93,10 @@ class AccountCreationTest {
         if (!violations.isEmpty()) throw new IllegalArgumentException("Illegal arguments supplied "+ violations.toString());
 
         //act
-        AccountCreationData data = accountCreation.accountCreationData(request,profile);
+        Account account = accountCreationService.create(request,profile);
 
         //assert
-        Assertions.assertNotNull(data);
+        Assertions.assertNotNull(account);
 
     }
 
@@ -122,7 +119,7 @@ class AccountCreationTest {
 
         //act and assert
         assertThrows(InvalidPhoneNumberException.class,() -> {
-            accountCreation.accountCreationData(request, profile);
+            accountCreationService.create(request, profile);
         });
     }
 
@@ -131,7 +128,7 @@ class AccountCreationTest {
     public void ShouldThrowIllegalArgumentException_WhenNullAccountRequest(){
         //act and assert
         assertThrows(IllegalArgumentException.class,() -> {
-            accountCreation.accountCreationData(null, profile);
+            accountCreationService.create(null, profile);
         });
     }
 
@@ -153,7 +150,7 @@ class AccountCreationTest {
 
         //act and assert
         assertThrows(IllegalArgumentException.class,() -> {
-            accountCreation.accountCreationData(request, profile);
+            accountCreationService.create(request, profile);
         });
     }
 

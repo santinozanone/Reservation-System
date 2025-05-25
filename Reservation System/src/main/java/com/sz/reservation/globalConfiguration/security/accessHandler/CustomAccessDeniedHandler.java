@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Component(value = "CustomAccessDeniedHandler")
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
-    @Autowired
+  //  @Autowired
     private HandlerExceptionResolver resolver;
 
     @Override

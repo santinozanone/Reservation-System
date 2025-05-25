@@ -10,6 +10,7 @@ import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -26,14 +27,20 @@ import javax.sql.DataSource;
 import java.util.List;
 
 @Configuration
-@ComponentScan(basePackages = "com.sz.reservation.globalConfiguration")
-@EnableWebMvc
-@PropertySource("classpath:application.properties")
-@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
-@EnableLoadTimeWeaving
-public class RootConfig implements WebMvcConfigurer {
+//@ComponentScan(basePackages = "com.sz.reservation.globalConfiguration")
+//@EnableWebMvc
+//@EnableAutoConfiguration
+//@PropertySource("classpath:application.properties")
+//@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+//@EnableLoadTimeWeaving
+public class RootConfig /*implements WebMvcConfigurer */{
 
-    @Override
+    @Bean
+    public FileTypeValidator fileTypeValidator(){
+        return new TikaFileValidator();
+    }
+
+ /*   @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         WebMvcConfigurer.super.extendMessageConverters(converters);
         for (HttpMessageConverter<?> converter : converters) {
@@ -58,14 +65,10 @@ public class RootConfig implements WebMvcConfigurer {
         return new LocalValidatorFactoryBean();
     }
 
+*/
 
 
-
-    @Bean
-    public FileTypeValidator tikaFileValidator(){
-        return new TikaFileValidator();
-    }
-    @Bean
+  /*  @Bean
     @Profile("test")
     public DataSource testHikariCP(){
         HikariConfig config = new HikariConfig();
@@ -110,7 +113,7 @@ public class RootConfig implements WebMvcConfigurer {
     public PlatformTransactionManager transactionManager(DataSource dataSource){
         return new DataSourceTransactionManager(dataSource);
     }
-
+*/
 
 
 }

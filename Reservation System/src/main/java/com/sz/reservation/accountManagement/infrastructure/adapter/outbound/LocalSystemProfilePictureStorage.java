@@ -27,9 +27,9 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
 
     private int HEIGHT;
 
-    public LocalSystemProfilePictureStorage(@Value("${localpfpstorage.location}") String profilePictureDirectory,
-                                            @Value("${pfp.width}") int WIDTH,
-                                            @Value("${pfp.height}")int HEIGHT) {
+    public LocalSystemProfilePictureStorage(@Value("${account.localpfpstorage.location}") String profilePictureDirectory,
+                                            @Value("${account.pfp.width}") int WIDTH,
+                                            @Value("${account.pfp.height}")int HEIGHT) {
         this.profilePictureDirectory = profilePictureDirectory;
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;

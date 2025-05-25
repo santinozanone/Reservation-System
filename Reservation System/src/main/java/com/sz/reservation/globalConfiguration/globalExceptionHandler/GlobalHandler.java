@@ -1,6 +1,8 @@
 package com.sz.reservation.globalConfiguration.globalExceptionHandler;
 
 import com.sz.reservation.globalConfiguration.exception.*;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSourceResolvable;
@@ -33,6 +35,20 @@ import java.util.Map;
 @Order(Ordered.LOWEST_PRECEDENCE)
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Bad Request");
+        ArrayList<String> validationErrors = new ArrayList<>();
+
+        for(ConstraintViolation violation: ex.getConstraintViolations()){
+            validationErrors.add(violation.getMessage());
+        }
+        problemDetail.setDetail("Invalid Parameters " + validationErrors);
+        logger.info("request contain invalid parameters:{}",validationErrors);
+        return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
+    }
 
 
     @ExceptionHandler(value = AccessDeniedException.class)

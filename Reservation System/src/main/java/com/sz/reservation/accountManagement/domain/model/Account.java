@@ -3,6 +3,7 @@ package com.sz.reservation.accountManagement.domain.model;
 
 import com.sz.reservation.accountManagement.domain.exception.AccountNotEnabledException;
 
+import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +14,7 @@ public class Account {
     private String surname;
     private String uniqueEmail;
     private PhoneNumber phoneNumber;
+    private LocalDate birthDate;
     private ProfilePicture profilePicture;
     private String password;
     private boolean verified;
@@ -20,48 +22,21 @@ public class Account {
 
 
 
-    public Account(String id,String uniqueUsername, String name, String surname, String uniqueEmail, PhoneNumber phoneNumber,  ProfilePicture profilePicture, String password,boolean verified,boolean enabled) {
+    public Account(String id,String uniqueUsername, String name, String surname, String uniqueEmail, PhoneNumber phoneNumber,LocalDate birthDate,
+                   ProfilePicture profilePicture, String password,boolean verified,boolean enabled) {
         this.id = validateId(id);
         this.uniqueUsername = validateUsername(uniqueUsername);
         this.name = validateName(name);
         this.surname = validateSurname(surname);
         this.uniqueEmail = validateEmail(uniqueEmail);
         this.phoneNumber = validatePhoneNumber(phoneNumber);
+        this.birthDate = birthDate;
         this.profilePicture = validateProfilePicture(profilePicture);
         this.password = validatePassword(password);
         this.verified = verified;
         this.enabled = enabled;
     }
 
-    public void changeUsername(String uniqueUsername){
-        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
-        this.uniqueUsername = validateUsername(uniqueUsername);
-    }
-
-    public void changeName(String name){
-        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
-        this.name = validateName(name);
-    }
-
-    public void changeSurname(String surname){
-        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
-        this.surname = validateSurname(surname);
-    }
-
-    public void changePhoneNumber(PhoneNumber phoneNumber){
-        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
-        this.phoneNumber = validatePhoneNumber(phoneNumber);
-    }
-
-    public void changeProfilePicture(ProfilePicture profilePicture){
-        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
-        this.profilePicture = validateProfilePicture(profilePicture);
-    }
-
-    public void changePassword(String hashedPassword){
-        if (!enabled) throw new AccountNotEnabledException(uniqueEmail);
-        this.password = validatePassword(hashedPassword);
-    }
 
     public void setAccountVerified(){
         verified = true;
@@ -86,7 +61,7 @@ public class Account {
 
     private String validateUsername(String uniqueUsername){
         if (uniqueUsername == null || uniqueUsername.contains(" ") ||
-            uniqueUsername.length() > 55 || uniqueUsername.length() < 5){
+                uniqueUsername.length() > 55 || uniqueUsername.length() < 5){
             throw new IllegalArgumentException("invalid username format");
         }
         return uniqueUsername;
@@ -105,7 +80,7 @@ public class Account {
         return surname;
     }
     private String validateEmail(String uniqueEmail){
-       Pattern pattern = Pattern.compile("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@"
+        Pattern pattern = Pattern.compile("^(?=.{1,64}@)[\\p{L}0-9_-]+(\\.[\\p{L}0-9_-]+)*@"
                 + "[^-][\\p{L}0-9-]+(\\.[\\p{L}0-9-]+)*(\\.[\\p{L}]{2,})$");
         Matcher matcher = pattern.matcher(uniqueEmail);
         if ( !matcher.find() ){
@@ -128,10 +103,10 @@ public class Account {
         return profilePicture;
     }
     private String validatePassword(String password){
-       if(password == null || password.isEmpty() || password.contains(" ")){
-           throw new IllegalArgumentException("invalid password format");
-       }
-       return password;
+        if(password == null || password.isEmpty() || password.contains(" ")){
+            throw new IllegalArgumentException("invalid password format");
+        }
+        return password;
     }
 
 
@@ -157,6 +132,10 @@ public class Account {
 
     public PhoneNumber getPhoneNumber() {
         return phoneNumber;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
     }
 
     public ProfilePicture getProfilePicture() {

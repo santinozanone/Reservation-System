@@ -2,9 +2,9 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
-import com.sz.reservation.globalConfiguration.dispatcher.DispatcherServletInitializer;
+import com.sz.reservation.accountManagement.configuration.exceptionHandler.AccountExceptionHandler;
 import com.sz.reservation.globalConfiguration.RootConfig;
-
+import com.sz.reservation.globalConfiguration.globalExceptionHandler.GlobalHandler;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
@@ -21,15 +21,10 @@ import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
-
-@WebAppConfiguration
-@ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("unit test HttpEmailVerificationControllerTest")
 class HttpEmailVerificationControllerTest {
@@ -37,42 +32,30 @@ class HttpEmailVerificationControllerTest {
     @MockitoBean
     private  AccountVerificationUseCase accountVerificationUseCase;
 
-
     private  HttpEmailVerificationController controller;
 
-    @Autowired
-    private WebApplicationContext context;
     private  WebTestClient client;
 
     private String VERIFICATION_PATH = "/account/verification";
 
-    private MockMvc mockMvc;
 
     @BeforeEach
     public void setup() {
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .alwaysExpect(status().isOk())
+        MockitoAnnotations.openMocks(this);
+        controller = new HttpEmailVerificationController(accountVerificationUseCase);
+        client = MockMvcWebTestClient
+                .bindToController(controller).
+                controllerAdvice(new GlobalHandler())
+                .controllerAdvice(new AccountExceptionHandler())
                 .build();
     }
-
-
-    @BeforeAll
-    public void instantiatingValidator(){
-        MockitoAnnotations.openMocks(this);
-        // accountverificationusecase will do nothing because its method is void and is mocked
-        controller = new HttpEmailVerificationController(accountVerificationUseCase);
-        client = MockMvcWebTestClient.bindToApplicationContext(context).build();
-    }
-
-
 
     @Test
     public void Should_ReturnStatusOk_When_ValidInput(){
         //arrange
         String token = "01954f09-742d-7d86-a3da-b0127c8facc4"; // 36 characters token
         //act and assert
-       client.post().uri(uriBuilder -> uriBuilder
+        client.post().uri(uriBuilder -> uriBuilder
                 .path(VERIFICATION_PATH).queryParam("token",token).build()).exchange().expectStatus().isOk();
     }
 

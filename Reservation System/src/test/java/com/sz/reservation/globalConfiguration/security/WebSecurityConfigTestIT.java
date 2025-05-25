@@ -12,7 +12,7 @@ import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.globalConfiguration.security.userDetails.CustomUserDetails;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingPropertyUseCase;
-import com.sz.reservation.listingManagement.configuration.PropertyConfig;
+import com.sz.reservation.listingManagement.configuration.ListingConfig;
 import com.sz.reservation.listingManagement.domain.AmenitiesType;
 import com.sz.reservation.listingManagement.domain.HousingType;
 import com.sz.reservation.listingManagement.domain.PropertyType;
@@ -53,7 +53,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {WebSecurityConfig.class, AccountConfig.class ,RootConfig.class ,PropertyConfig.class})
+@ContextConfiguration(classes = {WebSecurityConfig.class, AccountConfig.class ,RootConfig.class , ListingConfig.class})
 @WebAppConfiguration
 @ActiveProfiles({"test","default"})
 class WebSecurityConfigTestIT {

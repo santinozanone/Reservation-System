@@ -4,6 +4,7 @@ import com.github.f4b6a3.uuid.util.UuidValidator;
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
 import com.sz.reservation.accountManagement.domain.exception.InvalidTokenException;
 import com.sz.reservation.accountManagement.infrastructure.dto.annotation.NotNullNotWhitespace;
+import com.sz.reservation.listingManagement.infrastructure.service.TikaListingImageValidator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

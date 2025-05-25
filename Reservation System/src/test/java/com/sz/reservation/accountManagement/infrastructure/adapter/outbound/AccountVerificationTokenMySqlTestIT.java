@@ -179,9 +179,8 @@ class AccountVerificationTokenMySqlTestIT {
         HashingService hashingService = new BCryptPasswordHashingService();
         String password =hashingService.hash("ultrasafepassword");
 
-        AccountVerificationToken verificationToken = new AccountVerificationToken(userId,userVerificationToken,expirationDate);
 
-        AccountCreationData accountCreationData = new AccountCreationData(
+        Account account = new Account(
                 userId,
                 username,
                 name,
@@ -189,15 +188,17 @@ class AccountVerificationTokenMySqlTestIT {
                 email,
                 phoneNumber,
                 birthDate,
-                nationality,
-                password,
                 new ProfilePicture("src/test/resources/pfp.jpg"),
-                verificationToken);
+                password,
+                false,
+                false
+        );
 
         //act, (insert user)
-        accountRepository.registerNotEnabledNotVerifiedUser(accountCreationData);
+        accountRepository.createAccount(account);
         //assert
-        Optional<Account> account = accountRepository.findAccountByEmail(accountCreationData.getEmail());
-        Assertions.assertTrue(account.isPresent());
+        Optional<Account> optionalAccount = accountRepository.findAccountByEmail(account.getUniqueEmail());
+        Assertions.assertTrue(optionalAccount.isPresent());
     }
+
 }

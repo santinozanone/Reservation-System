@@ -23,7 +23,7 @@ public class ScaledInstanceMultipartImageResizingService implements MultipartIma
 
     private int HEIGHT;
 
-    public ScaledInstanceMultipartImageResizingService(@Value("${pfp.width}") int WIDTH, @Value("${pfp.height}") int HEIGHT) {
+    public ScaledInstanceMultipartImageResizingService(@Value("${account.pfp.width}") int WIDTH, @Value("${account.pfp.height}") int HEIGHT) {
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
     }

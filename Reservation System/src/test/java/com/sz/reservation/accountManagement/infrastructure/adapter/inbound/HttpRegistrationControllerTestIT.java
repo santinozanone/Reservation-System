@@ -2,13 +2,14 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
-import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.service.HashingService;
-import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
-import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
+import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
-import org.junit.jupiter.api.*;
+import com.sz.reservation.globalConfiguration.RootConfig;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -30,7 +31,8 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @ExtendWith(SpringExtension.class)
@@ -88,10 +90,6 @@ class HttpRegistrationControllerTestIT {
         client  = MockMvcWebTestClient.bindToApplicationContext(wac).build();;
     }
 
-
-
-
-
     private void assertProfilePicStoredAndCleanup(Path profilePicturePath) throws IOException {
         //assert pfp exists
         assertTrue(Files.exists(profilePicturePath));
@@ -103,22 +101,7 @@ class HttpRegistrationControllerTestIT {
     @Transactional
     public void Should_CreateAccount_And_StoreProfilePicture_When_ValidRequest() throws IOException {
         //arrange
-        String path = "src/test/resources/bird.jpg";
-        byte[] imageLogo = Files.readAllBytes(Path.of(path));
-        MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
-
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("username",username);
-        builder.part("name",name);
-        builder.part("surname",surname);
-        builder.part("email",email);
-        builder.part("countryCode",countryCode);
-        builder.part("phoneNumber",phoneNumber);
-        builder.part("birthDate",birthDate);
-        builder.part("nationality",nationality);
-        builder.part("profilePicture",multipartFile.getResource());
-        builder.part("password",password);
-
+        MultipartBodyBuilder builder = createMultipartBodyBuilderRequest();
 
         //act and assert
         // asserting response status
@@ -142,42 +125,48 @@ class HttpRegistrationControllerTestIT {
     @Transactional
     public void Should_ReturnError_When_AlreadyInUseUsername() throws IOException {
         //arrange
-        String path =  "src/test/resources/bird.jpg";
+        MultipartBodyBuilder builder = createMultipartBodyBuilderRequest();
+        String unchangedEmail = email;
 
-        byte[] imageLogo = Files.readAllBytes(Path.of(path));
-        MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
-
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("username",username);
-        builder.part("name",name);
-        builder.part("surname",surname);
-        builder.part("email",email);
-        builder.part("countryCode",countryCode);
-        builder.part("phoneNumber",phoneNumber);
-        builder.part("birthDate",birthDate);
-        builder.part("nationality",nationality);
-        builder.part("profilePicture",multipartFile.getResource());
-        builder.part("password",password);
-
-        String otherEmail = "otherEmail@gmail.com"; // changing email so it only detects username in use
+        email = "otherEmail@gmail.com"; // changing email so it only detects username in use
 
         //second builder
-        MultipartBodyBuilder secondBuilder = new MultipartBodyBuilder();
-        secondBuilder.part("username",username);
-        secondBuilder.part("name",name);
-        secondBuilder.part("surname",nationality);
-        secondBuilder.part("email",otherEmail);
-        secondBuilder.part("countryCode",countryCode);
-        secondBuilder.part("phoneNumber",phoneNumber);
-        secondBuilder.part("birthDate",birthDate);
-        secondBuilder.part("nationality",nationality);
-        secondBuilder.part("profilePicture",multipartFile.getResource());
-        secondBuilder.part("password",password);
+        MultipartBodyBuilder secondBuilder = createMultipartBodyBuilderRequest();
 
         //act and assert
         //first insert
         client.post().uri(REGISTRATION_PATH)
                 .bodyValue(builder.build())
+                .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
+
+        //second insert
+        client.post().uri(REGISTRATION_PATH)
+                .bodyValue(secondBuilder.build())
+                .exchange()
+                .expectStatus().isBadRequest(); // second one should fail
+
+
+        // asserting first account is created
+        Optional<Account> account = repository.findAccountByEmail(unchangedEmail);
+        assertTrue(account.isPresent());
+
+        // asserting photo is stored in file system
+        Path pfpPath = Path.of(account.get().getProfilePicture().getImagePath());
+        assertProfilePicStoredAndCleanup(pfpPath);
+    }
+
+    @Test
+    @Transactional
+    public void Should_ReturnError_When_AlreadyInUseEmail() throws IOException {
+        //arrange
+        MultipartBodyBuilder firstBuilder = createMultipartBodyBuilderRequest();
+        username = "santino"; // change username so only detects that the email is already in use
+        MultipartBodyBuilder secondBuilder = createMultipartBodyBuilderRequest();
+
+        //act and assert
+        //first insert
+        client.post().uri(REGISTRATION_PATH)
+                .bodyValue(firstBuilder.build())
                 .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
 
         //second insert
@@ -194,67 +183,6 @@ class HttpRegistrationControllerTestIT {
         // asserting photo is stored in file system
         Path pfpPath = Path.of(account.get().getProfilePicture().getImagePath());
         assertProfilePicStoredAndCleanup(pfpPath);
-
-    }
-
-    @Test
-    @Transactional
-    public void Should_ReturnError_When_AlreadyInUseEmail() throws IOException {
-        //arrange
-        String path = "src/test/resources/bird.jpg";
-
-        byte[] imageLogo = Files.readAllBytes(Path.of(path));
-        MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
-
-        MultipartBodyBuilder firstBuilder = new MultipartBodyBuilder();
-        firstBuilder.part("username",username);
-        firstBuilder.part("name",name);
-        firstBuilder.part("surname",surname);
-        firstBuilder.part("email",email);
-        firstBuilder.part("countryCode",countryCode);
-        firstBuilder.part("phoneNumber",phoneNumber);
-        firstBuilder.part("birthDate",birthDate);
-        firstBuilder.part("nationality",nationality);
-        firstBuilder.part("profilePicture",multipartFile.getResource());
-        firstBuilder.part("password",password);
-
-       username = "santino"; // change username so only detects that the email is already in use
-
-        MultipartBodyBuilder secondBuilder = new MultipartBodyBuilder();
-        secondBuilder.part("username",username);
-        secondBuilder.part("name",name);
-        secondBuilder.part("surname",nationality);
-        secondBuilder.part("email",email);
-        secondBuilder.part("countryCode",countryCode);
-        secondBuilder.part("phoneNumber",phoneNumber);
-        secondBuilder.part("birthDate",birthDate);
-        secondBuilder.part("nationality",nationality);
-        secondBuilder.part("profilePicture",multipartFile.getResource());
-        secondBuilder.part("password",password);
-
-        //act and assert
-        //first insert
-        client.post().uri(REGISTRATION_PATH)
-                .bodyValue(firstBuilder.build())
-                .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
-
-        //second insert
-        client.post().uri(REGISTRATION_PATH)
-                .bodyValue(firstBuilder.build())
-                .exchange()
-                .expectStatus().isBadRequest(); // second one should fail
-
-
-        // asserting account is created
-        Optional<Account> account = repository.findAccountByEmail(email);
-        assertTrue(account.isPresent());
-
-        // asserting photo is stored in file system
-        Path pfpPath = Path.of(account.get().getProfilePicture().getImagePath());
-        assertProfilePicStoredAndCleanup(pfpPath);
-
-
-
     }
 
     @Test
@@ -264,5 +192,25 @@ class HttpRegistrationControllerTestIT {
     }
 
 
+
+    private MultipartBodyBuilder createMultipartBodyBuilderRequest() throws IOException {
+        String path = "src/test/resources/bird.jpg";
+        byte[] imageLogo = Files.readAllBytes(Path.of(path));
+        MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg",MediaType.IMAGE_JPEG_VALUE ,imageLogo);
+
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+        builder.part("username",username);
+        builder.part("name",name);
+        builder.part("surname",surname);
+        builder.part("email",email);
+        builder.part("countryCode",countryCode);
+        builder.part("phoneNumber",phoneNumber);
+        builder.part("birthDate",birthDate);
+        builder.part("nationality",nationality);
+        builder.part("profilePicture",multipartFile.getResource());
+        builder.part("password",password);
+
+        return builder;
+    }
 
 }

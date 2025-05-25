@@ -18,7 +18,7 @@ class LocalSystemProfilePictureStorageTest {
     private static String filename ;
     private static LocalSystemProfilePictureStorage profilePictureStorage;
 
-    private static String localPfpDirectory = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION");
+    private static String localPfpDirectory = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION_TEST");
     private static int WIDTH = 50;
     private static int HEIGHT = 50;
 

@@ -1,17 +1,8 @@
 package com.sz.reservation.globalConfiguration.dispatcher;
 
-import com.sz.reservation.accountManagement.configuration.AccountConfig;
-import com.sz.reservation.globalConfiguration.RootConfig;
-import com.sz.reservation.listingManagement.configuration.PropertyConfig;
-import jakarta.servlet.*;
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
+public class DispatcherServletInitializer /*implements WebApplicationInitializer */ {
 
-public class DispatcherServletInitializer implements WebApplicationInitializer {
-
-    @Override
+   /* @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         // creating the root context for all dispatchers
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
@@ -42,4 +33,6 @@ public class DispatcherServletInitializer implements WebApplicationInitializer {
         secondDispatcher.addMapping("/api/v1/host/*");
 
     }
+
+    */
 }
