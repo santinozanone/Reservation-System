@@ -20,7 +20,7 @@ public class DiskListingImageStorage implements ListingImageStorage {
 
     private String basePath;
 
-    public DiskListingImageStorage(@Value("${local_listingPhotos_storage.location}") String basePath) {
+    public DiskListingImageStorage(@Value("${listing.local_listingPhotos_storage.location}") String basePath) {
         this.basePath = basePath;
     }
 

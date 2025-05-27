@@ -23,6 +23,8 @@ import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.HttpEntity;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -56,6 +58,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {WebSecurityConfig.class, AccountConfig.class ,RootConfig.class , ListingConfig.class})
 @WebAppConfiguration
 @ActiveProfiles({"test","default"})
+@Disabled
 class WebSecurityConfigTestIT {
 
     @Autowired

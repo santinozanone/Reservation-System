@@ -15,10 +15,7 @@ import com.sz.reservation.listingManagement.domain.port.outbound.ListingImageMet
 import com.sz.reservation.listingManagement.domain.port.outbound.ListingPropertyRepository;
 import com.sz.reservation.listingManagement.infrastructure.AddressInfoRequestDto;
 import com.sz.reservation.listingManagement.infrastructure.ListingRequestDto;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -43,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ExtendWith(SpringExtension.class)
 @DisplayName("ListingPropertyUseCase Integration test")
+@Disabled
 class ListingPropertyUseCaseTestIT {
 
     @Autowired

@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 @Configuration
 //@EnableWebMvc
 @EnableAutoConfiguration
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:listing.properties")
 @ComponentScan("com.sz.reservation.listingManagement")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableLoadTimeWeaving

@@ -13,7 +13,8 @@ public class MyApplication    {
     public static void main(String[] args) {
         new SpringApplicationBuilder()
                 .parent(RootConfig.class).web(WebApplicationType.NONE)
-                .child(AccountConfig.class).profiles("test","default").web(WebApplicationType.SERVLET)
+                .child(AccountConfig.class).properties("spring.config.name=account")
+                .profiles("test","default").web(WebApplicationType.SERVLET)
                 //.sibling(PropertyConfig.class).web(WebApplicationType.SERVLET)
                 .run(args);
     }

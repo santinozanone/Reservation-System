@@ -1,6 +1,7 @@
 package com.sz.reservation.listingManagement.domain;
 
 import com.sz.reservation.globalConfiguration.RootConfig;
+import com.sz.reservation.listingManagement.configuration.ListingConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
 @ActiveProfiles(profiles = {"test","default"})
-@ContextConfiguration(classes = {RootConfig.class})
+@ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ExtendWith(SpringExtension.class)
 @DisplayName("Amenities Type Enum , Database SYNC test")
 
