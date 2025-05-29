@@ -339,16 +339,6 @@ class AccountCreationServiceRequestTest {
 
 
     @Test
-    public void Should_ThrowException_When_ProfilePictureIsNull(){
-        //arrange
-        multipartFile = null;
-        AccountCreationRequest request = creationRequest();
-
-        Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
-        assertEquals(1,violations.size());
-    }
-
-    @Test
     public void Should_ThrowException_When_PasswordIsNull(){
         //arrange
         password = null;
@@ -397,7 +387,6 @@ class AccountCreationServiceRequestTest {
                 phoneNumber,
                 birthdate,
                 nationality,
-                multipartFile,
                 password);
     }
 }

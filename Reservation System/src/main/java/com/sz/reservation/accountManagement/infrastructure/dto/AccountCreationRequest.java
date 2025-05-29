@@ -3,7 +3,6 @@ package com.sz.reservation.accountManagement.infrastructure.dto;
 import com.sz.reservation.accountManagement.infrastructure.dto.annotation.NotNullNotWhitespace;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -50,8 +49,6 @@ public class AccountCreationRequest {
     @Size(max = 55,message = "nationality must be maximum 55 characters long")
     private String nationality; // should be enum
 
-    @NotNull(message = "profile picture cannot be null")
-    private MultipartFile profilePicture;
 
     @NotBlank(message = "password must not be blank")
     @Size(min = 8,message = "password must be minimum 8 characters long")
@@ -61,7 +58,7 @@ public class AccountCreationRequest {
 
 
 
-    public AccountCreationRequest(String username, String name, String surname, String email, String countryCode , String phoneNumber, LocalDate birthDate, String nationality, MultipartFile profilePicture, String password) {
+    public AccountCreationRequest(String username, String name, String surname, String email, String countryCode , String phoneNumber, LocalDate birthDate, String nationality, String password) {
         this.username = username;
         this.name = name;
         this.surname = surname;
@@ -70,7 +67,6 @@ public class AccountCreationRequest {
         this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
         this.nationality = nationality;
-        this.profilePicture = profilePicture;
         this.password = password;
     }
 
@@ -106,10 +102,6 @@ public class AccountCreationRequest {
 
     public String getNationality() {
         return nationality;
-    }
-
-    public MultipartFile getProfilePicture() {
-        return profilePicture;
     }
 
     public String getPassword() {

@@ -332,7 +332,6 @@ class ListingPropertyUseCaseTestIT {
                 email,
                 new PhoneNumber(UuidCreator.getTimeOrderedEpoch().toString(),"54","1121010000"),
                 LocalDate.now().minusDays(10),
-                new ProfilePicture("src/test/resources/pfp.jpg"),
                 "password",
                 false,
                 false);

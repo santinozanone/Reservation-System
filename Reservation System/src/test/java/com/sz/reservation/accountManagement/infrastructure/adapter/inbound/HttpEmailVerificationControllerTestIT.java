@@ -244,7 +244,6 @@ public class HttpEmailVerificationControllerTestIT {
                 email,
                 phoneNumber,
                 LocalDate.now(),
-                new ProfilePicture("src/test/resources/pfp.jpg"),
                 password,
                 false,
                 false);

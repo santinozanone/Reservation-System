@@ -10,6 +10,11 @@ import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -20,7 +25,11 @@ import javax.sql.DataSource;
 
 @Configuration
 //@EnableWebMvc
-@EnableAutoConfiguration
+
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
+        SecurityAutoConfiguration.class,
+        LiquibaseAutoConfiguration.class,
+        FlywayAutoConfiguration.class})
 @PropertySource("classpath:listing.properties")
 @ComponentScan("com.sz.reservation.listingManagement")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
@@ -34,7 +43,10 @@ public class ListingConfig {
         return new ListingPropertyUseCase(listingPropertyRepository,tikaListingImageValidator,imageStorage,listingImageMetadataRepository);
     }
 
-
+    @Bean
+    public ApplicationListener<CustomEvent> listener(){
+        return new CustomListeenr();
+    }
 
     @Bean
     @Profile("test")

@@ -4,13 +4,11 @@ import com.github.f4b6a3.uuid.util.UuidValidator;
 import com.sz.reservation.accountManagement.application.useCase.AccountVerificationUseCase;
 import com.sz.reservation.accountManagement.domain.exception.InvalidTokenException;
 import com.sz.reservation.accountManagement.infrastructure.dto.annotation.NotNullNotWhitespace;
-import com.sz.reservation.listingManagement.infrastructure.service.TikaListingImageValidator;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -28,6 +26,9 @@ public class HttpEmailVerificationController {
 
     private final int UUID_VERSION = 7;
     private AccountVerificationUseCase accountVerificationUseCase;
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     @Autowired
     public HttpEmailVerificationController(AccountVerificationUseCase accountVerificationUseCase) {
@@ -53,6 +54,13 @@ public class HttpEmailVerificationController {
         return new ResponseEntity<>("account verification token resent successfully ", HttpStatus.OK);
     }
 
+
+    @GetMapping("/publish/")
+    public ResponseEntity publish(){
+        publisher.publishEvent(new CustomEvent(this,"miua"));
+        System.out.println("Event published");
+        return new ResponseEntity(HttpStatus.OK);
+    }
 
     private void validateToken(String token){
         if (!UuidValidator.isValid(token,UUID_VERSION)) throw new InvalidTokenException(token);

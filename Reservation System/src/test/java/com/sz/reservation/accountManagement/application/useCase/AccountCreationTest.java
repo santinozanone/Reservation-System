@@ -87,7 +87,6 @@ class AccountCreationServiceTest {
                 phoneNumber,
                 birthDate,
                 nationality,
-                multipartFile,
                 password);
         Set<ConstraintViolation<AccountCreationRequest>> violations = validator.validate(request);
         if (!violations.isEmpty()) throw new IllegalArgumentException("Illegal arguments supplied "+ violations.toString());
@@ -114,7 +113,6 @@ class AccountCreationServiceTest {
                 phoneNumber,
                 birthDate,
                 nationality,
-                multipartFile,
                 password);
 
         //act and assert
@@ -145,7 +143,6 @@ class AccountCreationServiceTest {
                 phoneNumber,
                 birthDate,
                 nationality,
-                multipartFile,
                 password);
 
         //act and assert

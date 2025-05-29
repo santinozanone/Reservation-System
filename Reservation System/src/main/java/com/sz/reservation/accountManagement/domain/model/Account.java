@@ -15,7 +15,6 @@ public class Account {
     private String uniqueEmail;
     private PhoneNumber phoneNumber;
     private LocalDate birthDate;
-    private ProfilePicture profilePicture;
     private String password;
     private boolean verified;
     private boolean enabled;
@@ -23,7 +22,7 @@ public class Account {
 
 
     public Account(String id,String uniqueUsername, String name, String surname, String uniqueEmail, PhoneNumber phoneNumber,LocalDate birthDate,
-                   ProfilePicture profilePicture, String password,boolean verified,boolean enabled) {
+                   String password,boolean verified,boolean enabled) {
         this.id = validateId(id);
         this.uniqueUsername = validateUsername(uniqueUsername);
         this.name = validateName(name);
@@ -31,7 +30,6 @@ public class Account {
         this.uniqueEmail = validateEmail(uniqueEmail);
         this.phoneNumber = validatePhoneNumber(phoneNumber);
         this.birthDate = birthDate;
-        this.profilePicture = validateProfilePicture(profilePicture);
         this.password = validatePassword(password);
         this.verified = verified;
         this.enabled = enabled;
@@ -96,12 +94,6 @@ public class Account {
         return phoneNumber;
     }
 
-    private ProfilePicture validateProfilePicture(ProfilePicture profilePicture){
-        if (profilePicture == null){
-            throw new IllegalArgumentException("invalid profile picture,cannot be null");
-        }
-        return profilePicture;
-    }
     private String validatePassword(String password){
         if(password == null || password.isEmpty() || password.contains(" ")){
             throw new IllegalArgumentException("invalid password format");
@@ -136,10 +128,6 @@ public class Account {
 
     public LocalDate getBirthDate() {
         return birthDate;
-    }
-
-    public ProfilePicture getProfilePicture() {
-        return profilePicture;
     }
 
     public String getPassword() {

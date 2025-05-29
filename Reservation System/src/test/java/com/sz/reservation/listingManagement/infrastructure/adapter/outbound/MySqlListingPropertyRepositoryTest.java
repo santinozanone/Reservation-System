@@ -152,8 +152,6 @@ class MySqlListingPropertyRepositoryTest {
     private String createVerifiedAccount(){
         //arrange
         String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        String userVerificationToken = UuidCreator.getTimeOrderedEpoch().toString();
-        LocalDate expirationDate = LocalDate.now().plusDays(7);
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
         LocalDate birthDate = LocalDate.now().minusDays(10);
@@ -166,7 +164,6 @@ class MySqlListingPropertyRepositoryTest {
                 "inventedEmail@miau.com",
                 phoneNumber,
                 birthDate,
-                new ProfilePicture("C:\\Users\\losmelli\\Pictures\\pfp_2025-02-03T18-22-31-bb7c3d7b-656d-409a-ada7-f204b8933074.jpg"),
                 "password",
                 false,
                 false);

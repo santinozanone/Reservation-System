@@ -36,20 +36,19 @@ import javax.sql.DataSource;
 @PropertySource("classpath:account.properties")
 @EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
         SecurityAutoConfiguration.class,
-        LiquibaseAutoConfiguration.class,
-        FlywayAutoConfiguration.class})
+        LiquibaseAutoConfiguration.class,})
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
 @EnableLoadTimeWeaving
 public class AccountConfig {
 
 
-  //  @Bean
+   @Bean
     public FlywayMigrationStrategy flywayMigration(){
         return new FlywayMigrationStrategy() {
             @Override
             public void migrate(Flyway flyway) {
-                Flyway.configure().locations("classpath:flyway/account/migration").dataSource(
-                        "jdbc:mysql://localhost:3306/test",
+                Flyway.configure().locations("classpath:db/migration").dataSource(
+                        "jdbc:mysql://localhost:3306/usertestdb",
                         "root",
                         "12345").load().migrate();
             }

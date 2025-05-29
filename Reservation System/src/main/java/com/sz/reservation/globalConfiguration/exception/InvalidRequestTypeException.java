@@ -1,4 +1,4 @@
-package com.sz.reservation.listingManagement.application.exception;
+package com.sz.reservation.globalConfiguration.exception;
 
 public class InvalidRequestTypeException extends RuntimeException{
     public InvalidRequestTypeException() {

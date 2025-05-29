@@ -1,23 +1,42 @@
-package com.sz.reservation.boot;
+package com.sz.reservation;
 
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.globalConfiguration.RootConfig;
+import com.sz.reservation.listingManagement.configuration.ListingConfig;
+import com.tngtech.archunit.core.domain.JavaClass;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.modulith.ApplicationModule;
+import org.springframework.modulith.Modulith;
+import org.springframework.modulith.core.ApplicationModules;
+import org.springframework.modulith.docs.Documenter;
 
 //@Configuration
 //@EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 //@ComponentScan(basePackages = "com.sz.reservation.boot")
+
+@Modulith
 public class MyApplication    {
 
     public static void main(String[] args) {
-        new SpringApplicationBuilder()
+      /* var modules =  ApplicationModules.
+                of(MyApplication.class, JavaClass.Predicates.resideInAPackage("com.sz.reservation.globalConfiguration.security.."));
+              //  .verify();
+
+        new Documenter(modules)
+                .writeModulesAsPlantUml()
+                .writeIndividualModulesAsPlantUml();
+*/
+
+      new SpringApplicationBuilder()
                 .parent(RootConfig.class).web(WebApplicationType.NONE)
                 .child(AccountConfig.class).properties("spring.config.name=account")
                 .profiles("test","default").web(WebApplicationType.SERVLET)
-                //.sibling(PropertyConfig.class).web(WebApplicationType.SERVLET)
-                .run(args);
-    }
+
+           //   .sibling(ListingConfig.class).profiles("test","default").properties("spring.config.name=listing").web(WebApplicationType.SERVLET)
+               .run(args);
+
+
 
 
 
@@ -46,4 +65,5 @@ public class MyApplication    {
     }
 */
 
+}
 }

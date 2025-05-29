@@ -1,5 +1,6 @@
 package com.sz.reservation.listingManagement.configuration.exceptionHandler;
 
+import com.sz.reservation.globalConfiguration.exception.InvalidRequestTypeException;
 import com.sz.reservation.listingManagement.application.exception.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

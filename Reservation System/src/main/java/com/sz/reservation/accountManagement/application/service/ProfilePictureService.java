@@ -8,6 +8,7 @@ import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRe
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -23,15 +24,14 @@ public class ProfilePictureService {
         this.multipartImageResizingService = multipartImageResizingService;
     }
 
-    public void validate(AccountCreationRequest accountCreationRequest){
-        MultipartFile profileImageMultipart = accountCreationRequest.getProfilePicture();
-        if (!profilePictureTypeValidator.isValid(profileImageMultipart)) {
-            throw new MediaNotSupportedException("FAILED profile picture validation for email "+accountCreationRequest.getEmail() +" , profile picture extension/content is not valid");
+    public void validate(String profilePictureOriginalName,InputStream profilePictureStream){
+        if (!profilePictureTypeValidator.isValid(profilePictureOriginalName,profilePictureStream)) {
+            throw new MediaNotSupportedException("FAILED profile picture validation for email , profile picture extension/content is not valid");
         }
     }
 
-    public Image resize(MultipartFile profileImageMultipart){
-        return multipartImageResizingService.resizeImage(profileImageMultipart);
+    public Image resize(String profilePictureOriginalName,InputStream profilePictureStream){
+        return multipartImageResizingService.resizeImage(profilePictureOriginalName,profilePictureStream);
     }
 
     public String store(String originalImageFilename,Image resizedImage){

@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -27,11 +29,10 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ReturnTrue_When_ValidPngMultipart() throws IOException {
         //arrange
         String path = "src/test/resources/logo.png";
-        byte[] imageLogo = Files.readAllBytes(Path.of(path));
-        MockMultipartFile multipartFile = new MockMultipartFile("file","logo.png", MediaType.IMAGE_PNG_VALUE ,imageLogo);
+        InputStream inputStream = new FileInputStream(path);
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("logo.png",inputStream);
 
         //assert
         assertTrue(isValid);
@@ -41,11 +42,10 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ReturnTrue_When_ValidJpgMultipart() throws IOException {
         //arrange
         String path = "src/test/resources/bird.jpg";
-        byte[] imageLogo = Files.readAllBytes(Path.of(path));
-        MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg", MediaType.IMAGE_JPEG_VALUE ,imageLogo);
+        InputStream inputStream = new FileInputStream(path);
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("bird.jpg",inputStream);
 
         //assert
         assertTrue(isValid);
@@ -55,21 +55,22 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ReturnFalse_When_EmptyMultipart() throws IOException {
         //arrange
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg", MediaType.IMAGE_JPEG_VALUE ,new byte[]{});
-
+        InputStream inputStream = multipartFile.getInputStream();
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("bird.jpg",inputStream);
 
         //assert
         assertFalse(isValid);
     }
 
     @Test
-    public void Should_ReturnFalse_When_WhitespaceOnlyContentMultipart() throws IOException {
+    public void Should_ReturnFalse_When_InvalidContentMultipart() throws IOException {
         //arrange
         MockMultipartFile multipartFile = new MockMultipartFile("file", "empty.jpg", MediaType.IMAGE_JPEG_VALUE, "   ".getBytes());
+        InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("empty.jpg",inputStream);
 
         //assert
         assertFalse(isValid);
@@ -80,9 +81,10 @@ class TikaProfilePictureTypeValidatorTest {
         String path = "src/test/resources/logo.png";
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file", "logo.png.exe", MediaType.IMAGE_PNG_VALUE, imageLogo);
+        InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("logo.png.exe",inputStream);
 
         //assert
         assertFalse(isValid);
@@ -95,9 +97,10 @@ class TikaProfilePictureTypeValidatorTest {
         String path = "src/test/resources/bird.jpg";
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.pdf", MediaType.IMAGE_JPEG_VALUE ,imageLogo);
+        InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("bird.pdf",inputStream);
 
         //assert
         assertFalse(isValid);
@@ -107,11 +110,11 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ReturnFalse_When_ValidExtensionButInvalidContentMultipart() throws IOException {
         //arrange
         String path = "src/test/resources/bird.jpg";
-        byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg", MediaType.IMAGE_JPEG_VALUE ,"Invalid".getBytes());
+        InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("bird.jpg",inputStream);
 
         //assert
         assertFalse(isValid);
@@ -123,9 +126,10 @@ class TikaProfilePictureTypeValidatorTest {
         String path = "src/test/resources/bird.jpg";
         byte[] imageLogo = Files.readAllBytes(Path.of(path));
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird", MediaType.IMAGE_JPEG_VALUE ,imageLogo);
+        InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid(multipartFile);
+        boolean isValid = validator.isValid("bird",inputStream);
 
         //assert
         assertFalse(isValid);
@@ -135,7 +139,7 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ThrowIllegalArgumentException_When_nullMultipart() throws IOException {
         //arrange act and assert
         assertThrows(IllegalArgumentException.class,() -> {
-            validator.isValid(null);
+            validator.isValid("",null);
         });
     }
 

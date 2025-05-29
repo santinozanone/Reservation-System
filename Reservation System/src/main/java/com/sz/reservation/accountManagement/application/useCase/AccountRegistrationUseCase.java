@@ -14,9 +14,11 @@ import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTok
 import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.*;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -46,40 +48,41 @@ public class AccountRegistrationUseCase {
         logger.info("starting registration for email: {}", accountCreationRequest.getEmail());
         validateAccount(accountCreationRequest);
 
-        //Profile picture validation
-        profilePictureService.validate(accountCreationRequest);
-        Image resizedImage = profilePictureService.resize(accountCreationRequest.getProfilePicture());
-        String profilePictureStoringPath = profilePictureService.store(accountCreationRequest.getProfilePicture().getOriginalFilename(),
-                resizedImage);
-        //Account creation data
-        Account account = accountCreationService.create(accountCreationRequest, new ProfilePicture(profilePictureStoringPath));
+        //Account creation
+        Account account = accountCreationService.create(accountCreationRequest);
 
         AccountVerificationToken accountVerificationToken = createAccountVerificationToken(account.getUniqueEmail(),account.getId());
 
         //Outbound adapters
         logger.info("registering user in database for email: {}", account.getUniqueEmail());
-        registerNotEnabledUserInDb(account,accountVerificationToken,profilePictureStoringPath); // once image is saved correctly, store in db
+        registerNotEnabledUserInDb(account,accountVerificationToken); // once image is saved correctly, store in db
 
         logger.info("sending verification email to: {}", account.getUniqueEmail());
         emailSender.sendEmailTo(account.getUniqueEmail(), account.getUniqueUsername(), accountVerificationToken.getToken()); // then send email
     }
 
-    @Transactional
-    private void registerNotEnabledUserInDb(Account account, AccountVerificationToken accountVerificationToken,
-                                            String profilePictureStoringPath) {
-        try {
-            accountRepository.createAccount(account); // store user
-        }catch (EmailAlreadyRegisteredException | UsernameAlreadyRegisteredException ex) {
-            logger.info("email or username already in use, deleting profile picture:{}", profilePictureStoringPath);
-            profilePictureService.delete(profilePictureStoringPath);
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Failed to register user. Deleting profile picture: {}", profilePictureStoringPath);
-            profilePictureService.delete(profilePictureStoringPath);
-            throw ex; // Re-throw the exception to propagate it
-        }
-        verificationTokenRepository.save(accountVerificationToken); // store verification token
+    public void uploadProfilePicture(String accountId,String profilePictureOriginalName,InputStream profilePictureStream){
+        profilePictureService.validate(profilePictureOriginalName,profilePictureStream);
 
+        Image resizedImage = profilePictureService.resize(profilePictureOriginalName,profilePictureStream);
+        // pfp storage
+        String profilePictureStoringPath = profilePictureService.store(profilePictureOriginalName,resizedImage);
+
+        //store in db
+        String profilePictureId = UuidCreator.getTimeOrderedEpoch().toString();
+        ProfilePicture profilePicture = new ProfilePicture(profilePictureId,accountId,profilePictureStoringPath);
+
+        try {
+            accountRepository.createProfilePicture(profilePicture);
+        }catch (DataAccessException e){
+            profilePictureService.delete(profilePictureStoringPath);
+        }
+    }
+
+    @Transactional
+    private void registerNotEnabledUserInDb(Account account, AccountVerificationToken accountVerificationToken) {
+        accountRepository.createAccount(account); // store user
+        verificationTokenRepository.save(accountVerificationToken); // store verification token
     }
 
     private void validateAccount(AccountCreationRequest accountCreationRequest) {

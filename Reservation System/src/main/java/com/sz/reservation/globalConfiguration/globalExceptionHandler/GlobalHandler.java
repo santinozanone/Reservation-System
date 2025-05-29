@@ -36,6 +36,15 @@ import java.util.Map;
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
 
+
+    @ExceptionHandler(value = InvalidRequestException.class)
+    public ProblemDetail handleInvalidRequestTypeException(InvalidRequestException exception){
+        ProblemDetail problemDetail =  ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid Request");
+        problemDetail.setDetail(exception.getMessage());
+        return problemDetail;
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

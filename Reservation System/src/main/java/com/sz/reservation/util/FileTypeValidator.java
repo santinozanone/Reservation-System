@@ -8,7 +8,7 @@ import java.io.InputStream;
 public interface FileTypeValidator {
 
     /**
-     * This method DOES NOT close the input stream
+     * This method DOES NOT close the input stream, if the stream supports it, its marked and reset
      * @param fileInputStream
      * @return The real media type of the stream
      */

@@ -170,7 +170,6 @@ class AccountRepositoryMySqlTestIT {
                 email,
                 phoneNumber,
                 birthDate,
-                new ProfilePicture("src/test/resources/pfp.jpg"),
                 password,
                 false,
                 false

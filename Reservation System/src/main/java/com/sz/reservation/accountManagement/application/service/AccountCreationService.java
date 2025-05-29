@@ -26,8 +26,8 @@ public class AccountCreationService {
         this.hashingService = hashingService;
     }
 
-    public Account create(AccountCreationRequest accountCreationRequest, ProfilePicture profilePicture){
-        if (accountCreationRequest == null || profilePicture == null)throw new IllegalArgumentException("Account creation request or profile picture cannot be null");
+    public Account create(AccountCreationRequest accountCreationRequest){
+        if (accountCreationRequest == null )throw new IllegalArgumentException("Account creation request cannot be null");
 
         String registrationEmail = accountCreationRequest.getEmail();
         logger.info("creating account creation data for user with email: {}",registrationEmail);
@@ -54,7 +54,6 @@ public class AccountCreationService {
                 accountCreationRequest.getEmail(),
                 phoneNumber,
                 accountCreationRequest.getBirthDate(),
-                profilePicture,
                 hashedPassword,
                 false,false);
     }

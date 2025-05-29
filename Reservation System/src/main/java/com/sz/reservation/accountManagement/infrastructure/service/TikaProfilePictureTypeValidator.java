@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -25,27 +26,28 @@ public class TikaProfilePictureTypeValidator implements ProfilePictureTypeValida
         this.fileTypeValidator = fileTypeValidator;
     }
 
-    public boolean isValid(MultipartFile profilePicture) {
-        if (profilePicture == null) throw new IllegalArgumentException("profile picture cannot be null");
+    public boolean isValid(String profilePictureOriginalName, InputStream profilePictureStream) {
+        if (profilePictureStream == null) throw new IllegalArgumentException("profile picture stream cannot be null");
         MediaType mediaType = null;
-        String profilePictureOriginalName = profilePicture.getOriginalFilename();
+
         String fileExtension = getExtension(profilePictureOriginalName);
         logger.info("starting profile picture validation for profile picture: {}",profilePictureOriginalName);
-        if (profilePicture.isEmpty()) {
+
+
+
+       /* if (profilePicture.isEmpty()) {
             logger.info("profile picture validation failed: profile picture is empty");
             return false;
-        }
+        }*/
+
         if (!isProfilePictureExtensionValid(fileExtension)){
             logger.info("profile picture validation failed: profile picture extension is not valid, extension = {}",fileExtension);
             return false;
         }
-        try (InputStream profile = profilePicture.getInputStream()){
-            mediaType = fileTypeValidator.getRealFileType(profile);
-            logger.debug("mediatype:{} ", mediaType);
-        } catch (IOException e) {
-            logger.error("IOException when trying to get input stream from profile picture: {}",profilePictureOriginalName);
-            throw new FileReadingException("IOException, failed to obtain input stream from profile picture file: "+profilePictureOriginalName,e);
-        }
+
+        mediaType = fileTypeValidator.getRealFileType(new BufferedInputStream(profilePictureStream));
+        logger.debug("mediatype:{} ", mediaType);
+
         boolean isValid = mediaType.getSubtype().equals(fileExtension); //check if file extension matches with the mediaType returned from the file validator
         if (isValid) logger.info("successful profile picture validation for profile picture: {}",profilePictureOriginalName);
         return isValid;

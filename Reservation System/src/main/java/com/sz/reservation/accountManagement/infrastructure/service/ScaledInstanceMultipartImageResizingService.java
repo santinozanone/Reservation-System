@@ -29,21 +29,21 @@ public class ScaledInstanceMultipartImageResizingService implements MultipartIma
     }
 
     @Override
-    public Image resizeImage(MultipartFile imageToResize) {
-        String originalImageName = imageToResize.getOriginalFilename();
-        if (imageToResize == null) throw new RuntimeException("IOException, failed to read profile picture input stream " + originalImageName);
-        logger.info("resizing image {} , to {} X {}",originalImageName,WIDTH,HEIGHT);
+    public Image resizeImage(String profilePictureOriginalName,InputStream profilePictureToResize) {
+        if (profilePictureToResize == null) throw new RuntimeException("IOException, failed to read profile picture input stream " + profilePictureOriginalName);
+        logger.info("resizing image {} , to {} X {}",profilePictureOriginalName,WIDTH,HEIGHT);
+
         BufferedImage bufferedProfilePicture = null;
-        try (InputStream stream = imageToResize.getInputStream()){
+        try (InputStream stream = profilePictureToResize){
             bufferedProfilePicture = ImageIO.read(stream);
         } catch (IOException e) {
-            logger.error("failed to read profile picture input stream {}",originalImageName);
-            throw new FileReadingException("IOException, failed to read profile picture input stream " + originalImageName, e);
+            logger.error("failed to read profile picture input stream {}",profilePictureOriginalName);
+            throw new FileReadingException("IOException, failed to read profile picture input stream " + profilePictureOriginalName, e);
         }
         if (bufferedProfilePicture == null){
-            throw new FileReadingException("Failed to read profile picture with name, " + imageToResize.getOriginalFilename() +" No ImageReaders found for type "+imageToResize.getContentType());
+            throw new FileReadingException("Failed to read profile picture with name, " + profilePictureOriginalName);
         }
-        logger.info("successful resizing for image {}",originalImageName);
+        logger.info("successful resizing for image {}",profilePictureOriginalName);
         Image resized = bufferedProfilePicture.getScaledInstance(WIDTH, HEIGHT, Image.SCALE_DEFAULT);
         bufferedProfilePicture.flush();
         return resized;

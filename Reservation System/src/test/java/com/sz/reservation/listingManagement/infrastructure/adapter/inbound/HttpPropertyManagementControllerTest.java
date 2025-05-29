@@ -93,7 +93,6 @@ class HttpPropertyManagementControllerTest {
                         .contentType("multipart/form-data; boundary=" + boundary)
                 )
                 .andExpect(status().isOk()).andReturn();
-        System.out.println(r.getResponse().getContentAsString());
     }
 
     @Test
@@ -183,7 +182,7 @@ class HttpPropertyManagementControllerTest {
 
 
     @Test
-    public void Should_Return_NoFilesDetected_InRequestBody_When_FileParameter_IsFormField() throws Exception {
+    public void Should_Return_NoFilesDetectedInRequestBody_When_FileParameter_IsFormField() throws Exception {
         //arrange
         MockMultipartHttpServletRequest mockRequest = new MockMultipartHttpServletRequest();
         String boundary = "q1w2e3r4t5y6u7i8o9";

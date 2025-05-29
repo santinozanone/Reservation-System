@@ -1,6 +1,7 @@
 package com.sz.reservation.listingManagement.infrastructure.adapter.inbound;
 
 import com.github.f4b6a3.uuid.util.UuidValidator;
+import com.sz.reservation.globalConfiguration.exception.InvalidRequestTypeException;
 import com.sz.reservation.globalConfiguration.security.userDetails.CustomUserDetails;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 import com.sz.reservation.listingManagement.application.exception.*;
@@ -30,9 +31,9 @@ import java.util.List;
 @Controller
 @RequestMapping("/listing")
 public class HttpPropertyManagementController {
-    private final int UUID_VERSION = 7;
-    private final String LISTING_ID = "listingId";
-    private final String FILE_FIELD_NAME = "file";
+    private static final int UUID_VERSION = 7;
+    private static final String LISTING_ID = "listingId";
+    private static final String FILE_FIELD_NAME = "file";
     private Logger logger = LogManager.getLogger(HttpPropertyManagementController.class);
     private ListingPropertyUseCase listingPropertyUseCase;
 
@@ -43,9 +44,7 @@ public class HttpPropertyManagementController {
 
     @PostMapping("/images-upload")
     public ResponseEntity uploadListingImages(HttpServletRequest request) throws IOException {
-       String listingId = "";
-       ListingImageUploadResponseStatus listingImageUploadResponseStatus;
-       List<ListingImageUploadResult> listingImageUploadResults = new ArrayList<>();
+        List<ListingImageUploadResult> listingImageUploadResults = new ArrayList<>();
         boolean oneFileSucceeded = false;
         boolean isMultipart = JakartaServletFileUpload.isMultipartContent(request);
         if (!isMultipart) {
@@ -59,8 +58,36 @@ public class HttpPropertyManagementController {
             throw new IncompleteUploadRequestException("Incomplete request");
         }
 
-        //Parse the request
-        // the first item must always be the property id
+        String listingId = validateRequest(fileItemInputIterator);
+
+        while (fileItemInputIterator.hasNext()) {
+            FileItemInput item = fileItemInputIterator.next();
+            if (!isFileItemInputValid(item, listingImageUploadResults)) continue;
+
+            String fileName = FilenameUtils.getName(item.getName());
+            ListingImageState state = processInputStream(fileName, listingId, item);
+            if (state == ListingImageState.CORRECT) {
+                oneFileSucceeded = true;
+                listingImageUploadResults.add(new ListingImageUploadResult(fileName, ListingImageState.CORRECT));
+            } else {
+                listingImageUploadResults.add(new ListingImageUploadResult(fileName, ListingImageState.DISCARDED));
+            }
+        }
+        return generateResponse(listingId, listingImageUploadResults, oneFileSucceeded);
+    }
+
+
+    @PostMapping
+    public ResponseEntity<String> listPropertyForReservation(@Valid @RequestBody ListingRequestDto listingRequestDto) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String hostId = userDetails.getId();
+        String listingId = listingPropertyUseCase.listProperty(hostId, listingRequestDto);
+        return new ResponseEntity<String>("Property listed correctly, listingId: " + listingId, HttpStatus.OK);
+    }
+
+
+    private String validateRequest(FileItemInputIterator fileItemInputIterator) throws IOException {
+        String listingId;
         FileItemInput formItem = fileItemInputIterator.next();
         if (!formItem.isFormField()) throw new IncompleteUploadRequestException();
         String name = formItem.getFieldName();
@@ -77,44 +104,49 @@ public class HttpPropertyManagementController {
         if (!fileItemInputIterator.hasNext()) {
             throw new IncompleteUploadRequestException("Incomplete request");
         }
+        return listingId;
+    }
 
-        while (fileItemInputIterator.hasNext()) {
-            FileItemInput item = fileItemInputIterator.next();
-            if (!item.getFieldName().equals(FILE_FIELD_NAME)){
-                continue;
-            }
-
-            String fileName = item.getName();
-            if (fileName == null || fileName.isEmpty()) {
-                continue;
-            }
-            fileName = FilenameUtils.getName(fileName);
-
-            if (item.isFormField()) {
-                listingImageUploadResults.add(new ListingImageUploadResult(fileName,ListingImageState.DISCARDED));
-                continue;
-            }
-            // will only process files that have a field name equals to the field name specified
-            // item is a file
-            CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            String hostId = userDetails.getId();
-            try (BufferedInputStream inputStream = new BufferedInputStream(item.getInputStream())) {
-                ListingImageState state = listingPropertyUseCase.uploadListingImages(hostId, listingId, fileName, inputStream);
-                if (state == ListingImageState.CORRECT) oneFileSucceeded = true;
-                listingImageUploadResults.add(new ListingImageUploadResult(fileName,ListingImageState.CORRECT));
-            }
+    private boolean isFileItemInputValid(FileItemInput item, List<ListingImageUploadResult> listingImageUploadResults) throws IOException {
+        if (!item.getFieldName().equals(FILE_FIELD_NAME)) {
+            return false;
         }
 
+        String fileName = item.getName();
+        if (fileName == null || fileName.isEmpty()) {
+            return false;
+        }
+        fileName = FilenameUtils.getName(fileName);
+
+        if (item.isFormField()) {
+            listingImageUploadResults.add(new ListingImageUploadResult(fileName, ListingImageState.DISCARDED));
+            return false;
+        }
+        return true;
+    }
+
+    private ListingImageState processInputStream(String fileName, String listingId, FileItemInput item) throws IOException {
+        ListingImageState state;
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String hostId = userDetails.getId();
+        try (BufferedInputStream inputStream = new BufferedInputStream(item.getInputStream())) {
+            state = listingPropertyUseCase.uploadListingImages(hostId, listingId, fileName, inputStream);
+        }
+        return state;
+    }
+
+
+    private ResponseEntity generateResponse(String listingId, List<ListingImageUploadResult> listingImageUploadResults, boolean oneFileSucceeded) {
         HttpStatus httpStatus;
-        if (listingImageUploadResults.isEmpty()){
+        ListingImageUploadResponseStatus listingImageUploadResponseStatus;
+
+        if (listingImageUploadResults.isEmpty()) {
             listingImageUploadResponseStatus = ListingImageUploadResponseStatus.NO_FILES_DETECTED;
             httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        else if (!oneFileSucceeded){
+        } else if (!oneFileSucceeded) {
             listingImageUploadResponseStatus = ListingImageUploadResponseStatus.ALL_DISCARDED;
             httpStatus = HttpStatus.BAD_REQUEST;
-        }
-        else {
+        } else {
             listingImageUploadResponseStatus = ListingImageUploadResponseStatus.CORRECT;
             httpStatus = HttpStatus.OK;
         }
@@ -123,13 +155,8 @@ public class HttpPropertyManagementController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<String> listPropertyForReservation(@Valid @RequestBody ListingRequestDto listingRequestDto) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String hostId = userDetails.getId();
-        String listingId = listingPropertyUseCase.listProperty(hostId, listingRequestDto);
-        return new ResponseEntity<String>("Property listed correctly, listingId: " + listingId, HttpStatus.OK);
-    }
+
+
 
 
     private boolean isListingIdValid(String listingId) {

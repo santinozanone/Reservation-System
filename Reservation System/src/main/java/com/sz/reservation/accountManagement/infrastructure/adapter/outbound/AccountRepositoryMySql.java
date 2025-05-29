@@ -51,7 +51,8 @@ public class AccountRepositoryMySql implements AccountRepository {
     public Optional<Account> findAccountByEmail(String email) {
         if (email == null)throw new IllegalArgumentException("email cannot be null");
         logger.debug(QUERY_MARKER, "finding account with email: {} ", email);
-        String accountQuery = "select BIN_TO_UUID(ac.id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ac.birth_date,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
+        String accountQuery = "select BIN_TO_UUID(ac.id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId," +
+                "ac.birth_date,ph.country_code,ph.number,ac.password,ac.verified,ac.enabled from account " +
                 "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.email = ?";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
@@ -70,7 +71,6 @@ public class AccountRepositoryMySql implements AccountRepository {
                                         resultSet.getString("country_code"),
                                         resultSet.getString("number")),
                                 resultSet.getDate("birth_date").toLocalDate(),
-                                new ProfilePicture(resultSet.getString("profile_picture_path")),
                                 resultSet.getString("password"),
                                 resultSet.getBoolean("verified"),
                                 resultSet.getBoolean("enabled"));
@@ -84,11 +84,11 @@ public class AccountRepositoryMySql implements AccountRepository {
     public void updateAccount(Account account) {
         if (account == null)throw new IllegalArgumentException("account cannot be null");
         PhoneNumber phoneNumber =  account.getPhoneNumber();
-        String accountSql = "update account set username = ?, name = ?, surname = ?, profile_picture_path = ?, password = ?,verified = ?,enabled = ? where id_user = UUID_TO_BIN(?)";
+        String accountSql = "update account set username = ?, name = ?, surname = ?, password = ?,verified = ?,enabled = ? where id_user = UUID_TO_BIN(?)";
         String phoneNumberSql = "update phone_number set country_code = ?, number = ? where id_phone_number = UUID_TO_BIN(?)";
         try {
             logger.debug("executing update on account with id:{}", account.getId());
-            jdbcTemplate.update(accountSql,  account.getUniqueUsername(),account.getName(),account.getSurname(),account.getProfilePicture().getImagePath(),
+            jdbcTemplate.update(accountSql,  account.getUniqueUsername(),account.getName(),account.getSurname(),
                     account.getPassword(),account.isVerified(),account.isEnabled(),account.getId());
 
             logger.debug("executing update on phoneNumber with id:{}", phoneNumber.getId());
@@ -113,7 +113,7 @@ public class AccountRepositoryMySql implements AccountRepository {
         String currentDate = dateTimeFormatter.format(localDateTime);
 
         String phoneNumberSql = "INSERT INTO phone_number(id_phone_number,country_code,number) VALUES (UUID_TO_BIN(?),?,?)";
-        String accountSql = "INSERT INTO account (id_user, username, name, surname, email, birth_date, password, profile_picture_path, phone_number_id,created_at,verified,enabled) " +
+        String accountSql = "INSERT INTO account (id_user, username, name, surname, email, birth_date, password, phone_number_id,created_at,verified,enabled) " +
                 "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, UUID_TO_BIN(?), ?,?,?)";
 
         //Inserting phone number
@@ -126,18 +126,17 @@ public class AccountRepositoryMySql implements AccountRepository {
         //Inserting account
         boolean verified = false;
         boolean enabled = false;
-        String profilePicturePath = account.getProfilePicture().getImagePath();
         logger.debug("executing account data insertion: {}", accountSql);
         try {
             jdbcTemplate.update(accountSql, account.getId(), account.getUniqueUsername(), account.getName(),
                     account.getSurname(), account.getUniqueEmail(), formattedBirthDate, account.getPassword(),
-                    profilePicturePath, phoneId, currentDate,verified ,enabled);
+                    phoneId, currentDate,verified ,enabled);
         } catch (DuplicateKeyException exception) {
             logger.info("error trying to insert user with uuid:{}, username:{}, email:{}, duplicate key exception",
                     account.getId(), account.getUniqueUsername(), account.getUniqueEmail());
             handleSqlIntegrityException(account.getUniqueEmail(), account.getUniqueUsername(), exception);
         }
-        logger.info("Successfully inserted user with uuid:{}, username:{}, email:{}", account.getId(), account.getUniqueUsername(), account.getUniqueEmail());
+        logger.info("Successfully inserted user with uuid:{}, username:{}, email:{}", account.getId(),account.getUniqueUsername(),account.getUniqueEmail());
 
     }
 
@@ -145,7 +144,9 @@ public class AccountRepositoryMySql implements AccountRepository {
     public Optional<Account> findAccountByUserId(String userId) {
         if (userId == null)throw new IllegalArgumentException("userId cannot be null");
         logger.debug(QUERY_MARKER, "finding account with userId: {} ", userId);
-        String accountQuery = "select BIN_TO_UUID(id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId,ac.birth_date,ph.country_code,ph.number,ac.profile_picture_path,ac.password,ac.verified,ac.enabled from account " +
+        String accountQuery = "select BIN_TO_UUID(id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId," +
+                "ac.birth_date,ph.country_code,ph.number," +
+                ",ac.password,ac.verified,ac.enabled from account " +
                 "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.id_user = UUID_TO_BIN(?)";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
 
@@ -164,7 +165,6 @@ public class AccountRepositoryMySql implements AccountRepository {
                                         resultSet.getString("country_code"),
                                         resultSet.getString("number")),
                                 resultSet.getDate("birth_date").toLocalDate(),
-                                new ProfilePicture(resultSet.getString("profile_picture_path")),
                                 resultSet.getString("password"),
                                 resultSet.getBoolean("verified"),
                                 resultSet.getBoolean("enabled"));
@@ -173,6 +173,11 @@ public class AccountRepositoryMySql implements AccountRepository {
         return Optional.ofNullable(account);
     }
 
+
+    public void createProfilePicture(ProfilePicture profilePicture){
+        String sql = "INSERT into profile_picture (id_pfp,filepath,account_id) VALUES (UUID_TO_BIN(?),?,UUID_TO_BIN(?))";
+        jdbcTemplate.update(sql,profilePicture.getPictureId(),profilePicture.getImagePath(),profilePicture.getAccountId());
+    }
 
     private void handleSqlIntegrityException(String email, String username, DuplicateKeyException exception) {
         String errorMessage = exception.getRootCause().getMessage();
