@@ -44,16 +44,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class HttpRegistrationControllerTestIT {
 
     @Autowired
-    Environment environment;
-
-    @Autowired
     AccountRepository repository;
     @Autowired
     WebApplicationContext wac;
 
     WebTestClient client ;
 
-    private String REGISTRATION_PATH = "/account/registration";
+    private final static String REGISTRATION_PATH = "/account/registration";
 
     private String email;
     private String userId;
@@ -90,12 +87,6 @@ class HttpRegistrationControllerTestIT {
         client  = MockMvcWebTestClient.bindToApplicationContext(wac).build();;
     }
 
-    private void assertProfilePicStoredAndCleanup(Path profilePicturePath) throws IOException {
-        //assert pfp exists
-        assertTrue(Files.exists(profilePicturePath));
-        //delete pfp stored in the file system
-        Files.delete(profilePicturePath);
-    }
 
     @Test
     @Transactional
@@ -115,9 +106,6 @@ class HttpRegistrationControllerTestIT {
         Optional<Account> account = repository.findAccountByEmail(email);
         assertTrue(account.isPresent());
 
-        // asserting photo is stored in file system
-    //    Path pfpPath = Path.of(account.get().getProfilePicture().getImagePath());
-    //    assertProfilePicStoredAndCleanup(pfpPath);
 
     }
 
@@ -149,10 +137,6 @@ class HttpRegistrationControllerTestIT {
         // asserting first account is created
         Optional<Account> account = repository.findAccountByEmail(unchangedEmail);
         assertTrue(account.isPresent());
-
-        // asserting photo is stored in file system
-      //  Path pfpPath = Path.of(account.get().getProfilePicture().getImagePath());
-      //  assertProfilePicStoredAndCleanup(pfpPath);
     }
 
     @Test
@@ -179,10 +163,6 @@ class HttpRegistrationControllerTestIT {
         // asserting account is created
         Optional<Account> account = repository.findAccountByEmail(email);
         assertTrue(account.isPresent());
-
-        // asserting photo is stored in file system
-      //  Path pfpPath = Path.of(account.get().getProfilePicture().getImagePath());
-       // assertProfilePicStoredAndCleanup(pfpPath);
     }
 
     @Test
@@ -190,6 +170,13 @@ class HttpRegistrationControllerTestIT {
         //arrange act and assert
         client.post().uri(REGISTRATION_PATH).exchange().expectStatus().isBadRequest();
     }
+
+
+
+
+
+
+
 
 
 

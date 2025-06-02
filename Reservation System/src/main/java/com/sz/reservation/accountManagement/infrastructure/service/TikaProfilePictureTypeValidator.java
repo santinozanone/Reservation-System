@@ -1,16 +1,15 @@
 package com.sz.reservation.accountManagement.infrastructure.service;
 
 import com.google.common.io.Files;
+import com.sz.reservation.accountManagement.domain.service.ProfilePictureValidationResult;
 import com.sz.reservation.accountManagement.domain.service.ProfilePictureTypeValidator;
-import com.sz.reservation.globalConfiguration.exception.FileReadingException;
+import com.sz.reservation.globalConfiguration.exception.FileWritingException;
 import com.sz.reservation.util.FileTypeValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -22,35 +21,63 @@ public class TikaProfilePictureTypeValidator implements ProfilePictureTypeValida
     private final String TYPE_JPEG = "jpeg";
     private final String TYPE_PNG = "png";
     private final String TYPE_JPG = "jpg";
+    private final int MAX_PHOTO_SIZE = 15728641;
+
     public TikaProfilePictureTypeValidator(FileTypeValidator fileTypeValidator) {
         this.fileTypeValidator = fileTypeValidator;
     }
 
-    public boolean isValid(String profilePictureOriginalName, InputStream profilePictureStream) {
-        if (profilePictureStream == null) throw new IllegalArgumentException("profile picture stream cannot be null");
+    public ProfilePictureValidationResult getValidationResult(String profilePictureOriginalName, InputStream profilePictureStream) {
+        if (profilePictureStream == null) throw new IllegalArgumentException("Profile picture stream cannot be null");
         MediaType mediaType = null;
 
         String fileExtension = getExtension(profilePictureOriginalName);
-        logger.info("starting profile picture validation for profile picture: {}",profilePictureOriginalName);
+        logger.info("Starting profile picture validation for profile picture: {}",profilePictureOriginalName);
 
 
-
-       /* if (profilePicture.isEmpty()) {
-            logger.info("profile picture validation failed: profile picture is empty");
-            return false;
-        }*/
-
-        if (!isProfilePictureExtensionValid(fileExtension)){
-            logger.info("profile picture validation failed: profile picture extension is not valid, extension = {}",fileExtension);
-            return false;
+        if (!isSizeValid(profilePictureStream)){
+            logger.info("Profile validation FAILED: Size limit exceeded or empty picture");
+            return new ProfilePictureValidationResult(false,"Profile validation FAILED: Size limit exceeded or empty picture");
         }
 
-        mediaType = fileTypeValidator.getRealFileType(new BufferedInputStream(profilePictureStream));
+        if (!isProfilePictureExtensionValid(fileExtension)){
+            logger.info("Profile validation FAILED: profile picture extension is not valid, extension = {}",fileExtension);
+            return new ProfilePictureValidationResult(false,"Profile validation FAILED: file extension is not valid");
+        }
+
+        mediaType = fileTypeValidator.getRealFileType(profilePictureStream);
         logger.debug("mediatype:{} ", mediaType);
 
         boolean isValid = mediaType.getSubtype().equals(fileExtension); //check if file extension matches with the mediaType returned from the file validator
-        if (isValid) logger.info("successful profile picture validation for profile picture: {}",profilePictureOriginalName);
-        return isValid;
+        if (isValid){
+            logger.info("Successful profile picture validation for profile picture: {}",profilePictureOriginalName);
+            return new ProfilePictureValidationResult(true,"Profile validation Succeeded");
+        }
+        return new ProfilePictureValidationResult(false,"Profile validation FAILED: media type not supported");
+
+    }
+
+    private boolean isSizeValid(InputStream profilePictureStream){
+        byte [] data = new byte[16 * 1024]; //16 Kilobyte]
+        int fileSize = 0;
+        if (!profilePictureStream.markSupported()) {
+            throw new IllegalArgumentException("The stream does not support the mark method");
+        }
+        profilePictureStream.mark(MAX_PHOTO_SIZE+1);
+        try {
+            int bytesRead = profilePictureStream.read(data);
+            while (bytesRead != -1){
+                fileSize += bytesRead;
+                if (fileSize > MAX_PHOTO_SIZE){
+                    return false;
+                }
+                bytesRead = profilePictureStream.read(data);
+            }
+            profilePictureStream.reset();
+        }catch (IOException ioException){
+            throw new FileWritingException("IOException when reading Profile Picture",ioException);
+        }
+        return fileSize > 0;
     }
 
     private boolean isProfilePictureExtensionValid(String fileExtension) {

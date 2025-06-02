@@ -1,11 +1,10 @@
 package com.sz.reservation.accountManagement.application.service;
 
+import com.sz.reservation.accountManagement.domain.service.ProfilePictureValidationResult;
 import com.sz.reservation.globalConfiguration.exception.MediaNotSupportedException;
 import com.sz.reservation.accountManagement.domain.port.outbound.ProfilePictureStorage;
 import com.sz.reservation.accountManagement.domain.service.MultipartImageResizingService;
 import com.sz.reservation.accountManagement.domain.service.ProfilePictureTypeValidator;
-import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRequest;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
 import java.io.InputStream;
@@ -25,8 +24,9 @@ public class ProfilePictureService {
     }
 
     public void validate(String profilePictureOriginalName,InputStream profilePictureStream){
-        if (!profilePictureTypeValidator.isValid(profilePictureOriginalName,profilePictureStream)) {
-            throw new MediaNotSupportedException("FAILED profile picture validation for email , profile picture extension/content is not valid");
+        ProfilePictureValidationResult validationResult = profilePictureTypeValidator.getValidationResult(profilePictureOriginalName,profilePictureStream);
+        if (!validationResult.isSuccessful()) {
+            throw new MediaNotSupportedException(validationResult.getMessage());
         }
     }
 

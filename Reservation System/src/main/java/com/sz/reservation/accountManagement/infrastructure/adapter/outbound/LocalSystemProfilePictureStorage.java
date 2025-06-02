@@ -75,6 +75,7 @@ public class LocalSystemProfilePictureStorage implements ProfilePictureStorage {
         File outputImage = new File(fullPath);
         int index = fullPath.lastIndexOf("."); // get index of file extension
         String fileExtension = fullPath.substring(index + 1); // get file extension
+
         try {
             ImageIO.write(bufferedImage, fileExtension, outputImage);
             bufferedImage.flush();

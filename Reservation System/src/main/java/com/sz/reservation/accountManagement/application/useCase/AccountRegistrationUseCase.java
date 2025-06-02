@@ -18,6 +18,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.awt.*;
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -51,30 +52,44 @@ public class AccountRegistrationUseCase {
         //Account creation
         Account account = accountCreationService.create(accountCreationRequest);
 
-        AccountVerificationToken accountVerificationToken = createAccountVerificationToken(account.getUniqueEmail(),account.getId());
+        AccountVerificationToken accountVerificationToken = createAccountVerificationToken(account.getUniqueEmail(), account.getId());
 
         //Outbound adapters
         logger.info("registering user in database for email: {}", account.getUniqueEmail());
-        registerNotEnabledUserInDb(account,accountVerificationToken); // once image is saved correctly, store in db
+        registerNotEnabledUserInDb(account, accountVerificationToken); // once image is saved correctly, store in db
 
         logger.info("sending verification email to: {}", account.getUniqueEmail());
         emailSender.sendEmailTo(account.getUniqueEmail(), account.getUniqueUsername(), accountVerificationToken.getToken()); // then send email
     }
 
-    public void uploadProfilePicture(String accountId,String profilePictureOriginalName,InputStream profilePictureStream){
-        profilePictureService.validate(profilePictureOriginalName,profilePictureStream);
+    public void uploadProfilePicture(String accountId, String profilePictureOriginalName, InputStream profilePictureStream) {
+        int bufferSize = 32 * 1024; //32 Kilobyte
+        logger.info("starting pfp upload for accoundID: {} ", accountId);
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(profilePictureStream, bufferSize);
 
-        Image resizedImage = profilePictureService.resize(profilePictureOriginalName,profilePictureStream);
+        profilePictureService.validate(profilePictureOriginalName, bufferedInputStream);
+
+        Image resizedImage = profilePictureService.resize(profilePictureOriginalName, bufferedInputStream);
+
         // pfp storage
-        String profilePictureStoringPath = profilePictureService.store(profilePictureOriginalName,resizedImage);
+        //store in disk
+        String profilePictureStoringPath = profilePictureService.store(profilePictureOriginalName, resizedImage);
 
         //store in db
         String profilePictureId = UuidCreator.getTimeOrderedEpoch().toString();
-        ProfilePicture profilePicture = new ProfilePicture(profilePictureId,accountId,profilePictureStoringPath);
+        ProfilePicture profilePicture = new ProfilePicture(profilePictureId, accountId, profilePictureStoringPath);
 
+        createProfilePictureMetadata(accountId, profilePicture, profilePictureStoringPath);
+        logger.info("Successfully uploaded pfp for accoundID: {} ", accountId);
+
+    }
+
+    @Transactional
+    private void createProfilePictureMetadata(String accountId, ProfilePicture profilePicture, String profilePictureStoringPath) {
         try {
-            accountRepository.createProfilePicture(profilePicture);
-        }catch (DataAccessException e){
+            accountRepository.createProfilePictureMetadata(profilePicture);
+        } catch (DataAccessException e) {
+            logger.info("FAILED pfp upload for accoundID: {}  ", accountId);
             profilePictureService.delete(profilePictureStoringPath);
         }
     }
@@ -96,14 +111,14 @@ public class AccountRegistrationUseCase {
         }
     }
 
-    private AccountVerificationToken createAccountVerificationToken(String email, String id){
-        logger.debug("creating account verification token user with for email: {}",email);
+    private AccountVerificationToken createAccountVerificationToken(String email, String id) {
+        logger.debug("creating account verification token user with for email: {}", email);
         String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
         //Token date expiration
         LocalDate expirationDate = LocalDate.now().plusDays(7);
         //Object creation
         logger.debug("creating account verification token with, token:{} , expirationDate:{} , for user with email: {}",
-                verificationToken,expirationDate,email);
-        return new AccountVerificationToken(id,verificationToken,expirationDate);
+                verificationToken, expirationDate, email);
+        return new AccountVerificationToken(id, verificationToken, expirationDate);
     }
 }

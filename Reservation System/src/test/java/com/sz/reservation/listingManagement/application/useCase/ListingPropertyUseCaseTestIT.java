@@ -3,7 +3,6 @@ package com.sz.reservation.listingManagement.application.useCase;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
@@ -98,7 +97,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_CreateListingInRepository_Correctly(){
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -118,7 +117,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_UploadImage_correctly() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -144,7 +143,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_ThrowInvalidListingIdException_When_ListingId_DoesntExists() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -168,7 +167,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_ThrowInvalidListingIdException_When_ListingId_DoesntBelongToHost() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -178,7 +177,7 @@ class ListingPropertyUseCaseTestIT {
        listingPropertyUseCase.listProperty(hostId,listingRequestDto);
 
         //create other listing to simulate other person listing
-        String otherListing = listingPropertyUseCase.listProperty(createNotEnabledNotVerifiedUser(),listingRequestDto);
+        String otherListing = listingPropertyUseCase.listProperty(createNotEnabledNotVerifiedAccount(),listingRequestDto);
 
          File file = new File("src/test/resources/bird.jpg");
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(file))){
@@ -194,7 +193,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_ThrowInvalidListingIdException_When_ListingId_Disabled() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -219,7 +218,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_ReturnDiscardedImageState_When_ImageHasInvalidExtension() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -242,7 +241,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_ReturnDiscardedImageState_When_ImageHas_DifferentExtensionThanReal() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -264,7 +263,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_ReturnDiscardedImageState_When_ImageHas_BiggerSizeThanMax() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -287,7 +286,7 @@ class ListingPropertyUseCaseTestIT {
     @Transactional
     public void Should_StoreValidImage_When_Valid_And_InvalidImage_Supplied() throws IOException {
         //arrange
-        String hostId = createNotEnabledNotVerifiedUser();
+        String hostId = createNotEnabledNotVerifiedAccount();
         ListingRequestDto listingRequestDto = new ListingRequestDto(listingTitle,
                 listingDescription, addressInfoRequestDto,
                 numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
@@ -318,7 +317,7 @@ class ListingPropertyUseCaseTestIT {
     }
 
 
-    private String createNotEnabledNotVerifiedUser(){
+    private String createNotEnabledNotVerifiedAccount(){
         //arrange
         String userId = UuidCreator.getTimeOrderedEpoch().toString();
         double random = Math.random();

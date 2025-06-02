@@ -9,7 +9,7 @@ public interface AccountRepository {
 
 	void updateAccount(Account account);
 	void createAccount(Account account);
-	void createProfilePicture(ProfilePicture profilePicture);
+	void createProfilePictureMetadata(ProfilePicture profilePicture);
 	Optional<Account> findAccountByUserId(String userId);
 	Optional<Account> findAccountByEmail(String email);
 

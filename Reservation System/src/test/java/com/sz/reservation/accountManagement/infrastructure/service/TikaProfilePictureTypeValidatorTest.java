@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +16,7 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Testing StandardProfilePictureValidator")
+@DisplayName("Testing TikaProfilePictureValidator")
 class TikaProfilePictureTypeValidatorTest {
     private static TikaProfilePictureTypeValidator validator;
 
@@ -29,10 +30,10 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ReturnTrue_When_ValidPngMultipart() throws IOException {
         //arrange
         String path = "src/test/resources/logo.png";
-        InputStream inputStream = new FileInputStream(path);
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(path));
 
         //act
-        boolean isValid = validator.isValid("logo.png",inputStream);
+        boolean isValid = validator.getValidationResult("logo.png",inputStream).isSuccessful();
 
         //assert
         assertTrue(isValid);
@@ -42,10 +43,10 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ReturnTrue_When_ValidJpgMultipart() throws IOException {
         //arrange
         String path = "src/test/resources/bird.jpg";
-        InputStream inputStream = new FileInputStream(path);
+        InputStream inputStream = new BufferedInputStream(new FileInputStream(path));
 
         //act
-        boolean isValid = validator.isValid("bird.jpg",inputStream);
+        boolean isValid = validator.getValidationResult("bird.jpg",inputStream).isSuccessful();
 
         //assert
         assertTrue(isValid);
@@ -57,7 +58,7 @@ class TikaProfilePictureTypeValidatorTest {
         MockMultipartFile multipartFile = new MockMultipartFile("file","bird.jpg", MediaType.IMAGE_JPEG_VALUE ,new byte[]{});
         InputStream inputStream = multipartFile.getInputStream();
         //act
-        boolean isValid = validator.isValid("bird.jpg",inputStream);
+        boolean isValid = validator.getValidationResult("bird.jpg",inputStream).isSuccessful();
 
         //assert
         assertFalse(isValid);
@@ -70,7 +71,7 @@ class TikaProfilePictureTypeValidatorTest {
         InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid("empty.jpg",inputStream);
+        boolean isValid = validator.getValidationResult("empty.jpg",inputStream).isSuccessful();
 
         //assert
         assertFalse(isValid);
@@ -84,7 +85,7 @@ class TikaProfilePictureTypeValidatorTest {
         InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid("logo.png.exe",inputStream);
+        boolean isValid = validator.getValidationResult("logo.png.exe",inputStream).isSuccessful();
 
         //assert
         assertFalse(isValid);
@@ -100,7 +101,7 @@ class TikaProfilePictureTypeValidatorTest {
         InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid("bird.pdf",inputStream);
+        boolean isValid = validator.getValidationResult("bird.pdf",inputStream).isSuccessful();
 
         //assert
         assertFalse(isValid);
@@ -114,7 +115,7 @@ class TikaProfilePictureTypeValidatorTest {
         InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid("bird.jpg",inputStream);
+        boolean isValid = validator.getValidationResult("bird.jpg",inputStream).isSuccessful();
 
         //assert
         assertFalse(isValid);
@@ -129,7 +130,7 @@ class TikaProfilePictureTypeValidatorTest {
         InputStream inputStream = multipartFile.getInputStream();
 
         //act
-        boolean isValid = validator.isValid("bird",inputStream);
+        boolean isValid = validator.getValidationResult("bird",inputStream).isSuccessful();
 
         //assert
         assertFalse(isValid);
@@ -139,7 +140,7 @@ class TikaProfilePictureTypeValidatorTest {
     public void Should_ThrowIllegalArgumentException_When_nullMultipart() throws IOException {
         //arrange act and assert
         assertThrows(IllegalArgumentException.class,() -> {
-            validator.isValid("",null);
+            validator.getValidationResult("",null);
         });
     }
 

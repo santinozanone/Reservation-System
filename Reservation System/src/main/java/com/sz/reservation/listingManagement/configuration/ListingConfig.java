@@ -43,10 +43,7 @@ public class ListingConfig {
         return new ListingPropertyUseCase(listingPropertyRepository,tikaListingImageValidator,imageStorage,listingImageMetadataRepository);
     }
 
-    @Bean
-    public ApplicationListener<CustomEvent> listener(){
-        return new CustomListeenr();
-    }
+
 
     @Bean
     @Profile("test")

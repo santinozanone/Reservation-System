@@ -165,8 +165,8 @@ class MySqlListingPropertyRepositoryTest {
                 phoneNumber,
                 birthDate,
                 "password",
-                false,
-                false);
+                true,
+                true);
 
         //act
         accountRepositoryMySql.createAccount(accountCreationData);

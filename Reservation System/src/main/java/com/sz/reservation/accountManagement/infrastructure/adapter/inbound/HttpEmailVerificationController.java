@@ -55,12 +55,6 @@ public class HttpEmailVerificationController {
     }
 
 
-    @GetMapping("/publish/")
-    public ResponseEntity publish(){
-        publisher.publishEvent(new CustomEvent(this,"miua"));
-        System.out.println("Event published");
-        return new ResponseEntity(HttpStatus.OK);
-    }
 
     private void validateToken(String token){
         if (!UuidValidator.isValid(token,UUID_VERSION)) throw new InvalidTokenException(token);

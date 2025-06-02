@@ -1,12 +1,10 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
@@ -67,7 +65,7 @@ public class HttpEmailVerificationControllerTestIT {
         AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
 
         //act and assert
-        insertUser(userId,email);
+        createNotVerifiedAccount(userId,email);
         verificationTokenRepository.save(accountVerificationToken);
         Assertions.assertTrue(verificationTokenRepository.findByToken(accountVerificationToken.getToken()).isPresent());
 
@@ -95,7 +93,7 @@ public class HttpEmailVerificationControllerTestIT {
         AccountVerificationToken verificationToken = new AccountVerificationToken(userId,tokenToInsert,expirationDate);
 
         //act and assert
-        insertUser(userId,email);
+        createNotVerifiedAccount(userId,email);
         verificationTokenRepository.save(verificationToken);
         Assertions.assertTrue(verificationTokenRepository.findByToken(verificationToken.getToken()).isPresent());
 
@@ -132,7 +130,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act
-        insertUser(userId,email); // save user
+        createNotVerifiedAccount(userId,email); // save user
         verificationTokenRepository.save(expiredVerificationToken); // insert expired token in db
 
         //assert
@@ -158,7 +156,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act and assert
-        insertUser(userId,email); // save user
+        createNotVerifiedAccount(userId,email); // save user
         verificationTokenRepository.save(verificationToken); // insert token in db
         Assertions.assertTrue(verificationTokenRepository.findByToken(token).isPresent()); // assert token exists
 
@@ -190,7 +188,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act and assert
-        insertUser(userId,email); // save user
+        createNotVerifiedAccount(userId,email); // save user
         verificationTokenRepository.save(verificationToken); // insert token in db
 
         client.post().uri(uriBuilder -> uriBuilder // verify token
@@ -215,7 +213,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
         //act and assert
-        insertUser(userId,email); // save user
+        createNotVerifiedAccount(userId,email); // save user
         verificationTokenRepository.save(verificationToken); // insert token in db
 
         client.post().uri(uriBuilder -> uriBuilder // verify token
@@ -228,7 +226,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
     }
-    private void insertUser(String userId,String email){
+    private void createNotVerifiedAccount(String userId, String email){
         //arrange
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");

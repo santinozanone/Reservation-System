@@ -1,14 +1,11 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.exception.EmailAlreadyRegisteredException;
 import com.sz.reservation.accountManagement.domain.exception.UsernameAlreadyRegisteredException;
 import com.sz.reservation.accountManagement.domain.model.Account;
-import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
@@ -73,7 +70,7 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_createAccountCorrectly_When_ValidData(){
         //arrange
-        Account account = createAccount();
+        Account account = createNotVerifiedAccount();
 
         //act
         accountRepositoryMySql.createAccount(account);
@@ -87,7 +84,7 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_ThrowEmailAlreadyRegisteredException_When_EmailAlreadyRegistered(){
         //arrange
-        Account account = createAccount();
+        Account account = createNotVerifiedAccount();
 
         // generate new uuids
         userId = UuidCreator.getTimeOrderedEpoch().toString();
@@ -95,7 +92,7 @@ class AccountRepositoryMySqlTestIT {
         phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
         phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
 
-        Account accountWithDifferentUsername = createAccount();
+        Account accountWithDifferentUsername = createNotVerifiedAccount();
 
         //act
         accountRepositoryMySql.createAccount(account);
@@ -113,7 +110,7 @@ class AccountRepositoryMySqlTestIT {
     @Transactional
     public void Should_ThrowUsernameAlreadyRegisteredException_When_UsernameAlreadyRegistered(){
         //arrange
-        Account account = createAccount();
+        Account account = createNotVerifiedAccount();
         String unchangedEmail = email;
         // generate new uuids
         userId = UuidCreator.getTimeOrderedEpoch().toString();
@@ -121,7 +118,7 @@ class AccountRepositoryMySqlTestIT {
         phoneNumber = new PhoneNumber(phoneNumberId,"+54","1111448898");
         email = "inventedEmail2@miau.com";
 
-        Account accountWithDifferentEmail = createAccount();
+        Account accountWithDifferentEmail = createNotVerifiedAccount();
 
         //act
         accountRepositoryMySql.createAccount(account);
@@ -161,7 +158,7 @@ class AccountRepositoryMySqlTestIT {
     }
 
 
-    private Account createAccount(){
+    private Account createNotVerifiedAccount(){
         return new Account(
                 userId,
                 username,

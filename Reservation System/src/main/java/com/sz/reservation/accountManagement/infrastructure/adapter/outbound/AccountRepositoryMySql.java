@@ -92,7 +92,6 @@ public class AccountRepositoryMySql implements AccountRepository {
                     account.getPassword(),account.isVerified(),account.isEnabled(),account.getId());
 
             logger.debug("executing update on phoneNumber with id:{}", phoneNumber.getId());
-            logger.error("miauu,{}",phoneNumber.getCountryCode());
             jdbcTemplate.update(phoneNumberSql,phoneNumber.getCountryCode(),phoneNumber.getPhoneNumber(),phoneNumber.getId());
         }catch (DuplicateKeyException exception){
             logger.info("error trying to update user with uuid:{}, username:{}, email:{}, duplicate key exception",
@@ -114,7 +113,7 @@ public class AccountRepositoryMySql implements AccountRepository {
 
         String phoneNumberSql = "INSERT INTO phone_number(id_phone_number,country_code,number) VALUES (UUID_TO_BIN(?),?,?)";
         String accountSql = "INSERT INTO account (id_user, username, name, surname, email, birth_date, password, phone_number_id,created_at,verified,enabled) " +
-                "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, ?, UUID_TO_BIN(?), ?,?,?)";
+                             "VALUES (UUID_TO_BIN(?), ?, ?, ?, ?, ?, ?, UUID_TO_BIN(?), ?,?,?)";
 
         //Inserting phone number
         String phoneId = account.getPhoneNumber().getId();
@@ -145,7 +144,7 @@ public class AccountRepositoryMySql implements AccountRepository {
         if (userId == null)throw new IllegalArgumentException("userId cannot be null");
         logger.debug(QUERY_MARKER, "finding account with userId: {} ", userId);
         String accountQuery = "select BIN_TO_UUID(id_user) as idUser,ac.username,ac.name,ac.surname,ac.email,BIN_TO_UUID(ph.id_phone_number) as phoneId," +
-                "ac.birth_date,ph.country_code,ph.number," +
+                "ac.birth_date,ph.country_code,ph.number" +
                 ",ac.password,ac.verified,ac.enabled from account " +
                 "as ac inner join phone_number as ph on ac.phone_number_id = ph.id_phone_number where ac.id_user = UUID_TO_BIN(?)";
         logger.debug(QUERY_MARKER, "executing query: {} ", accountQuery);
@@ -174,7 +173,7 @@ public class AccountRepositoryMySql implements AccountRepository {
     }
 
 
-    public void createProfilePicture(ProfilePicture profilePicture){
+    public void createProfilePictureMetadata(ProfilePicture profilePicture){
         String sql = "INSERT into profile_picture (id_pfp,filepath,account_id) VALUES (UUID_TO_BIN(?),?,UUID_TO_BIN(?))";
         jdbcTemplate.update(sql,profilePicture.getPictureId(),profilePicture.getImagePath(),profilePicture.getAccountId());
     }

@@ -1,12 +1,10 @@
 package com.sz.reservation.accountManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
 import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerificationTokenRepository;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
@@ -62,7 +60,7 @@ class AccountVerificationTokenMySqlTestIT {
         AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
 
         //act
-        insertUser(userId,verificationToken);
+        createNotVerifiedAccount(userId,verificationToken);
         verificationTokenRepository.save(accountVerificationToken);
 
         //assert
@@ -85,7 +83,7 @@ class AccountVerificationTokenMySqlTestIT {
         AccountVerificationToken newAccountVerificationToken = new AccountVerificationToken(userId,newVerificationToken,expirationDate);
 
         //act
-        insertUser(userId,verificationToken);
+        createNotVerifiedAccount(userId,verificationToken);
         verificationTokenRepository.save(oldAccountVerificationToken);
         verificationTokenRepository.update(oldAccountVerificationToken.getToken(),newAccountVerificationToken);
 
@@ -164,7 +162,7 @@ class AccountVerificationTokenMySqlTestIT {
         });
     }
 
-    private void insertUser(String userId,String userVerificationToken){
+    private void createNotVerifiedAccount(String userId, String userVerificationToken){
         //arrange
         String email = "inventedEmail@miau.com";
         String username = "wolfofwallstreet";

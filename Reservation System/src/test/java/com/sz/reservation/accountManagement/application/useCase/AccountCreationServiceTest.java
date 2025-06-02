@@ -1,10 +1,8 @@
 package com.sz.reservation.accountManagement.application.useCase;
 
-import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
 import com.sz.reservation.accountManagement.application.service.AccountCreationService;
 import com.sz.reservation.accountManagement.domain.exception.InvalidPhoneNumberException;
 import com.sz.reservation.accountManagement.domain.model.Account;
-import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.domain.service.PhoneNumberValidator;
 import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRequest;
@@ -50,7 +48,6 @@ class AccountCreationServiceTest {
     private MultipartFile multipartFile;
     private String password;
 
-    private ProfilePicture profile;
     @BeforeEach
     public void initializeVariables(){
         username = "wolfofwallstreet";
@@ -62,9 +59,6 @@ class AccountCreationServiceTest {
         birthDate = LocalDate.now().minusDays(10);
         nationality = "Argentina";
         password ="ultrasafepassword";
-
-        String path = "src/test/resources/bird.jpg";
-        profile = new ProfilePicture(path);
         multipartFile = new MockMultipartFile("fake","fake.png", MediaType.IMAGE_PNG_VALUE,new byte[0]);
     }
 
@@ -92,7 +86,7 @@ class AccountCreationServiceTest {
         if (!violations.isEmpty()) throw new IllegalArgumentException("Illegal arguments supplied "+ violations.toString());
 
         //act
-        Account account = accountCreationService.create(request,profile);
+        Account account = accountCreationService.create(request);
 
         //assert
         Assertions.assertNotNull(account);
@@ -117,7 +111,7 @@ class AccountCreationServiceTest {
 
         //act and assert
         assertThrows(InvalidPhoneNumberException.class,() -> {
-            accountCreationService.create(request, profile);
+            accountCreationService.create(request);
         });
     }
 
@@ -126,29 +120,9 @@ class AccountCreationServiceTest {
     public void ShouldThrowIllegalArgumentException_WhenNullAccountRequest(){
         //act and assert
         assertThrows(IllegalArgumentException.class,() -> {
-            accountCreationService.create(null, profile);
+            accountCreationService.create(null);
         });
     }
 
-    @Test
-    public void ShouldThrowIllegalArgumentException_WhenNullProfile(){
-        //arrange
-        profile = null;
-        AccountCreationRequest request = new AccountCreationRequest(
-                username,
-                name,
-                surname,
-                email,
-                countryCode,
-                phoneNumber,
-                birthDate,
-                nationality,
-                password);
-
-        //act and assert
-        assertThrows(IllegalArgumentException.class,() -> {
-            accountCreationService.create(request, profile);
-        });
-    }
 
 }

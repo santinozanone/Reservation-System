@@ -60,9 +60,9 @@ public class HttpRegistrationController {
 			throw new InvalidRequestException("Incorrect field name");
 		}
 
-		BufferedInputStream inputStream = new BufferedInputStream(item.getInputStream());
-
-		return null;
+		//TODO: PASS THE CORRECT ACCOUNT ID
+		accountRegistrationUseCase.uploadProfilePicture("",item.getName(),item.getInputStream());
+		return new ResponseEntity<>("Profile picture uploaded correctly",HttpStatus.OK);
 	}
 
 }

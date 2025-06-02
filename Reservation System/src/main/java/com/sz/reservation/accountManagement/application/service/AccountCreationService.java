@@ -33,11 +33,10 @@ public class AccountCreationService {
         logger.info("creating account creation data for user with email: {}",registrationEmail);
 
         //Phone number validation
-        validatePhoneNumber(accountCreationRequest.getCountryCode(),accountCreationRequest.getPhoneNumber());
         logger.debug("creating phone number with, countryCode:{}, phoneNumber:{} for user with email: {}",
                 accountCreationRequest.getCountryCode(), accountCreationRequest.getPhoneNumber(),registrationEmail);
         PhoneNumber phoneNumber = createPhoneNumber(accountCreationRequest.getCountryCode(),accountCreationRequest.getPhoneNumber());
-
+        validatePhoneNumber(phoneNumber);
 
         //Account UUID creation
         logger.debug("creating uuid for user with email: {}",registrationEmail);
@@ -58,17 +57,16 @@ public class AccountCreationService {
                 false,false);
     }
 
-    private void validatePhoneNumber(String countryCode, String number) {
-        String formattedCountryCode = INTERNATIONAL_PREFIX.concat(countryCode);
-        if (!phoneNumberValidator.isValid(formattedCountryCode, number)) {
-            throw new InvalidPhoneNumberException(countryCode, number);
+    private void validatePhoneNumber(PhoneNumber phoneNumber) {
+//        String formattedCountryCode = INTERNATIONAL_PREFIX.concat(countryCode);
+        if (!phoneNumberValidator.isValid(phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber())) {
+            throw new InvalidPhoneNumberException(phoneNumber.getCountryCode(), phoneNumber.getPhoneNumber());
         }
     }
 
     private PhoneNumber createPhoneNumber(String countryCode,String phoneNumber){
-        String formattedCountryCode = INTERNATIONAL_PREFIX.concat(countryCode);
         String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        return new PhoneNumber(phoneNumberId,formattedCountryCode, phoneNumber);
+        return new PhoneNumber(phoneNumberId,countryCode, phoneNumber);
 
     }
 

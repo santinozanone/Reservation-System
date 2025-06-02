@@ -35,13 +35,14 @@ public class DiskListingImageStorage implements ListingImageStorage {
             int fileSize = 0;
             byte data[] = new byte[1024 * 64];
             int bytesRead = bufferedInputStream.read(data);
+
             while (bytesRead != -1) {
+                fileSize += bytesRead;
                 if (fileSize > MAX_PHOTO_SIZE) {
                     return new StorageImageProcessingState(generatedPath, ListingImageState.DISCARDED);
                 }
                 outputStream.write(data, 0, bytesRead);
                 bytesRead = bufferedInputStream.read(data);
-                fileSize += bytesRead;
             }
         } catch (IOException e) {
 
