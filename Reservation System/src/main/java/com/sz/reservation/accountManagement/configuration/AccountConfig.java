@@ -15,6 +15,7 @@ import com.sz.reservation.accountManagement.domain.service.ProfilePictureTypeVal
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
@@ -55,7 +56,7 @@ public class AccountConfig {
         };
     }
 
-    @Bean
+    @Bean("account.dataSource")
     @Profile("prod")
     public DataSource hikariCP(){
         HikariConfig config = new HikariConfig();
@@ -70,7 +71,8 @@ public class AccountConfig {
         HikariDataSource ds = new HikariDataSource(config);
         return ds;
     }
-    @Bean
+
+    @Bean("account.dataSource")
     @Profile("test")
     public DataSource testHikariCP(){
         HikariConfig config = new HikariConfig();
@@ -86,13 +88,13 @@ public class AccountConfig {
         return ds;
     }
 
-    @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+    @Bean("account.jdbcTemplate")
+    public JdbcTemplate jdbcTemplate(@Qualifier("account.dataSource") DataSource dataSource){
         return new JdbcTemplate(dataSource);
     }
 
-    @Bean
-    public PlatformTransactionManager transactionManager(DataSource dataSource){
+    @Bean("account.transactionManager")
+    public PlatformTransactionManager transactionManager(@Qualifier("account.dataSource") DataSource dataSource){
         return new DataSourceTransactionManager(dataSource);
     }
 

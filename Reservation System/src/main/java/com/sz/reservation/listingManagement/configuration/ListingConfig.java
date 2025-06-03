@@ -9,6 +9,7 @@ import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -45,7 +46,7 @@ public class ListingConfig {
 
 
 
-    @Bean
+    @Bean("listing.dataSource")
     @Profile("test")
     public DataSource testHikariCP(){
         HikariConfig config = new HikariConfig();
@@ -60,7 +61,8 @@ public class ListingConfig {
         HikariDataSource ds = new HikariDataSource(config);
         return ds;
     }
-    @Bean
+
+    @Bean("listing.dataSource")
     @Profile("prod")
     public DataSource hikariCP(){
         HikariConfig config = new HikariConfig();
@@ -75,13 +77,15 @@ public class ListingConfig {
         HikariDataSource ds = new HikariDataSource(config);
         return ds;
     }
-    @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+
+
+    @Bean("listing.jdbcTemplate")
+    public JdbcTemplate jdbcTemplate(@Qualifier("listing.dataSource") DataSource dataSource){
         return new JdbcTemplate(dataSource);
     }
 
-    @Bean
-    public PlatformTransactionManager transactionManager(DataSource dataSource){
+    @Bean("listing.transactionManager")
+    public PlatformTransactionManager transactionManager(@Qualifier("listing.dataSource") DataSource dataSource){
         return new DataSourceTransactionManager(dataSource);
     }
 

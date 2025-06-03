@@ -1,6 +1,8 @@
 package com.sz.reservation.listingManagement.infrastructure.adapter.inbound;
 
 import com.github.f4b6a3.uuid.util.UuidValidator;
+import com.sz.reservation.accountManagement.domain.event.AccountCreatedEvent;
+import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.globalConfiguration.exception.InvalidRequestTypeException;
 import com.sz.reservation.globalConfiguration.security.userDetails.CustomUserDetails;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;

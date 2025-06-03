@@ -31,7 +31,7 @@ public class ListingPropertyUseCase {
         this.listingImageMetadataRepository = listingImageMetadataRepository;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
     public String listProperty(String hostId,ListingRequestDto listingRequestDto){
         boolean enabledListing = true;
         AddressInfoRequestDto addressInfoRequestDto = listingRequestDto.getAddressInfoDto();
@@ -55,7 +55,7 @@ public class ListingPropertyUseCase {
         return listingID;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
     public ListingImageState uploadListingImages(String hostId,String listingId,String originalImageName ,BufferedInputStream imageBufferedInputStream) throws IOException {
         Optional<ListingProperty> optionalListingProperty = listingPropertyRepository.findById(listingId);
         if (optionalListingProperty.isEmpty()) {

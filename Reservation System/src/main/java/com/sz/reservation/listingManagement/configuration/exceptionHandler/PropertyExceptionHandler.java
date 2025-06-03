@@ -16,14 +16,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class PropertyExceptionHandler {
     private Logger logger = LogManager.getLogger(PropertyExceptionHandler.class);
 
-    @ExceptionHandler(value = InvalidRequestTypeException.class)
-    public ProblemDetail handleInvalidRequestTypeException(InvalidRequestTypeException exception){
-        ProblemDetail problemDetail =  ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        problemDetail.setTitle("Invalid Request");
-        problemDetail.setDetail("The request type is not allowed");
-        return problemDetail;
-    }
-
     @ExceptionHandler(value = InvalidListingIdException.class)
     public ProblemDetail handleInvalidListingIdException(InvalidListingIdException exception){
         ProblemDetail problemDetail =  ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

@@ -36,9 +36,16 @@ import java.util.Map;
 public class GlobalHandler extends ResponseEntityExceptionHandler {
     private Logger logger = LogManager.getLogger(GlobalHandler.class);
 
+    @ExceptionHandler(value = InvalidRequestTypeException.class)
+    public ProblemDetail handleInvalidRequestTypeException(InvalidRequestTypeException exception){
+        ProblemDetail problemDetail =  ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Invalid Request");
+        problemDetail.setDetail("The request type is not allowed");
+        return problemDetail;
+    }
 
     @ExceptionHandler(value = InvalidRequestException.class)
-    public ProblemDetail handleInvalidRequestTypeException(InvalidRequestException exception){
+    public ProblemDetail handleInvalidRequestException(InvalidRequestException exception){
         ProblemDetail problemDetail =  ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Invalid Request");
         problemDetail.setDetail(exception.getMessage());

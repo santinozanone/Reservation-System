@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -29,7 +30,7 @@ public class AccountVerificationTokenRepositoryMySql implements AccountVerificat
     private Logger logger = LogManager.getLogger(AccountVerificationTokenRepositoryMySql.class);
 
     @Autowired
-    public AccountVerificationTokenRepositoryMySql(JdbcTemplate jdbcTemplate) {
+    public AccountVerificationTokenRepositoryMySql(@Qualifier("account.jdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

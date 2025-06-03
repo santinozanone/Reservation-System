@@ -4,6 +4,7 @@ import com.sz.reservation.listingManagement.domain.ListingProperty;
 import com.sz.reservation.listingManagement.domain.*;
 import com.sz.reservation.listingManagement.domain.port.outbound.ListingPropertyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +19,7 @@ public class MySqlListingPropertyRepository implements ListingPropertyRepository
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public MySqlListingPropertyRepository(JdbcTemplate jdbcTemplate) {
+    public MySqlListingPropertyRepository(@Qualifier("listing.jdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

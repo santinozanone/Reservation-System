@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,7 +40,7 @@ public class AccountRepositoryMySql implements AccountRepository {
     private final String EMAIL_FIELD_SQL_ERROR_MESSAGE = "email'";
 
     @Autowired
-    public AccountRepositoryMySql(JdbcTemplate jdbcTemplate) {
+    public AccountRepositoryMySql(@Qualifier("account.jdbcTemplate") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

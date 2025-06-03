@@ -14,6 +14,7 @@ import com.sz.reservation.listingManagement.domain.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -36,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class MySqlListingPropertyRepositoryTest {
 
     @Autowired
+    @Qualifier("listing.jdbcTemplate")
     private JdbcTemplate jdbcTemplate;
 
     private MySqlListingPropertyRepository mySqlListingPropertyRepository;
