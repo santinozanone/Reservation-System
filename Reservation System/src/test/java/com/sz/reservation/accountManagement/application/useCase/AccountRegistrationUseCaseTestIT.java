@@ -5,17 +5,17 @@ import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.accountManagement.infrastructure.dto.AccountCreationRequest;
-import com.sz.reservation.accountManagement.infrastructure.service.ScaledInstanceMultipartImageResizingService;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.globalConfiguration.exception.MediaNotSupportedException;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
@@ -25,11 +25,14 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
+
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
+@WebAppConfiguration
 @ActiveProfiles(value = {"test", "default"})
 @DisplayName("Integration testing Account registration use case")
 @TestPropertySource(properties = "account.localpfpstorage.location=${RS_LOCAL_PFP_STORAGE_LOCATION_TEST}")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class AccountRegistrationUseCaseTestIT {
 
     private static String pictureStoragePath = System.getenv("RS_LOCAL_PFP_STORAGE_LOCATION_TEST");
@@ -55,7 +58,7 @@ class AccountRegistrationUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_UploadProfilePicture_Correctly() throws FileNotFoundException {
         //arrange
         String accountId = createNotVerifiedAccount();
@@ -77,7 +80,7 @@ class AccountRegistrationUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ThrowMediaNotSupportedException_When_FileExceedsLimit() throws FileNotFoundException {
         //arrange
         String accountId = createNotVerifiedAccount();
@@ -94,7 +97,7 @@ class AccountRegistrationUseCaseTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ThrowMediaNotSupportedException_When_FileHasInvalidExtension() throws FileNotFoundException {
         //arrange
         String accountId = createNotVerifiedAccount();
@@ -110,7 +113,7 @@ class AccountRegistrationUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ThrowMediaNotSupportedException_When_FileHasMultipleExtensions() throws IOException {
         //arrange
         String accountId = createNotVerifiedAccount();
@@ -126,7 +129,7 @@ class AccountRegistrationUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ThrowMediaNotSupportedException_When_FileIsEmpty() {
         //arrange
         String accountId = createNotVerifiedAccount();

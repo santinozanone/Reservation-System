@@ -1,53 +1,18 @@
-
-    DELIMITER //
-
-    CREATE PROCEDURE init_db()
-    BEGIN
-    #create phone number table
-    CREATE TABLE IF NOT EXISTS `phone_number` (
-  `id_phone_number` binary(16) NOT NULL,
-  `country_code` varchar(4) NOT NULL,
-  `number` varchar(12) NOT NULL,
-  PRIMARY KEY (`id_phone_number`),
-  UNIQUE KEY `id_phone_number_UNIQUE` (`id_phone_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-    #create account table
-		CREATE TABLE IF NOT EXISTS `account` (
-	  `id_user` binary(16) NOT NULL,
+#create account table
+CREATE TABLE IF NOT EXISTS `account` (
+	  `id_account` binary(16) NOT NULL,
 	  `username` varchar(55) NOT NULL,
 	  `name` varchar(55) NOT NULL,
 	  `surname` varchar(55) NOT NULL,
 	  `email` varchar(255) NOT NULL,
-	  `birth_date` date NOT NULL,
-	  `password` varchar(255) NOT NULL,
-	  `profile_picture_path` varchar(128) NOT NULL,
-	  `phone_number_id` binary(16) NOT NULL,
-	  `created_at` datetime NOT NULL,
-	  `verified` tinyint NOT NULL,
 	  `enabled` tinyint(1) NOT NULL,
-	  PRIMARY KEY (`id_user`),
+	  PRIMARY KEY (`id_account`),
 	  UNIQUE KEY `username` (`username`),
 	  UNIQUE KEY `email` (`email`),
-	  UNIQUE KEY `id_user_UNIQUE` (`id_user`),
-	  KEY `fk_account_phoneNumber_idx` (`phone_number_id`),
-	  CONSTRAINT `fk_account_phoneNumber` FOREIGN KEY (`phone_number_id`) REFERENCES `phone_number` (`id_phone_number`)
+	  UNIQUE KEY `id_account_UNIQUE` (`id_account`)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-	#create verification token table
-    CREATE TABLE IF NOT EXISTS `verification_token` (
-  `id_verification_token` int NOT NULL AUTO_INCREMENT,
-  `token` binary(16) NOT NULL,
-  `created_at` date NOT NULL,
-  `expires_at` date NOT NULL,
-  `account_id` binary(16) NOT NULL,
-  PRIMARY KEY (`id_verification_token`),
-  UNIQUE KEY `token` (`token`),
-  UNIQUE KEY `id_verification_token_UNIQUE` (`id_verification_token`),
-  KEY `fk_verificationToken_account_idx` (`account_id`),
-  CONSTRAINT `fk_verificationToken_account` FOREIGN KEY (`account_id`) REFERENCES `account` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=2247 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 #create property type
 CREATE TABLE IF NOT EXISTS `property_type` (
@@ -56,9 +21,6 @@ CREATE TABLE IF NOT EXISTS `property_type` (
   PRIMARY KEY (`id_property_type`),
   UNIQUE KEY `idproperty_type_UNIQUE` (`id_property_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-INSERT INTO `property_type` (`type`) VALUES
-('HOUSE'),('APARTMENT'),('BARN'),('BED_AND_BREAKFAST'),('BOAT'),('CABIN'),
-('CAMPER'),('CASTLE'),('CAVE'),('CONTAINER'),('FARM'),('HOTEL');
 
 
 #create reservation type table
@@ -68,8 +30,14 @@ CREATE TABLE IF NOT EXISTS `reservation_type` (
   PRIMARY KEY (`id_reservation_type`),
   UNIQUE KEY `idreservation_type_UNIQUE` (`id_reservation_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-INSERT INTO `reservation_type` (`type`) VALUES
-('OWNER_APPROVAL'),('AUTOMATIC_APPROVAL');
+
+#create reservation status table
+CREATE TABLE IF NOT EXISTS `reservation_status` (
+  `id_reservation_status`INT NOT NULL AUTO_INCREMENT,
+  `status` varchar(45) NOT NULL,
+  PRIMARY KEY (`id_reservation_status`),
+  UNIQUE KEY `idreservation_status_UNIQUE` (`id_reservation_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 #create housing type table
@@ -80,10 +48,6 @@ CREATE TABLE IF NOT EXISTS `housing_type` (
   UNIQUE KEY `idhousing_type_UNIQUE` (`id_housing_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO `housing_type` (`type`) VALUES
-('ENTIRE'),
-('ROOM'),
-('SHARED_ROOM');
 
 # create amenities table
 CREATE TABLE IF NOT EXISTS `amenities` (
@@ -93,9 +57,6 @@ CREATE TABLE IF NOT EXISTS `amenities` (
   UNIQUE KEY `idamenities_UNIQUE` (`id_amenities`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT INTO amenities (amenity) VALUES
-('WIFI'),('TV'),('KITCHEN'),('WASHER'),('FREE_PARKING'),('AIR_CONDITIONING'),('DEDICATED_WORKSPACE'),
-('POOL'),('PATIO'),('BBQ_GRILL'),('LAKE_ACCESS'),('BEACH_ACCESS'),('GYM');
 
 #create address table
 CREATE TABLE IF NOT EXISTS `address` (
@@ -134,7 +95,7 @@ CREATE TABLE  IF NOT EXISTS `listing` (
   KEY `fk_listing_property_type_property_type_id_idx` (`property_type_id`),
   KEY `fk_listing_housing_type_housing_type_id_idx` (`housing_type_id`),
   KEY `fk_listing_reservation_type_reservation_type_id_idx` (`reservation_type_id`),
-  CONSTRAINT `fk_listing_account_host_id` FOREIGN KEY (`host_id`) REFERENCES `account` (`id_user`),
+  CONSTRAINT `fk_listing_account_host_id` FOREIGN KEY (`host_id`) REFERENCES `account` (`id_account`),
   CONSTRAINT `fk_listing_address_address_id` FOREIGN KEY (`address_id`) REFERENCES `address` (`id_address_info`),
   CONSTRAINT `fk_listing_housing_type_housing_type_id` FOREIGN KEY (`housing_type_id`) REFERENCES `housing_type` (`id_housing_type`),
   CONSTRAINT `fk_listing_property_type_property_type_id` FOREIGN KEY (`property_type_id`) REFERENCES `property_type` (`id_property_type`),
@@ -156,36 +117,40 @@ CREATE TABLE IF NOT EXISTS `listing_amenities` (
 
 #create listing images table
 CREATE TABLE IF NOT EXISTS `listing_images` (
-  `id_listing_images` int NOT NULL AUTO_INCREMENT,
-  `filepath` varchar(200) NOT NULL,
-  `listing_id` binary(16) DEFAULT NULL,
-  PRIMARY KEY (`id_listing_images`),
-  UNIQUE KEY `id_listing_images_UNIQUE` (`id_listing_images`),
-  KEY `fk_listing_images_listing_listing_id_idx` (`listing_id`),
-  CONSTRAINT `fk_listing_images_listing_listing_id` FOREIGN KEY (`listing_id`) REFERENCES `listing` (`id_listing`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+`id_listing_images` binary(16) NOT NULL,
+`filepath` varchar(200) NOT NULL,
+`listing_id` binary(16) DEFAULT NULL,
+PRIMARY KEY (`id_listing_images`),
+UNIQUE KEY `id_listing_images_UNIQUE` (`id_listing_images`),
+KEY `fk_listing_images_listing_listing_id_idx` (`listing_id`),
+CONSTRAINT `fk_listing_images_listing_listing_id` FOREIGN KEY (`listing_id`)
+REFERENCES `listing` (`id_listing`))
+ ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-END //
-DELIMITER ;
+#create reservation table
+CREATE TABLE IF NOT EXISTS `reservation`(
+    `id_reservation` binary(16) NOT NULL,
+    `id_host` binary(16) not null,
+    `id_guest` binary(16) not null,
+    `id_listing` binary(16) not null,
+    `check_in_date` date not null,
+    `check_out_date` date not null,
+    `number_guests` int not null,
+    `total_price` decimal(10,2) not null,
+    `id_status` int not null,
+    PRIMARY KEY(`id_reservation`),
+    UNIQUE KEY `id_reservation_UNIQUE` (`id_reservation`),
+    KEY `fk_reservation_account_id_host_idx` (`id_host`),
+    KEY `fk_reservation_account_id_guest_idx` (`id_guest`),
+    KEY `fk_reservation_listing_id_listing_idx` (`id_listing`),
+    KEY `fk_reservation_reservation_type_id_status_idx` (`id_status`),
+    CONSTRAINT `fk_reservation_account_id_host` FOREIGN KEY (`id_host`) REFERENCES `account` (`id_account`),
+    CONSTRAINT `fk_reservation_account_id_guest` FOREIGN KEY (`id_guest`) REFERENCES `account` (`id_account`),
+    CONSTRAINT `fk_reservation_listing_id_listing` FOREIGN KEY (`id_listing`) REFERENCES `listing` (`id_listing`),
+    CONSTRAINT `fk_reservation_reservation_type_id_status` FOREIGN KEY (`id_status`) REFERENCES `reservation_status` (`id_reservation_status`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-DELIMITER //
 
-CREATE PROCEDURE drop_db()
-BEGIN
-  -- Drop child tables first due to foreign key constraints
-  DROP TABLE IF EXISTS listing_images;
-  DROP TABLE IF EXISTS listing_amenities;
-  DROP TABLE IF EXISTS listing;
-  DROP TABLE IF EXISTS amenities;
-  DROP TABLE IF EXISTS address;
-  DROP TABLE IF EXISTS housing_type;
-  DROP TABLE IF EXISTS reservation_type;
-  DROP TABLE IF EXISTS property_type;
-  DROP TABLE IF EXISTS verification_token;
-  DROP TABLE IF EXISTS account;
-  DROP TABLE IF EXISTS phone_number;
-END //
-
-DELIMITER ;
+)

@@ -16,51 +16,49 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.aspectj.AnnotationTransactionAspect;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.sql.DataSource;
 
 
 @Configuration
-@ComponentScan(basePackages = "com.sz.reservation.accountManagement")
 @PropertySource("classpath:account.properties")
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
-        SecurityAutoConfiguration.class,
-        LiquibaseAutoConfiguration.class,})
-@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
-@EnableLoadTimeWeaving
 public class AccountConfig {
+    @Value("${host}")
+    private String host;
 
-
-   @Bean
-    public FlywayMigrationStrategy flywayMigration(){
-        return new FlywayMigrationStrategy() {
-            @Override
-            public void migrate(Flyway flyway) {
-                Flyway.configure().locations("classpath:db/migration").dataSource(
-                        "jdbc:mysql://localhost:3306/usertestdb",
+   @Bean(initMethod = "migrate")
+    public Flyway accountMigration(){
+       return Flyway.configure()
+                .locations("classpath:db/migration/account")
+                .dataSource(
+                        "jdbc:mysql://"+host+":3306/accountBcTest",
                         "root",
-                        "12345").load().migrate();
-            }
-        };
+                        "12345")
+                .load();
     }
+
+
 
     @Bean("account.dataSource")
     @Profile("prod")
     public DataSource hikariCP(){
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/userDb");
+        config.setJdbcUrl("jdbc:mysql://"+host+":3306/accountBc");
         config.setUsername("root");
         config.setPassword("12345");
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -76,7 +74,7 @@ public class AccountConfig {
     @Profile("test")
     public DataSource testHikariCP(){
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/usertestdb");
+        config.setJdbcUrl("jdbc:mysql://"+host+":3306/accountBcTest");
         config.setUsername("root");
         config.setPassword("12345");
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -104,14 +102,17 @@ public class AccountConfig {
     }
 
     @Bean
-    public ProfilePictureService profilePictureService(ProfilePictureStorage profilePictureStorage, ProfilePictureTypeValidator profilePictureTypeValidator,
+    public ProfilePictureService profilePictureService(ProfilePictureStorage profilePictureStorage,
+                                                       ProfilePictureTypeValidator profilePictureTypeValidator,
                                                        MultipartImageResizingService multipartImageResizingService){
         return new ProfilePictureService(profilePictureStorage,profilePictureTypeValidator,multipartImageResizingService);
     }
     @Bean
-    public AccountVerificationUseCase accountVerificationUseCase(AccountRepository accountRepository, AccountVerificationTokenRepository verificationTokenRepository,
-                                                                 VerificationTokenEmailSender verificationTokenEmailSender){
-        return new AccountVerificationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender);
+    public AccountVerificationUseCase accountVerificationUseCase(AccountRepository accountRepository,
+                                                                 AccountVerificationTokenRepository verificationTokenRepository,
+                                                                 VerificationTokenEmailSender verificationTokenEmailSender,
+                                                                 ApplicationEventPublisher eventPublisher){
+       return new AccountVerificationUseCase(accountRepository,verificationTokenRepository,verificationTokenEmailSender,eventPublisher);
     }
 
     @Bean

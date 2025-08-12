@@ -1,4 +1,4 @@
-package com.sz.reservation.listingManagement.infrastructure.adapter.outbound;
+package com.sz.reservation.listingManagement.infrastructure.adapter.outbound.listing;
 
 import com.sz.reservation.globalConfiguration.exception.DirectoryCreationException;
 import com.sz.reservation.globalConfiguration.exception.FileWritingException;

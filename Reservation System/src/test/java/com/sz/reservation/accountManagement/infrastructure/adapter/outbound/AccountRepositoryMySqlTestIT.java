@@ -67,7 +67,7 @@ class AccountRepositoryMySqlTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_createAccountCorrectly_When_ValidData(){
         //arrange
         Account account = createNotVerifiedAccount();
@@ -81,7 +81,7 @@ class AccountRepositoryMySqlTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ThrowEmailAlreadyRegisteredException_When_EmailAlreadyRegistered(){
         //arrange
         Account account = createNotVerifiedAccount();
@@ -107,7 +107,7 @@ class AccountRepositoryMySqlTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ThrowUsernameAlreadyRegisteredException_When_UsernameAlreadyRegistered(){
         //arrange
         Account account = createNotVerifiedAccount();
@@ -133,7 +133,7 @@ class AccountRepositoryMySqlTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnEmptyOptional_When_AccountNotExistsWithEmail(){
         //arrange
         String email = "notExistentEmail@gmail.com";

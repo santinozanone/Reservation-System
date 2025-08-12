@@ -5,8 +5,7 @@ import com.sz.reservation.listingManagement.domain.ListingProperty;
 import java.util.Optional;
 
 public interface ListingPropertyRepository {
-    void create(String hostId,ListingProperty listingProperty);
+    void create(ListingProperty listingProperty);
     Optional<ListingProperty>findById(String listingId);
-    void delete (String listingId);
-
+    void update(ListingProperty listingProperty);
 }

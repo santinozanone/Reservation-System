@@ -1,4 +1,4 @@
-package com.sz.reservation.listingManagement.infrastructure.adapter.inbound;
+package com.sz.reservation.listingManagement.infrastructure.adapter.inbound.listing;
 
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 

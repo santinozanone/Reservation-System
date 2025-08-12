@@ -1,0 +1,21 @@
+INSERT INTO `property_type` (`type`) VALUES
+('HOUSE'),('APARTMENT'),('BARN'),('BED_AND_BREAKFAST'),('BOAT'),('CABIN'),
+('CAMPER'),('CASTLE'),('CAVE'),('CONTAINER'),('FARM'),('HOTEL');
+
+
+INSERT INTO `reservation_type` (`type`) VALUES
+('OWNER_APPROVAL'),('AUTOMATIC_APPROVAL');
+
+INSERT INTO `reservation_status` (`status`) VALUES
+('CONFIRMED'),('PENDING_APPROVAL'),("CANCELED"),("DISAPPROVED")
+,('COMPLETED');
+
+INSERT INTO `housing_type` (`type`) VALUES
+('ENTIRE'),
+('ROOM'),
+('SHARED_ROOM');
+
+
+INSERT INTO amenities (amenity) VALUES
+('WIFI'),('TV'),('KITCHEN'),('WASHER'),('FREE_PARKING'),('AIR_CONDITIONING'),('DEDICATED_WORKSPACE'),
+('POOL'),('PATIO'),('BBQ_GRILL'),('LAKE_ACCESS'),('BEACH_ACCESS'),('GYM');

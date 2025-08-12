@@ -1,15 +1,14 @@
 package com.sz.reservation.listingManagement.application.useCase;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.domain.model.Account;
-import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingPropertyUseCase;
 import com.sz.reservation.listingManagement.configuration.ListingConfig;
+
 import com.sz.reservation.listingManagement.domain.*;
 import com.sz.reservation.listingManagement.domain.exception.InvalidListingIdException;
+import com.sz.reservation.listingManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.listingManagement.domain.port.outbound.ListingImageMetadataRepository;
 import com.sz.reservation.listingManagement.domain.port.outbound.ListingPropertyRepository;
 import com.sz.reservation.listingManagement.infrastructure.AddressInfoRequestDto;
@@ -39,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ExtendWith(SpringExtension.class)
 @DisplayName("ListingPropertyUseCase Integration test")
-@Disabled
 class ListingPropertyUseCaseTestIT {
 
     @Autowired
@@ -94,7 +92,8 @@ class ListingPropertyUseCaseTestIT {
 
     //Listing property tests
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_CreateListingInRepository_Correctly(){
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -114,7 +113,8 @@ class ListingPropertyUseCaseTestIT {
 
     //listing image upload test
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_UploadImage_correctly() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -140,7 +140,7 @@ class ListingPropertyUseCaseTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
     public void Should_ThrowInvalidListingIdException_When_ListingId_DoesntExists() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -164,7 +164,8 @@ class ListingPropertyUseCaseTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_ThrowInvalidListingIdException_When_ListingId_DoesntBelongToHost() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -190,7 +191,7 @@ class ListingPropertyUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
     public void Should_ThrowInvalidListingIdException_When_ListingId_Disabled() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -215,7 +216,8 @@ class ListingPropertyUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_ReturnDiscardedImageState_When_ImageHasInvalidExtension() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -238,7 +240,8 @@ class ListingPropertyUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_ReturnDiscardedImageState_When_ImageHas_DifferentExtensionThanReal() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -260,7 +263,8 @@ class ListingPropertyUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_ReturnDiscardedImageState_When_ImageHas_BiggerSizeThanMax() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -283,7 +287,8 @@ class ListingPropertyUseCaseTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_StoreValidImage_When_Valid_And_InvalidImage_Supplied() throws IOException {
         //arrange
         String hostId = createNotEnabledNotVerifiedAccount();
@@ -329,18 +334,14 @@ class ListingPropertyUseCaseTestIT {
                 "name",
                 "surname",
                 email,
-                new PhoneNumber(UuidCreator.getTimeOrderedEpoch().toString(),"54","1121010000"),
-                LocalDate.now().minusDays(10),
-                "password",
-                false,
-                false);
+                true);
 
 
         //act
-        accountRepositoryMySql.createAccount(account);
+        accountRepositoryMySql.save(account);
 
         //assert
-        Optional<Account> optionalAccount = accountRepositoryMySql.findAccountByEmail(email);
+        Optional<Account> optionalAccount = accountRepositoryMySql.findByEmail(email);
         Assertions.assertTrue(optionalAccount.isPresent());
 
         return userId;

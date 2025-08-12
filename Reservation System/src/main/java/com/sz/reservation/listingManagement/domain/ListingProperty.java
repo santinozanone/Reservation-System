@@ -1,6 +1,8 @@
 package com.sz.reservation.listingManagement.domain;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 public class ListingProperty {
 
@@ -22,7 +24,7 @@ public class ListingProperty {
 
     private int numberOfBathroom;
 
-    private double pricePerNight; // check if double is correct for this type of use
+    private BigDecimal pricePerNight;
 
     private PropertyType propertyType;
 
@@ -34,7 +36,7 @@ public class ListingProperty {
 
     private boolean enabled;
     public ListingProperty(String id, String hostId, String listingTitle, String listingDescription, AddressInfo addressInfo, int numberOfGuestAllowed,
-                           int numberOfBeds, int numberOfBedrooms, int numberOfBathroom, double pricePerNight, PropertyType propertyType,
+                           int numberOfBeds, int numberOfBedrooms, int numberOfBathroom, BigDecimal pricePerNight, PropertyType propertyType,
                            HousingType housingType, ReservationType reservationType, List<AmenitiesType> amenities, boolean enabled) {
         this.id = id;
         this.hostId = hostId;
@@ -90,7 +92,7 @@ public class ListingProperty {
         return numberOfBathroom;
     }
 
-    public double getPricePerNight() {
+    public BigDecimal getPricePerNight() {
         return pricePerNight;
     }
 
@@ -112,5 +114,50 @@ public class ListingProperty {
 
     public boolean isEnabled() {
         return enabled;
+    }
+
+    public void enable(){
+        this.enabled = true;
+    }
+    public void disable(){
+        this.enabled = false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ListingProperty that = (ListingProperty) o;
+        return getNumberOfGuestAllowed() == that.getNumberOfGuestAllowed() &&
+                getNumberOfBeds() == that.getNumberOfBeds() && getNumberOfBedrooms() == that.getNumberOfBedrooms() &&
+                getNumberOfBathroom() == that.getNumberOfBathroom() && isEnabled() == that.isEnabled() &&
+                Objects.equals(getId(), that.getId()) && Objects.equals(getHostId(), that.getHostId()) &&
+                Objects.equals(getListingTitle(), that.getListingTitle()) &&
+                Objects.equals(getListingDescription(), that.getListingDescription()) &&
+                Objects.equals(getAddressInfo(), that.getAddressInfo()) &&
+               (getPricePerNight().compareTo(that.getPricePerNight() ) == 0) &&
+                getPropertyType() == that.getPropertyType() &&
+                getHousingType() == that.getHousingType() &&
+                getReservationType() == that.getReservationType() && Objects.equals(getAmenities(), that.getAmenities());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(getId());
+        result = 31 * result + Objects.hashCode(getHostId());
+        result = 31 * result + Objects.hashCode(getListingTitle());
+        result = 31 * result + Objects.hashCode(getListingDescription());
+        result = 31 * result + Objects.hashCode(getAddressInfo());
+        result = 31 * result + getNumberOfGuestAllowed();
+        result = 31 * result + getNumberOfBeds();
+        result = 31 * result + getNumberOfBedrooms();
+        result = 31 * result + getNumberOfBathroom();
+        result = 31 * result + Objects.hashCode(getPricePerNight());
+        result = 31 * result + Objects.hashCode(getPropertyType());
+        result = 31 * result + Objects.hashCode(getHousingType());
+        result = 31 * result + Objects.hashCode(getReservationType());
+        result = 31 * result + Objects.hashCode(getAmenities());
+        result = 31 * result + Boolean.hashCode(isEnabled());
+        return result;
     }
 }

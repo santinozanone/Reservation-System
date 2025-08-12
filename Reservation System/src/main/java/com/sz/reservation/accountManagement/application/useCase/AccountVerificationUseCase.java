@@ -1,8 +1,8 @@
 package com.sz.reservation.accountManagement.application.useCase;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.sz.reservation.accountManagement.domain.event.AccountVerifiedEvent;
 import com.sz.reservation.accountManagement.domain.exception.AccountAlreadyVerifiedException;
-import com.sz.reservation.accountManagement.domain.exception.AccountNotExistentException;
 import com.sz.reservation.accountManagement.domain.exception.InvalidTokenException;
 import com.sz.reservation.accountManagement.domain.model.Account;
 import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
@@ -11,7 +11,9 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerifica
 import com.sz.reservation.accountManagement.domain.port.outbound.VerificationTokenEmailSender;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -20,18 +22,22 @@ public class AccountVerificationUseCase {
     private Logger logger = LogManager.getLogger(AccountVerificationUseCase.class);
     private AccountRepository accountRepository;
     private AccountVerificationTokenRepository tokenRepository;
-
     private VerificationTokenEmailSender verificationTokenEmailSender;
+    private ApplicationEventPublisher eventPublisher;
 
-    public AccountVerificationUseCase(AccountRepository accountRepository,AccountVerificationTokenRepository tokenRepository,VerificationTokenEmailSender verificationTokenEmailSender) {
+    public AccountVerificationUseCase(AccountRepository accountRepository,AccountVerificationTokenRepository tokenRepository,
+                                      VerificationTokenEmailSender verificationTokenEmailSender,
+                                      ApplicationEventPublisher eventPublisher) {
         this.accountRepository = accountRepository;
         this.tokenRepository = tokenRepository;
         this.verificationTokenEmailSender = verificationTokenEmailSender;
+        this.eventPublisher = eventPublisher;
     }
 
-    @Transactional
-    public void verifyAccount(String token){
+    @Transactional("account.transactionManager")
+    public void verifyAccount(String token) {
         logger.info("attempting to verify token :{}",token);
+
         //validate token
         AccountVerificationToken verificationToken = validateToken(token);
         // if token exists and is valid, retrieve account
@@ -47,11 +53,21 @@ public class AccountVerificationUseCase {
         account.enableAccount(); // set account enabled to true
         accountRepository.updateAccount(account);
 
+
         logger.info("account with id:{}  , verified and enabled correctly", account.getId());
+
+        logger.debug("TRANS: {}", TransactionSynchronizationManager.isActualTransactionActive());
+
+
+        logger.info("TRANS: {}", TransactionSynchronizationManager.isActualTransactionActive());
+
+        logger.info("Account verified event published for id:{}", account.getId());
+        eventPublisher.publishEvent(new AccountVerifiedEvent(account.getId(),account.getUniqueUsername(),
+                account.getName(),account.getSurname(),account.getUniqueEmail(),account.isEnabled()));
 
     }
 
-    @Transactional
+    @Transactional("account.transactionManager")
     public void resendVerificationTokenEmail(String token){
         logger.info("attempting to resend verification token, old value:{}",token);
         Optional<AccountVerificationToken> optionalVerificationToken = tokenRepository.findByToken(token);

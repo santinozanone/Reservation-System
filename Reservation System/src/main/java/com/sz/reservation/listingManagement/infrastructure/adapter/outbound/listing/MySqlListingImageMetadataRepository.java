@@ -1,4 +1,4 @@
-package com.sz.reservation.listingManagement.infrastructure.adapter.outbound;
+package com.sz.reservation.listingManagement.infrastructure.adapter.outbound.listing;
 
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageMetadata;
 import com.sz.reservation.listingManagement.domain.port.outbound.ListingImageMetadataRepository;

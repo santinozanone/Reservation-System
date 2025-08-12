@@ -27,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("unit test HttpEmailVerificationControllerTest")
+
 class HttpEmailVerificationControllerTest {
 
     @MockitoBean

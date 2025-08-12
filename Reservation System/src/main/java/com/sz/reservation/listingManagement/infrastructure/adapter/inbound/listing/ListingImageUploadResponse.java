@@ -1,4 +1,4 @@
-package com.sz.reservation.listingManagement.infrastructure.adapter.inbound;
+package com.sz.reservation.listingManagement.infrastructure.adapter.inbound.listing;
 
 import java.util.List;
 

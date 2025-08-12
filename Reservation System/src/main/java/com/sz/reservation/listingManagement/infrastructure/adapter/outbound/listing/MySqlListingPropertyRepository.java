@@ -1,4 +1,4 @@
-package com.sz.reservation.listingManagement.infrastructure.adapter.outbound;
+package com.sz.reservation.listingManagement.infrastructure.adapter.outbound.listing;
 
 import com.sz.reservation.listingManagement.domain.ListingProperty;
 import com.sz.reservation.listingManagement.domain.*;
@@ -24,7 +24,7 @@ public class MySqlListingPropertyRepository implements ListingPropertyRepository
     }
 
     @Override
-    public void create(String hostId, ListingProperty listingProperty) {
+    public void create(ListingProperty listingProperty) {
         if (listingProperty == null) throw new IllegalArgumentException("listing property cannot be null");
 
         // first, create an address
@@ -53,7 +53,7 @@ public class MySqlListingPropertyRepository implements ListingPropertyRepository
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDateTime localDateTime = LocalDateTime.now();
         String currentDate = dateFormatter.format(localDateTime);
-        jdbcTemplate.update(listingSql, listingProperty.getId(), hostId, listingProperty.getListingTitle(),
+        jdbcTemplate.update(listingSql, listingProperty.getId(), listingProperty.getHostId(), listingProperty.getListingTitle(),
                 listingProperty.getListingDescription(), addressInfo.getId(), listingProperty.getNumberOfGuestAllowed(),
                 listingProperty.getNumberOfBeds(), listingProperty.getNumberOfBedrooms(), listingProperty.getNumberOfBathroom(),
                 listingProperty.getPricePerNight(), propertyTypeId, housingTypeId, reservationTypeId, currentDate, listingProperty.isEnabled());
@@ -68,6 +68,10 @@ public class MySqlListingPropertyRepository implements ListingPropertyRepository
             batch.add(values);
         }
         jdbcTemplate.batchUpdate(amenitiesSql,batch);
+
+
+        String listing_lock = "INSERT INTO listing_reservation_lock (id_listing,enabled) VALUES (UUID_TO_BIN(?),?)";
+        jdbcTemplate.update(listing_lock,listingProperty.getId(),listingProperty.isEnabled());
     }
 
     @Override
@@ -122,7 +126,7 @@ public class MySqlListingPropertyRepository implements ListingPropertyRepository
                     rs.getInt("l.number_beds"),
                     rs.getInt("l.number_bedrooms"),
                     rs.getInt("l.number_bathrooms"),
-                    rs.getDouble("l.price_per_night"),
+                    rs.getBigDecimal("l.price_per_night"),
                     PropertyType.valueOf(rs.getString("p_type")),
                     HousingType.valueOf(rs.getString("h_type")),
                     ReservationType.valueOf(rs.getString("r_type")),
@@ -133,10 +137,87 @@ public class MySqlListingPropertyRepository implements ListingPropertyRepository
         return Optional.ofNullable(listing);
     }
 
+
     @Override
-    public void delete(String listingId) {
-        String sql = "Update listing set enabled = false where id_listing = UUID_TO_BIN(?)";
-        jdbcTemplate.update(sql,listingId);
+    public void update(ListingProperty listingProperty) {
+        if (listingProperty == null) throw new IllegalArgumentException("listing property cannot be null");
+
+        // 1. Update address
+        AddressInfo addressInfo = listingProperty.getAddressInfo();
+        String addressSql = """
+        UPDATE address
+        SET 
+          country = ?, 
+          street_address = ?, 
+          apartment_number = ?, 
+          postal_code = ?, 
+          region = ?, 
+          locality = ?
+        WHERE id_address_info = UUID_TO_BIN(?)
+    """;
+
+        jdbcTemplate.update(
+                addressSql,
+                addressInfo.getCountry(),
+                addressInfo.getStreetAddress(),
+                addressInfo.getApartmentNumber(),
+                addressInfo.getPostalCode(),
+                addressInfo.getRegion(),
+                addressInfo.getLocality(),
+                addressInfo.getId()
+        );
+
+        // 2. Update listing
+        String listingSql = """
+        UPDATE listing
+        SET 
+          title = ?,
+          description = ?,
+          number_guest_allowed = ?,
+          number_beds = ?,
+          number_bedrooms = ?,
+          number_bathrooms = ?,
+          price_per_night = ?,
+          property_type_id = ?,
+          housing_type_id = ?,
+          reservation_type_id = ?,
+          enabled = ?
+        WHERE id_listing = UUID_TO_BIN(?)
+    """;
+
+        jdbcTemplate.update(
+                listingSql,
+                listingProperty.getListingTitle(),
+                listingProperty.getListingDescription(),
+                listingProperty.getNumberOfGuestAllowed(),
+                listingProperty.getNumberOfBeds(),
+                listingProperty.getNumberOfBedrooms(),
+                listingProperty.getNumberOfBathroom(),
+                listingProperty.getPricePerNight(),
+                listingProperty.getPropertyType().getId(),
+                listingProperty.getHousingType().getId(),
+                listingProperty.getReservationType().getId(),
+                listingProperty.isEnabled(),
+                listingProperty.getId()
+        );
+
+        //Now set enabled in the locking table
+        String sql = "UPDATE listing_lock set enabled = ? where id_listing = UUID_TO_BIN(?)";
+        jdbcTemplate.update(sql,listingProperty.isEnabled(),listingProperty.getId());
+
+
+        // 3. Update amenities
+        String deleteAmenitiesSql = "DELETE FROM listing_amenities WHERE listing_id = UUID_TO_BIN(?)";
+        jdbcTemplate.update(deleteAmenitiesSql, listingProperty.getId());
+
+        if (!listingProperty.getAmenities().isEmpty()) {
+            String insertAmenitySql = "INSERT INTO listing_amenities (listing_id, amenities_id) VALUES (UUID_TO_BIN(?), ?)";
+            List<Object[]> batch = new ArrayList<>();
+            for (AmenitiesType a : listingProperty.getAmenities()) {
+                batch.add(new Object[]{listingProperty.getId(), a.getId()});
+            }
+            jdbcTemplate.batchUpdate(insertAmenitySql, batch);
+        }
     }
 
 

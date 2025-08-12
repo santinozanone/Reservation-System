@@ -9,7 +9,9 @@ import com.sz.reservation.util.FileTypeValidator;
 import com.sz.reservation.util.TikaFileValidator;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -25,17 +27,22 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import javax.sql.DataSource;
 
 @Configuration
-//@EnableWebMvc
-
-@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class,
-        SecurityAutoConfiguration.class,
-        LiquibaseAutoConfiguration.class,
-        FlywayAutoConfiguration.class})
 @PropertySource("classpath:listing.properties")
-@ComponentScan("com.sz.reservation.listingManagement")
-@EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
-@EnableLoadTimeWeaving
 public class ListingConfig {
+
+    @Value("${host}")
+    private String host;
+
+    @Bean(initMethod = "migrate")
+    public Flyway listingMigration(){
+        return Flyway.configure()
+                .locations("classpath:db/migration/listing")
+                .dataSource(
+                        "jdbc:mysql://"+host+":3306/listingBcTest",
+                        "root",
+                        "12345")
+                .load();
+    }
 
     @Bean
     public ListingPropertyUseCase listingPropertyUseCase(ListingPropertyRepository listingPropertyRepository,
@@ -50,7 +57,7 @@ public class ListingConfig {
     @Profile("test")
     public DataSource testHikariCP(){
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/usertestdb");
+        config.setJdbcUrl("jdbc:mysql://"+host+":3306/listingBcTest");
         config.setUsername("root");
         config.setPassword("12345");
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -66,7 +73,7 @@ public class ListingConfig {
     @Profile("prod")
     public DataSource hikariCP(){
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://localhost:3306/userDb");
+        config.setJdbcUrl("jdbc:mysql://"+host+":3306/listingBc");
         config.setUsername("root");
         config.setPassword("12345");
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -87,11 +94,6 @@ public class ListingConfig {
     @Bean("listing.transactionManager")
     public PlatformTransactionManager transactionManager(@Qualifier("listing.dataSource") DataSource dataSource){
         return new DataSourceTransactionManager(dataSource);
-    }
-
-    @Bean
-    public FileTypeValidator tikaFileValidator(){
-        return new TikaFileValidator();
     }
 
 }

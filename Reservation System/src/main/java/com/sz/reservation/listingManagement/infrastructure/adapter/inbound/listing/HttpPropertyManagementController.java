@@ -1,14 +1,13 @@
-package com.sz.reservation.listingManagement.infrastructure.adapter.inbound;
+package com.sz.reservation.listingManagement.infrastructure.adapter.inbound.listing;
 
 import com.github.f4b6a3.uuid.util.UuidValidator;
-import com.sz.reservation.accountManagement.domain.event.AccountCreatedEvent;
-import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.globalConfiguration.exception.InvalidRequestTypeException;
 import com.sz.reservation.globalConfiguration.security.userDetails.CustomUserDetails;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 import com.sz.reservation.listingManagement.application.exception.*;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingPropertyUseCase;
 import com.sz.reservation.listingManagement.infrastructure.ListingRequestDto;
+import com.sz.reservation.listingManagement.infrastructure.UpdateListingRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.fileupload2.core.FileItemInput;
@@ -22,9 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -80,12 +77,21 @@ public class HttpPropertyManagementController {
 
 
     @PostMapping
-    public ResponseEntity<String> listPropertyForReservation(@Valid @RequestBody ListingRequestDto listingRequestDto) {
+    public ResponseEntity<String> listPropertyForReservation(@Valid @ModelAttribute ListingRequestDto listingRequestDto) {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String hostId = userDetails.getId();
         String listingId = listingPropertyUseCase.listProperty(hostId, listingRequestDto);
         return new ResponseEntity<String>("Property listed correctly, listingId: " + listingId, HttpStatus.OK);
     }
+
+    @PutMapping
+    public ResponseEntity<String> updateListing(@Valid @ModelAttribute UpdateListingRequestDto updateListingRequestDto) {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String hostId = userDetails.getId();
+        listingPropertyUseCase.updateProperty(hostId, updateListingRequestDto);
+        return new ResponseEntity<String>("Property Updated Correctly: ", HttpStatus.OK);
+    }
+
 
 
     private String validateRequest(FileItemInputIterator fileItemInputIterator) throws IOException {
@@ -137,7 +143,6 @@ public class HttpPropertyManagementController {
         return state;
     }
 
-
     private ResponseEntity generateResponse(String listingId, List<ListingImageUploadResult> listingImageUploadResults, boolean oneFileSucceeded) {
         HttpStatus httpStatus;
         ListingImageUploadResponseStatus listingImageUploadResponseStatus;
@@ -155,11 +160,6 @@ public class HttpPropertyManagementController {
         ListingImageUploadResponse listingImageUploadResponse = new ListingImageUploadResponse(listingId, listingImageUploadResponseStatus, listingImageUploadResults);
         return new ResponseEntity<>(listingImageUploadResponse, httpStatus);
     }
-
-
-
-
-
 
     private boolean isListingIdValid(String listingId) {
         if (!UuidValidator.isValid(listingId, UUID_VERSION)) return false;

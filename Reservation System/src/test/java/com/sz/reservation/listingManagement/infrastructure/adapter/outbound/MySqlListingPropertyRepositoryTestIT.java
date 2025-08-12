@@ -1,16 +1,13 @@
 package com.sz.reservation.listingManagement.infrastructure.adapter.outbound;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.sz.reservation.accountManagement.application.dto.AccountCreationData;
-import com.sz.reservation.accountManagement.domain.model.Account;
-import com.sz.reservation.accountManagement.domain.model.AccountVerificationToken;
-import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
-import com.sz.reservation.accountManagement.domain.model.ProfilePicture;
-import com.sz.reservation.accountManagement.infrastructure.adapter.outbound.AccountRepositoryMySql;
+
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.listingManagement.configuration.ListingConfig;
 import com.sz.reservation.listingManagement.domain.ListingProperty;
 import com.sz.reservation.listingManagement.domain.*;
+import com.sz.reservation.listingManagement.domain.port.outbound.AccountRepository;
+import com.sz.reservation.listingManagement.infrastructure.adapter.outbound.listing.MySqlListingPropertyRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,26 +19,28 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ActiveProfiles(value = {"test","default"})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayName("Integration testing MySqlListingPropertyRepositoryTest")
-class MySqlListingPropertyRepositoryTest {
+class MySqlListingPropertyRepositoryTestIT {
 
     @Autowired
     @Qualifier("listing.jdbcTemplate")
     private JdbcTemplate jdbcTemplate;
 
     private MySqlListingPropertyRepository mySqlListingPropertyRepository;
-    private AccountRepositoryMySql accountRepositoryMySql;
+    private AccountRepository accountRepositoryMySql;
 
     private String propertyId;
     private String hostId;
@@ -63,7 +62,7 @@ class MySqlListingPropertyRepositoryTest {
     @BeforeAll
     public void initVariables(){
         mySqlListingPropertyRepository = new MySqlListingPropertyRepository(jdbcTemplate);
-        accountRepositoryMySql = new AccountRepositoryMySql(jdbcTemplate);
+        accountRepositoryMySql = new AccountMySqlRepository(jdbcTemplate);
 
         propertyId = UuidCreator.getTimeOrderedEpoch().toString();
         hostId = UuidCreator.getTimeOrderedEpoch().toString();
@@ -87,17 +86,18 @@ class MySqlListingPropertyRepositoryTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(transactionManager = "listing.transactionManager")
+
     public void Should_InsertListingCorrectly_When_ValidInput(){
         //arrange
         ListingProperty listingProperty = new ListingProperty(propertyId,hostId,listingTitle,
                 listingDescription, addressInfo,
-                numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, pricePerNight,
+                numberOfGuestAllowed, numberOfBeds, numberOfBedrooms, numberOfBathroom, BigDecimal.valueOf(pricePerNight),
                 propertyType, housingType, reservationType, amenitiesTypeList,enabled);
         String hostId = createVerifiedAccount();
 
         //act
-        mySqlListingPropertyRepository.create(hostId,listingProperty);
+        mySqlListingPropertyRepository.create(listingProperty);
 
         //assert
         Optional<ListingProperty> optionalListingProperty = mySqlListingPropertyRepository.findById(propertyId);
@@ -154,40 +154,24 @@ class MySqlListingPropertyRepositoryTest {
     private String createVerifiedAccount(){
         //arrange
         String userId = UuidCreator.getTimeOrderedEpoch().toString();
-        String phoneNumberId =  UuidCreator.getTimeOrderedEpoch().toString();
-        PhoneNumber phoneNumber = new PhoneNumber(phoneNumberId,"54","1111448899");
-        LocalDate birthDate = LocalDate.now().minusDays(10);
-
         Account accountCreationData = new Account(
                 userId,
                 "username",
                 "name",
                 "surname",
                 "inventedEmail@miau.com",
-                phoneNumber,
-                birthDate,
-                "password",
-                true,
                 true);
 
         //act
-        accountRepositoryMySql.createAccount(accountCreationData);
+        accountRepositoryMySql.save(accountCreationData);
 
         //assert
-        Optional<Account> optionalAccount = accountRepositoryMySql.findAccountByEmail("inventedEmail@miau.com");
+        Optional<Account> optionalAccount = accountRepositoryMySql.findByEmail("inventedEmail@miau.com");
         Assertions.assertTrue(optionalAccount.isPresent());
         Account account = optionalAccount.get();
 
-        //enable and verify account
-        account.enableAccount();
-        account.setAccountVerified();
-        accountRepositoryMySql.updateAccount(account);
-
-        //assert the account is enabled and verified
-        optionalAccount = accountRepositoryMySql.findAccountByEmail("inventedEmail@miau.com");
-        Assertions.assertTrue(optionalAccount.isPresent());
-        Assertions.assertTrue(optionalAccount.get().isVerified());
-        Assertions.assertTrue(optionalAccount.get().isEnabled());
+        //verify account
+        Assertions.assertTrue(account.isEnabled());
 
         return userId;
     }

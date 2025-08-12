@@ -84,17 +84,18 @@ public class AccountRegistrationUseCase {
 
     }
 
-    @Transactional
+    @Transactional("account.transactionManager")
     private void createProfilePictureMetadata(String accountId, ProfilePicture profilePicture, String profilePictureStoringPath) {
         try {
             accountRepository.createProfilePictureMetadata(profilePicture);
         } catch (DataAccessException e) {
-            logger.info("FAILED pfp upload for accoundID: {}  ", accountId);
+            logger.info("FAILED pfp metadata upload for accoundID: {}  ", accountId);
             profilePictureService.delete(profilePictureStoringPath);
+            throw e;
         }
     }
 
-    @Transactional
+    @Transactional("account.transactionManager")
     private void registerNotEnabledUserInDb(Account account, AccountVerificationToken accountVerificationToken) {
         accountRepository.createAccount(account); // store user
         verificationTokenRepository.save(accountVerificationToken); // store verification token
@@ -112,7 +113,7 @@ public class AccountRegistrationUseCase {
     }
 
     private AccountVerificationToken createAccountVerificationToken(String email, String id) {
-        logger.debug("creating account verification token user with for email: {}", email);
+        logger.debug("creating account verification token for user with id: {}, ", id);
         String verificationToken = UuidCreator.getTimeOrderedEpoch().toString();
         //Token date expiration
         LocalDate expirationDate = LocalDate.now().plusDays(7);

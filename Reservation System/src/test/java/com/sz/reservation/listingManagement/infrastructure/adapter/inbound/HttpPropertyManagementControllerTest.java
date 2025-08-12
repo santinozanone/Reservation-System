@@ -5,6 +5,8 @@ import com.sz.reservation.globalConfiguration.security.userDetails.CustomUserDet
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingImageState;
 import com.sz.reservation.listingManagement.application.useCase.listing.ListingPropertyUseCase;
 import com.sz.reservation.listingManagement.configuration.exceptionHandler.PropertyExceptionHandler;
+import com.sz.reservation.listingManagement.infrastructure.adapter.inbound.listing.HttpPropertyManagementController;
+import com.sz.reservation.listingManagement.infrastructure.adapter.inbound.listing.ListingImageUploadResponseStatus;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.core5.http.HttpEntity;

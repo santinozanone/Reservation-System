@@ -20,6 +20,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.client.MockMvcWebTestClient;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
@@ -54,7 +55,7 @@ public class HttpEmailVerificationControllerTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_enabledAndVerifyAccountCorrectly_When_ValidToken(){
         //arrange
         String email = "inventedEmail@miau.com";
@@ -73,7 +74,7 @@ public class HttpEmailVerificationControllerTestIT {
                 .path(VERIFICATION_PATH).queryParam("token",accountVerificationToken.getToken()).build()).exchange().expectStatus().isOk();
 
 
-        //assert account is enabled
+         //assert account is enabled
         Optional<Account> OptionalAccount = accountRepository.findAccountByEmail(email);
         Assertions.assertTrue(OptionalAccount.isPresent()); // account must exists
         Assertions.assertTrue(OptionalAccount.get().isEnabled()); // must be enabled
@@ -82,7 +83,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnBadRequest_When_TokenIsNotInDB(){
         //arrange
         String email = "inventedEmail@miau.com";
@@ -110,7 +111,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnBadRequest_When_TokenProvidedIsNotValidFormat() {
         String invalidToken = "01954f09-742d-7d86-a3dab-0127c8facc4"; // invalidFormat
         //assert
@@ -119,7 +120,7 @@ public class HttpEmailVerificationControllerTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnBadRequest_When_TokenIsExpired() {
         //arrange
         String email = "inventedEmail@miau.com";
@@ -145,7 +146,7 @@ public class HttpEmailVerificationControllerTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnBadRequest_When_AlreadyVerifiedUser() {
         //arrange
         String email = "inventedEmail@miau.com";
@@ -177,7 +178,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnBadRequest_When_ResendingValidToken(){
         //arrange
         String email = "inventedEmail@miau.com";
@@ -202,7 +203,7 @@ public class HttpEmailVerificationControllerTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnOK_When_ResendingInvalidToken(){
         //arrange
         String email = "inventedEmail@miau.com";

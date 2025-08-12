@@ -3,7 +3,6 @@ package com.sz.reservation.accountManagement.infrastructure.adapter.inbound;
 import com.github.f4b6a3.uuid.UuidCreator;
 import com.sz.reservation.accountManagement.configuration.AccountConfig;
 import com.sz.reservation.accountManagement.domain.model.Account;
-import com.sz.reservation.accountManagement.domain.model.PhoneNumber;
 import com.sz.reservation.accountManagement.domain.port.outbound.AccountRepository;
 import com.sz.reservation.globalConfiguration.RootConfig;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.mock.web.MockMultipartFile;
@@ -89,7 +87,7 @@ class HttpRegistrationControllerTestIT {
 
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_CreateAccount_And_StoreProfilePicture_When_ValidRequest() throws IOException {
         //arrange
         MultipartBodyBuilder builder = createMultipartBodyBuilderRequest();
@@ -108,9 +106,8 @@ class HttpRegistrationControllerTestIT {
 
 
     }
-
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnError_When_AlreadyInUseUsername() throws IOException {
         //arrange
         MultipartBodyBuilder builder = createMultipartBodyBuilderRequest();
@@ -123,24 +120,28 @@ class HttpRegistrationControllerTestIT {
 
         //act and assert
         //first insert
-        client.post().uri(REGISTRATION_PATH)
-                .bodyValue(builder.build())
-                .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
+        try {
+            client.post().uri(REGISTRATION_PATH)
+                    .bodyValue(builder.build())
+                    .exchange().expectStatus().isCreated(); // first request is fulfilled correctly
 
-        //second insert
-        client.post().uri(REGISTRATION_PATH)
-                .bodyValue(secondBuilder.build())
-                .exchange()
-                .expectStatus().isBadRequest(); // second one should fail
+            //second insert
+            client.post().uri(REGISTRATION_PATH)
+                    .bodyValue(secondBuilder.build())
+                    .exchange()
+                    .expectStatus().isBadRequest(); // second one should fail
 
 
-        // asserting first account is created
-        Optional<Account> account = repository.findAccountByEmail(unchangedEmail);
-        assertTrue(account.isPresent());
+            // asserting first account is created
+            Optional<Account> account = repository.findAccountByEmail(unchangedEmail);
+            assertTrue(account.isPresent());
+        }catch (Exception e){
+            throw e;
+        }
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnError_When_AlreadyInUseEmail() throws IOException {
         //arrange
         MultipartBodyBuilder firstBuilder = createMultipartBodyBuilderRequest();

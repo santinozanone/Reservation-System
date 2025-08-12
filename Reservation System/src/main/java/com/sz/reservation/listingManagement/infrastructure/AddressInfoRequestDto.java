@@ -30,7 +30,7 @@ public class AddressInfoRequestDto {
 
 
 
-    @JsonCreator
+  //  @JsonCreator
     public AddressInfoRequestDto(String country, String streetAddress, String apartmentNumber, String postalCode, String region, String locality) {
         this.country = country;
         this.streetAddress = streetAddress;

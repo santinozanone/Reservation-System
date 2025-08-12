@@ -184,7 +184,7 @@ public class AccountRepositoryMySql implements AccountRepository {
         if (errorMessage.endsWith(EMAIL_FIELD_SQL_ERROR_MESSAGE)) {
             throw new EmailAlreadyRegisteredException(email, exception);
         }
-        if (errorMessage.endsWith(USERNAME_FIELD_SQL_ERROR_MESSAGE)) {
+        else if (errorMessage.endsWith(USERNAME_FIELD_SQL_ERROR_MESSAGE)) {
             throw new UsernameAlreadyRegisteredException(username, exception);
         }
     }

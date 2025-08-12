@@ -8,6 +8,6 @@ CREATE TABLE `profile_picture` (
   INDEX `fk_profile_picture_account_idx` (`account_id` ASC) VISIBLE,
   CONSTRAINT `fk_profile_picture_account`
     FOREIGN KEY (`account_id`)
-    REFERENCES `usertestdb`.`account` (`id_user`)
+    REFERENCES `account` (`id_user`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);

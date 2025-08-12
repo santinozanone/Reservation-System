@@ -157,7 +157,7 @@ public class GlobalHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setTitle("Bad Request");
-        problemDetail.setDetail("missing servlet request parameter");
+        problemDetail.setDetail("missing servlet request parameter "+ ex.getMessage() + " " +ex.getParameterName());
         return new ResponseEntity<Object>(problemDetail, HttpStatus.BAD_REQUEST);
     }
 

@@ -10,10 +10,7 @@ import com.sz.reservation.accountManagement.domain.port.outbound.AccountVerifica
 import com.sz.reservation.accountManagement.domain.service.HashingService;
 import com.sz.reservation.accountManagement.infrastructure.service.BCryptPasswordHashingService;
 import com.sz.reservation.globalConfiguration.RootConfig;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {RootConfig.class, AccountConfig.class})
-
 @ActiveProfiles({"test","default"})
 class AccountVerificationTokenMySqlTestIT {
 
@@ -54,7 +51,7 @@ class AccountVerificationTokenMySqlTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_ReturnToken_When_TokenExistsInDb(){
         //arrange
         AccountVerificationToken accountVerificationToken = new AccountVerificationToken(userId,verificationToken,expirationDate);
@@ -72,7 +69,7 @@ class AccountVerificationTokenMySqlTestIT {
     }
 
     @Test
-    @Transactional
+    @Transactional("account.transactionManager")
     public void Should_UpdateTokenCorrectly_WhenExistsInDb(){
         //arrange
         // old token

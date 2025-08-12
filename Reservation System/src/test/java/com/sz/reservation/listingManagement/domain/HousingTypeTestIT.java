@@ -2,6 +2,7 @@ package com.sz.reservation.listingManagement.domain;
 
 import com.sz.reservation.globalConfiguration.RootConfig;
 import com.sz.reservation.listingManagement.configuration.ListingConfig;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {RootConfig.class, ListingConfig.class})
 @ExtendWith(SpringExtension.class)
 @DisplayName("Housing Type Enum , Database SYNC test")
+
 class HousingTypeTestIT {
 
     @Autowired

@@ -1,5 +1,7 @@
 package com.sz.reservation.listingManagement.domain;
 
+import java.util.Objects;
+
 public class AddressInfo {
     private String id;
     private String country;
@@ -47,5 +49,28 @@ public class AddressInfo {
 
     public String getStreetAddress() {
         return streetAddress;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AddressInfo that = (AddressInfo) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getCountry(), that.getCountry()) &&
+                Objects.equals(getStreetAddress(), that.getStreetAddress()) && Objects.equals(getApartmentNumber(), that.getApartmentNumber())
+                && Objects.equals(getPostalCode(), that.getPostalCode()) && Objects.equals(getRegion(), that.getRegion()) &&
+                Objects.equals(getLocality(), that.getLocality());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(getId());
+        result = 31 * result + Objects.hashCode(getCountry());
+        result = 31 * result + Objects.hashCode(getStreetAddress());
+        result = 31 * result + Objects.hashCode(getApartmentNumber());
+        result = 31 * result + Objects.hashCode(getPostalCode());
+        result = 31 * result + Objects.hashCode(getRegion());
+        result = 31 * result + Objects.hashCode(getLocality());
+        return result;
     }
 }

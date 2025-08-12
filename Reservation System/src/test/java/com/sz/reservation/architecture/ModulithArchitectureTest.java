@@ -2,6 +2,7 @@ package com.sz.reservation.architecture;
 
 import com.sz.reservation.MyApplication;
 import com.tngtech.archunit.core.domain.JavaClass;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
