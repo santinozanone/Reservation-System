@@ -540,3 +540,154 @@ After i created the api key and authenticate my gmail mail direction then i coul
 * Given that this will be the backend for a specific front end and not a public api, CORS will have to be properly configured in order to only allow the frontend specific domain requests to the browser.
 
 
+### 09/04/2025
+#### **What was done today:** 
+* After being away almost a month i came back, so what i have been doing in the last few days is:
+   * Refactoring unit and integration tests for better readability
+   * Creating the property management package
+   * Decided to split the property management in its own resource, by having a new endpoint /api/v1/host/*
+   * I have spent the last 4 days trying to configure a double dispatcher servlet system, one for /api/v1/*
+   and one for /api/v1/host/*. The motivation behind this comes because i wanted the system to be as fast as possible, so this is what happened.
+   First i had an endpoint that would receive an object called "listing request dto", which would have all the fields needed, that would include 10 or more fields and a multipart list of max 50. But then i realized that wasnt the most optimal way of doing that.
+   Imagine hundreds of request at the same time sending 50 photos of 50MB each.
+   So, what i resolved was, have 2 endpoints, the first one would only receive the dto,
+   but without the multipart fields, and having another endpoint for receiving the pictures.
+   The problem was that the multipart class used in spring loads all the media into disk or memory, depending on the threshold configured. for me that wasnt viable, so after hours reading and researching online what i found the most useful way of doing what i wanted was by streaming the data using the Apache commons upload.
+   From my understand spring also uses apache commons upload, but i couldnt figure a way to
+   use the streaming function.
+   This is where the problem started, in order to have 2 multipart resolver, (i needed to have 2 because remember that i have the /registration endpoint which must have a profile picture), the only way i found is to have 2 dispatcher servlets, and at first it was complicated but after some frustating days i could make it work, each dispatcher servlet
+   has a root context, containing the datasource and other utilities beans, and each dispatcher has its own controllers and etc. 
+   The main problem i found when doing this is the root configuration in regard to the childs, because in my root configuration i had some annotations like @enablewebmvc , @enablewebsecurity , etc.
+   In my mind i though that because the child context would "inherit" the beans (it doesnt inherit them, if it doesnt find it in its own context, it will go through its parent), it wasnt necessary to re-declare them , but after a lot of time i found it was needed, so i did it.
+   
+   ### 10/04/2025
+#### **What was done today:** 
+* So today was the "implement spring security" day, i have been fighting with errors a long way , first the [CVE-2023-34035](https://spring.io/security/cve-2023-34035), and then the 404 ,401 and 403 errors. It was rather difficult i must say to configure the dispatcher servlets, given that they obviously dont have the "/" default path anymore.
+I also found that i had to use the setParent() method  `FirstContext.setParent(rootContext);`
+like so, but the documentation didnt specify that, i found it by reading stack overflow.
+And then i had to read the spring security doc again, in order to understand the filter chain, because i could not understand if each dispatcher needed its own filter chain.
+After learning how it works, i tried to implement it, first its mandatory to define the order in the chain, and then we must have a bean called, MvcRequestMatcher.Builder,
+in order to determine the servlet path of
+each filter chain, and after that we must use the SecurityMatchers that differentiate from the requestMatcher, because the former only applies the security rules if the path matches the one assigned.
+EVERY TIME A PATH IS REQUESTED, mvc.pattern() must be used, otherwise it will throw the [CVE-2023-34035](https://spring.io/security/cve-2023-34035) error.
+
+so..
+* First define the servlet path with mvc
+* then use the securityMatcher using mvc,
+but keep in mind that after setting the servlet path, the following patterns used will be taking in account the servletpath.
+Here is my filter chain:
+```
+ @Bean
+    @Order(1)
+    public SecurityFilterChain securityFilterChain2(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
+        mvc.servletPath("/api/v1/host"); // defining the servlet path in the mvc Request Matcher
+        http.securityMatcher(mvc.pattern("/**")) // we need to use the same mvc in the security matcher,so it uses the servlet path previously defined
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(mvc.pattern("/listing/**")).hasAuthority("ENABLED_USER")) //mvc pattern again so it uses the servlet path
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(handlingConfigurer ->
+                        handlingConfigurer.accessDeniedHandler(accessDeniedHandler))
+                .httpBasic(basicConfigurer ->
+                        basicConfigurer.authenticationEntryPoint(authEntryPoint))
+                .csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+```
+And finally everything worked.
+
+   
+   ### 06/05/2025
+#### **What was done today:** 
+* A lot of time has happened since the last time i wrote in this vlog, but i been implementing different things and didnt have enough time to continue the project or write in here, but this are the updates i have so far.
+
+* The project has a package by feature approach with the intention of using some ddd concepts and hex architecture. 
+Now that i have both dispatcher servlets i also implemented an exception handler in each feature package, so each functionality answer to its own exceptions, there is also a global handler that manages the most common exceptions.
+
+At the moment the project has 3 packages:
+   * accountManagement
+   * globalConfiguration
+   * listingManagement
+
+i have also implemented the functionality of listing a property,
+which had to be divided in 2 different endpoints, but why?
+well, the problem that spring has with multipart resolving is that
+the files are loaded into memory first, or into a temp disk space(depends on the config), and when handling small files is totally fine. But my system should be able to support 30 images of 15MB each
+and that approach wasnt viable, the heap would collapse easily,
+if it collapsed with some postman requests, when tested with jmeter a disaster was born.
+So after reading and research like always, found that apache commons upload in STREAMING mode could be used, it only required the spring multipart resolver to be disabled. that was easy, given that i had 2 different dispatchers.
+Regarding the endpoints, users can submit a listing without photos to /api/v1/host/listing , and images to
+/api/v1/host/listing/images-upload.
+I still have to implement a background job that searches listings without images and deletes them from db after some time.
+
+Obviously all of this was unit and integration tested.
+
+* Next i added flyway, because i wanted to handle db migrations in my code, i use it with the maven integration plugin and two separate configuration files. prod and test, when running the command and specifying the maven profile, it loads test o prod.
+
+* Modified all the code, including tests to work with environment variables, because with friend we payed for a aws flyway instance so it will be deployed there.
+
+* Then i had some problems with some enums of the listing property functionality, those enum represent things like, property type, reservation type, etc,
+so the main concern was wether,
+   * Hardcode them in db and in enum.
+   * Each time the program starts ,take the values from the enum and insert them into db.
+   * Not store the values in db as fk but as simple strings and make the code the source of truth.
+
+   * This was also a difficult decision in which i had to find the pros and cons of each approach but ended up using the first approach,
+   the values are hardcoded in a flyway migration file and in the enum code, but when the application launches their test, i made different unit testing
+   that verifies that the db and enum are sync, otherwise it fails. this give me the certainty that the values are correct and also doesnt keep not normalized values in the db, as each has their corresponding PK.
+
+
+* The problem of today:😮😮😥😥
+* Following the ddd approach, i had to go back to the projects root and analyze some things, the use cases,flows,etc, because
+the idea is to have separated bounded context, whats a bounded context?, well from my understanding is this.
+every system has one or more domain, everything is pretty vague in ddd but its the business or specific area that you are developing.
+Each domain has a specific set of rules and behaviour that defines them
+in my case my domain would be a reservation system, each domain can have different sub domains, reservation system could be divided in
+account Management Domain
+reservation domain
+payment domain,etc.
+the bounded context is where do we draw the limits of each domain, for example the "account" meaning could be different depending in the context,
+in the reservation domain, we use the account concept, but is defined as host and guest, so even though they are accounts their representation is different.
+At the end of the day, the main idea is trying to build a better system, cohesive and extensible, not a ONCE SIZE FITS ALL, because that could be done, i mean,
+none says that you cannot have an account class containing all of that data but it will become a mess quickly. for example
+
+account
+-
+-accountId  
+-username  
+-name  
+-surname  
+-password  
+-profilePicture  
+-enabled
+
+* There is our account domain, it could be used in each part of the different context but it would be a waste of data, because for reservation context the only thing needed is the id and the username , so here we can say that there are at least 2 bounded context
+account and reservation, each should use their own version of the account class, suited for their needs.
+
+
+Another problem
+---
+How do we access the account information or information that is managed by other context. if each  should be "independent" and not interfere with others.
+there are multiple ways, but first lets see what we are against.
+
+![alt text](image-10.png)
+
+thats the listing table.
+
+and here are the bounded contexts
+![alt text](image-12.png)
+
+Approaches
+So why "cant" we access the listing table direcly you may ask, in fact, you can, but its not the best thing to do in this ocassion,
+a listing object has a set of rules and boundarys to comply in order to be created, so in order to do so you would have to duplicate the code used in the listing bc for being able to construct it.
+That creates an innecesary duplication, and if tomorrow someone decides to modify the rules you will also have to.
+
+Other option is to have some way of communcation between contexts, and, there are a lot. thery are called patterns
+In this case i think the most optimal is the Supplier-Consumer
+given that we have the listing and account supplier, and the reservation is the consumer
+![alt text](image-13.png)
+
+
+Another approach is to have different databases for each context, truly independent contexts, but if each B.C has their own databases how are they gonna access listings or accounts?, thats where other concepts arises, DOMAIN EVENTS.
+A domain event is just an event that is fired when the domain has complete an operation you think its useful to notify the other contexts. In our case it could be, "Account created", so once an account is created it, the event is fired, an the listing context will be listening for it, once it arrives, then we can insert the data
+into our represenation of an account or do what we want to do
